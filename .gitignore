@@ -1,0 +1,44 @@
+# Local Homebase configuration and secrets
+.env
+.env.*
+!.env.example
+homebase.toml
+config/homebase.toml
+config/*.local.toml
+*.local.toml
+*.secret.toml
+secrets.json
+secrets.*.json
+credentials.json
+credentials.*.json
+
+# Local runtime data
+.homebase/
+*.db
+*.sqlite
+*.sqlite3
+
+# Private key and certificate material
+*.pem
+*.key
+*.p12
+*.pfx
+*.kdbx
+
+# Python build and test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+
+# Node/npm artifacts
+node_modules/
+*.tgz

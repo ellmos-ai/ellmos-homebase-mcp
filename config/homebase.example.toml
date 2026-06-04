@@ -1,0 +1,69 @@
+# ellmos-homebase-mcp — Konfiguration
+# Kopieren nach ~/.homebase/homebase.toml und anpassen.
+
+[server]
+name = "ellmos-homebase"
+# host/port nur relevant bei SSE-Transport, nicht bei stdio
+# host = "localhost"
+# port = 8090
+
+[modules]
+# Phase 1 Module (sofort verfügbar)
+enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test"]
+# Phase 2 Module (wenn Vorarbeit erledigt — automatisch übersprungen wenn Dependencies fehlen)
+# enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "auto", "conn", "plug"]
+
+# --- Memory (USMC) ---
+[mem]
+db_path = "~/.homebase/memory.db"
+
+# --- Routing (clutch) ---
+[route]
+providers = ["ollama"]                          # Verfügbar: ollama, anthropic, openai, google
+default_provider = "ollama"
+ollama_endpoint = "http://localhost:11434"
+# anthropic_api_key = "$ANTHROPIC_API_KEY"      # Env-Variable referenzieren
+# openai_api_key = "$OPENAI_API_KEY"
+
+# --- Knowledge (KnowledgeDigest) ---
+[kb]
+db_path = "~/.homebase/knowledge.db"
+
+# --- Swarm (swarm_ai) ---
+[swarm]
+backend = "ollama"                              # Welches LLM-Backend für Schwarm-Agenten
+endpoint = "http://localhost:11434"
+model = "qwen3.5:35b-a3b"
+max_workers = 3
+
+# --- State (Rinnsal) ---
+[state]
+db_path = "~/.homebase/rinnsal.db"
+
+# --- Garden (Gardener) ---
+[garden]
+db_path = "~/.homebase/garden.db"
+
+# --- API Exploration (ApiProber) ---
+[api]
+db_path = "~/.homebase/probes.db"
+timeout = 10                                    # HTTP-Timeout in Sekunden
+
+# --- Self-Testing (ellmos-tests) ---
+[test]
+test_root = "~/.homebase/tests/"
+
+# --- Phase 2: Automation (llmauto) ---
+# [auto]
+# chains_dir = "~/.homebase/chains/"
+# backend = "ollama"
+# endpoint = "http://localhost:11434"
+
+# --- Phase 2: Connectors (BACH) ---
+# [conn]
+# telegram_token = "$TELEGRAM_BOT_TOKEN"
+# discord_token = "$DISCORD_BOT_TOKEN"
+
+# --- Phase 2: Plugins (BACH) ---
+# [plug]
+# plugins_dir = "~/.homebase/plugins/"

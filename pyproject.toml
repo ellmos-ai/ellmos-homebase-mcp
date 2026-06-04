@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ellmos-homebase-mcp"
+version = "0.1.0"
+description = "MCP server that gives local LLMs a complete capability stack: memory, routing, knowledge, swarm coordination, state, API exploration, testing, and more."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Lukas Geiger" }]
+keywords = ["mcp", "llm", "ollama", "ai-tools", "ellmos"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "mcp>=1.0.0",
+]
+
+[project.optional-dependencies]
+routing = ["anthropic>=0.39.0", "google-genai>=1.0.0", "requests>=2.31.0"]
+swarm = ["anthropic>=0.39.0", "requests>=2.31.0"]
+all = [
+    "anthropic>=0.39.0",
+    "google-genai>=1.0.0",
+    "requests>=2.31.0",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[project.scripts]
+ellmos-homebase = "homebase.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/homebase"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

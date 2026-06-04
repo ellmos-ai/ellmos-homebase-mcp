@@ -1,0 +1,45 @@
+{
+  "name": "ellmos-homebase-mcp",
+  "version": "0.1.0-alpha.1",
+  "description": "Alpha MCP server for local LLM memory, knowledge, state, routing, testing, and orchestration.",
+  "type": "commonjs",
+  "license": "MIT",
+  "author": "Lukas Geiger",
+  "homepage": "https://github.com/ellmos-ai/ellmos-homebase-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellmos-ai/ellmos-homebase-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ellmos-ai/ellmos-homebase-mcp/issues"
+  },
+  "bin": {
+    "ellmos-homebase": "bin/ellmos-homebase.js"
+  },
+  "files": [
+    "bin/",
+    "config/",
+    "src/",
+    "README.md",
+    "KONZEPT.md",
+    "pyproject.toml"
+  ],
+  "keywords": [
+    "mcp",
+    "llm",
+    "memory",
+    "orchestration",
+    "ellmos"
+  ],
+  "scripts": {
+    "test": "python -m pytest -q",
+    "smoke": "node bin/ellmos-homebase.js --version"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  }
+}
