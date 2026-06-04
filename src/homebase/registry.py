@@ -10,6 +10,7 @@ import mcp.types as types
 from mcp.server import Server
 
 from homebase.config import HomebaseConfig
+from homebase.i18n import I18n
 from homebase.modules import ModuleBase
 
 logger = logging.getLogger("homebase.registry")
@@ -35,6 +36,7 @@ class ModuleRegistry:
         self._modules: dict[str, ModuleBase] = {}
         self._handlers = {}
         self._tool_count = 0
+        self.i18n = I18n(config.language)
         self.loaded_names: list[str] = []
         self.skipped_modules: list[tuple[str, str]] = []
 
@@ -108,7 +110,7 @@ class ModuleRegistry:
                 tools.append(
                     types.Tool(
                         name=tool_def.name,
-                        description=tool_def.description,
+                        description=self.i18n.t(f"tool.{tool_def.name}", tool_def.description),
                         inputSchema=tool_def.input_schema,
                     )
                 )

@@ -1,6 +1,7 @@
 import pytest
 
 from homebase.config import HomebaseConfig
+from homebase.i18n import I18n, normalize_locale
 from homebase.registry import ModuleRegistry
 
 
@@ -101,6 +102,33 @@ def test_registry_skips_unknown_module():
 
     assert loaded == []
     assert skipped == [("unknown", "unknown module")]
+
+
+def test_tool_descriptions_are_localized(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+    registry.config.language = "de"
+    registry.i18n = I18n("de")
+
+    tools = {tool.name: tool for tool in registry.list_tools()}
+
+    assert tools["hb_mem_store"].description.startswith("Speichert einen Fakt")
+
+
+def test_tool_descriptions_fallback_to_default_for_partial_locale(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+    registry.config.language = "es"
+    registry.i18n = I18n("es")
+
+    tools = {tool.name: tool for tool in registry.list_tools()}
+
+    assert tools["hb_mem_store"].description.startswith("Guarda")
+    assert tools["hb_mem_merge"].description.startswith("Preview")
+
+
+def test_locale_normalization():
+    assert normalize_locale("de-DE") == "de"
+    assert normalize_locale("zh_Hans") == "zh"
+    assert normalize_locale("unknown") == "en"
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,6 @@
 {
   "name": "ellmos-homebase-mcp",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Alpha MCP server for local LLM memory, knowledge, state, routing, testing, and orchestration.",
   "type": "commonjs",
   "license": "MIT",
@@ -21,6 +21,7 @@
     "config/",
     "src/",
     "README.md",
+    "README_de.md",
     "KONZEPT.md",
     "pyproject.toml"
   ],
@@ -28,6 +29,7 @@
     "mcp",
     "llm",
     "memory",
+    "i18n",
     "orchestration",
     "ellmos"
   ],

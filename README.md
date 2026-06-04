@@ -1,16 +1,28 @@
 # ellmos-homebase-mcp
 
-Alpha-MCP-Server für lokale LLM-Orchestrierung: Memory, Knowledge, Routing, Schwarmmuster, API-Probing, persistenter Zustand, Tests und spätere Automatisierung unter einem Server.
+Alpha MCP server for local LLM orchestration: memory, knowledge, routing, swarm patterns, API probing, persistent state, tests, and later automation in one stdio server.
+
+German README: [README_de.md](README_de.md)
 
 ## Status
 
-- Transport: stdio über das Python-MCP-SDK
-- Paketstatus: Alpha-Paket, GitHub-Repo unter `ellmos-ai` vorgesehen
-- Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks
-- Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Noch Roadmap: echte Anbindung der Quellmodule aus `.MODULES`, BACH und Rinnsal
+- Transport: stdio via the Python MCP SDK
+- Package status: public alpha package under `ellmos-ai`
+- Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks
+- Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
+- i18n: localized MCP tool descriptions for `en`, `de`, `es`, `zh`, `ja`, `ru` with English fallback
+- Roadmap: real adapters for the remaining routing, swarm, API, testing, automation, connector, and plugin modules
 
-## Installation für lokale Tests
+## Install
+
+The npm package contains a Node wrapper that starts the Python server. You still need Python 3.10+ and the Python package `mcp>=1.0.0`.
+
+```powershell
+npm install -g ellmos-homebase-mcp@alpha
+ellmos-homebase
+```
+
+For local development:
 
 ```powershell
 cd "C:\Users\User\OneDrive\.TOPICS\.AI\.MCP\ellmos-homebase-mcp"
@@ -19,68 +31,58 @@ python -m pip install -e ".[dev]"
 python -m pytest -q
 ```
 
-Keine `.venv` im OneDrive-Ordner anlegen. Falls eine isolierte Umgebung gebraucht wird, außerhalb von OneDrive erstellen.
+Do not create a `.venv` inside a OneDrive-synced folder. If you need an isolated environment, create it outside OneDrive.
 
-## npm Alpha
-
-Das npm-Paket enthält einen Node-Wrapper, der den Python-Server startet. Voraussetzung bleibt Python 3.10+ mit installiertem Python-Paket `mcp>=1.0.0`.
-
-```powershell
-npm install -g ellmos-homebase-mcp@alpha
-ellmos-homebase
-```
-
-## Start
-
-```powershell
-ellmos-homebase
-```
-
-Oder direkt aus dem Quellbaum:
+## Start From Source
 
 ```powershell
 $env:PYTHONPATH = "src"
 python -m homebase.server
 ```
 
-## Konfiguration
+## Configuration
 
-Beispiel: [config/homebase.example.toml](config/homebase.example.toml)
+Example: [config/homebase.example.toml](config/homebase.example.toml)
 
-Standardpfade:
+Default paths:
 
 - `%USERPROFILE%\.homebase\homebase.toml`
 - `%USERPROFILE%\.config\homebase\homebase.toml`
-- Override per `HOMEBASE_CONFIG`
+- override with `HOMEBASE_CONFIG`
 
-Wenn keine Config existiert, startet der Server mit den Phase-1-Modulen:
+Language can be configured with `[server].language`, `HOMEBASE_LANG`, or `HOMEBASE_LOCALE`.
 
 ```toml
+[server]
+name = "ellmos-homebase"
+language = "en" # en, de, es, zh, ja, ru
+
 [modules]
 enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test"]
 ```
 
-Module mit fehlenden optionalen Dependencies werden beim Laden übersprungen, ohne den Serverstart zu blockieren.
+Modules with missing optional dependencies are skipped without blocking server startup.
 
 ## Tools
 
-Die aktuelle Alpha registriert die Tool-Definitionen aus den Modul-Wrappern. Die lokalen Speicher-Module arbeiten bereits mit SQLite. Provider-, API- und Orchestrierungs-Module liefern teilweise noch bewusst `[DRAFT]`-Antworten, damit MCP-Clients die Oberfläche testen können, ohne externe LLM-Provider vorauszusetzen.
+Important tool groups:
 
-Wichtige Tool-Gruppen:
+- `hb_mem_*` for SQLite-backed memory
+- `hb_kb_*` for SQLite-backed knowledge entries
+- `hb_state_*` for persistent SQLite state and tasks
+- `hb_garden_*` for a small SQLite garden store
+- `hb_api_*` for API exploration
+- `hb_test_*` for self-tests
+- `hb_route_*` and `hb_swarm_*` when `requests` is available
 
-- `hb_mem_*` für SQLite-Memory
-- `hb_kb_*` für SQLite-Knowledge
-- `hb_state_*` für persistenten SQLite-Zustand und Tasks
-- `hb_garden_*` für den kleinen SQLite-Garden-Store
-- `hb_api_*` für API-Exploration
-- `hb_test_*` für Selbsttests
-- `hb_route_*` und `hb_swarm_*`, wenn `requests` verfügbar ist
-
-## Entwicklung
+## Development
 
 ```powershell
 $env:PYTHONIOENCODING = "utf-8"
+$env:PYTHONDONTWRITEBYTECODE = "1"
 python -m pytest -q
+npm run smoke
+npm pack --dry-run
 ```
 
-Der nächste sinnvolle Schritt ist, die verbleibenden `[DRAFT]`-Handler für Routing, Schwarm, API-Probing und Tests modulweise durch echte Adapter zu ersetzen und pro Adapter einen lokalen, credential-freien Test zu ergänzen.
+Next useful step: replace the remaining draft handlers for routing, swarm, API probing, and test orchestration with real credential-free adapters and tests.

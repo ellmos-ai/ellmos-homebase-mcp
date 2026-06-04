@@ -5,6 +5,7 @@ def test_load_config_defaults_when_missing():
     config = load_config("missing-homebase.toml")
 
     assert config.enabled_modules == DEFAULT_ENABLED_MODULES
+    assert config.language == "en"
     assert config.module_configs == {}
 
 
@@ -14,6 +15,7 @@ def test_modules_section_without_enabled_uses_defaults(tmp_path):
         """
 [server]
 name = "ellmos-homebase"
+language = "de"
 
 [modules]
 
@@ -26,6 +28,7 @@ db_path = "memory.db"
     config = load_config(config_path)
 
     assert config.enabled_modules == DEFAULT_ENABLED_MODULES
+    assert config.language == "de"
     assert config.module_config("mem") == {"db_path": "memory.db"}
 
 
@@ -36,3 +39,13 @@ def test_single_enabled_module_string_is_normalized(tmp_path):
     config = load_config(config_path)
 
     assert config.enabled_modules == ["mem"]
+
+
+def test_env_language_overrides_config(tmp_path, monkeypatch):
+    config_path = tmp_path / "homebase.toml"
+    config_path.write_text('[server]\nlanguage = "de"\n', encoding="utf-8")
+    monkeypatch.setenv("HOMEBASE_LANG", "ja-JP")
+
+    config = load_config(config_path)
+
+    assert config.language == "ja-JP"

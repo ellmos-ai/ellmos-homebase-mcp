@@ -26,6 +26,7 @@ DEFAULT_ENABLED_MODULES = [
 @dataclass
 class HomebaseConfig:
     enabled_modules: list[str] = field(default_factory=lambda: list(DEFAULT_ENABLED_MODULES))
+    language: str = "en"
     module_configs: dict[str, dict[str, Any]] = field(default_factory=dict)
     raw: dict[str, Any] = field(default_factory=dict)
 
@@ -46,15 +47,17 @@ def load_config(path: str | Path | None = None) -> HomebaseConfig:
                     break
 
     if path is None or not Path(path).exists():
-        return HomebaseConfig()
+        return HomebaseConfig(language=_env_language("en"))
 
     with open(path, "rb") as f:
         raw = tomllib.load(f)
 
     modules_section = raw.get("modules", {})
+    server_section = raw.get("server", {})
     enabled = modules_section.get("enabled", list(DEFAULT_ENABLED_MODULES))
     if isinstance(enabled, str):
         enabled = [enabled]
+    language = _env_language(server_section.get("language") or server_section.get("locale") or "en")
 
     module_configs = {}
     for key, value in raw.items():
@@ -63,6 +66,11 @@ def load_config(path: str | Path | None = None) -> HomebaseConfig:
 
     return HomebaseConfig(
         enabled_modules=enabled,
+        language=language,
         module_configs=module_configs,
         raw=raw,
     )
+
+
+def _env_language(default: str) -> str:
+    return os.environ.get("HOMEBASE_LANG") or os.environ.get("HOMEBASE_LOCALE") or default
