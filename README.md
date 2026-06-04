@@ -1,5 +1,9 @@
 # ellmos-homebase-mcp
 
+<p align="center">
+  <img src="assets/homebase-logo.jpg" alt="ellmos Homebase MCP logo" width="360">
+</p>
+
 Alpha MCP server for local LLM orchestration: memory, knowledge, routing, swarm patterns, API probing, persistent state, tests, and later automation in one stdio server.
 
 German README: [README_de.md](README_de.md)
