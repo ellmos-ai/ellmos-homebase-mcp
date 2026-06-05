@@ -19,7 +19,7 @@ DEFAULT_CONFIG_PATHS = [
 ]
 
 DEFAULT_ENABLED_MODULES = [
-    "mem", "route", "kb", "swarm", "state", "garden", "api", "test",
+    "mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn",
 ]
 
 

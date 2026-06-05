@@ -10,10 +10,10 @@ language = "en"
 # port = 8090
 
 [modules]
-# Phase 1 modules
-enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test"]
-# Phase 2 modules are skipped automatically when dependencies are missing.
-# enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "auto", "conn", "plug"]
+# Credential-free alpha modules
+enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn"]
+# Remaining Phase 2 modules are skipped automatically when dependencies are missing.
+# enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug"]
 
 # --- Memory ---
 [mem]
@@ -61,8 +61,12 @@ test_root = "~/.homebase/tests/"
 # backend = "ollama"
 # endpoint = "http://localhost:11434"
 
-# --- Phase 2: Connectors ---
-# [conn]
+# --- Connectors ---
+[conn]
+db_path = "~/.homebase/connectors.db"
+connectors = ["local"]
+# Additional connector names are local queue profiles until real backends are explicitly configured.
+# connectors = ["local", "telegram", "discord"]
 # telegram_token = "$TELEGRAM_BOT_TOKEN"
 # discord_token = "$DISCORD_BOT_TOKEN"
 

@@ -17,6 +17,7 @@ credentials.*.json
 *.db
 *.sqlite
 *.sqlite3
+*-protocoll.txt
 
 # Private key and certificate material
 *.pem

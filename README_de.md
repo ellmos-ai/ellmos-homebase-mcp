@@ -23,11 +23,11 @@ Englische Standard-README: [README.md](README.md)
 
 - Transport: stdio über das Python-MCP-SDK
 - Paketstatus: öffentliches Alpha-Paket unter `ellmos-ai`
-- Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs- und Probing-Adapter
+- Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs-, Probing- und Queue-Adapter
 - Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`
+- Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`
 - i18n: lokalisierte MCP-Tool-Beschreibungen, Input-Schema-Feldbeschreibungen und Unknown-Tool-Fehler für `en`, `de`, `es`, `zh`, `ja`, `ru` mit Englisch-Fallback
-- Roadmap: Backend-Ausführungsadapter für Automatisierung, Connectors, Plugins und optionale echte LLM/API-Integrationen
+- Roadmap: Backend-Ausführungsadapter für Automatisierung, Plugins und optionale echte LLM/API-Integrationen
 
 ## Installation
 
@@ -109,7 +109,7 @@ name = "ellmos-homebase"
 language = "de" # en, de, es, zh, ja, ru
 
 [modules]
-enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test"]
+enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn"]
 ```
 
 Module mit fehlenden optionalen Dependencies werden beim Laden übersprungen, ohne den Serverstart zu blockieren.
@@ -126,6 +126,7 @@ Wichtige Tool-Gruppen:
 - `hb_swarm_*` für credential-freie Schwarm-Planungsmuster
 - `hb_api_*` für passive HTTP-API-Discovery mit SQLite-Historie
 - `hb_test_*` für eingebaute Metadata- und Smoke-Selbsttests
+- `hb_conn_*` für eine lokale Connector-Registry plus SQLite-gestützte Inbox-/Outbox-Queues ohne Netzwerksends
 
 ## Entwicklung
 
@@ -137,4 +138,4 @@ npm run smoke
 npm pack --dry-run
 ```
 
-Der nächste sinnvolle Schritt ist, die verbleibenden Automatisierungs-, Connector- und Plugin-Module an credential-freie lokale Adapter anzubinden und optionale Ausführungsbackends nur explizit konfiguriert zu aktivieren.
+Der nächste sinnvolle Schritt ist, die verbleibenden Automatisierungs- und Plugin-Module an credential-freie lokale Adapter anzubinden und optionale Ausführungsbackends nur explizit konfiguriert zu aktivieren.

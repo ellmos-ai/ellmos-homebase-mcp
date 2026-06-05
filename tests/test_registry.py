@@ -15,6 +15,7 @@ def _registry(tmp_path, modules):
         "garden": {"db_path": str(tmp_path / "garden.db")},
         "state": {"db_path": str(tmp_path / "state.db")},
         "api": {"db_path": str(tmp_path / "probes.db"), "timeout": 2},
+        "conn": {"db_path": str(tmp_path / "connectors.db"), "connectors": ["local", "telegram"]},
     }
     registry = ModuleRegistry(HomebaseConfig(enabled_modules=modules, module_configs=module_configs))
     registry.discover_and_load()
@@ -186,6 +187,30 @@ async def test_testing_module_runs_builtin_battery(tmp_path):
     assert run["status"] == "ok"
     assert run["failed"] == 0
     assert summary["passed"] == run["passed"]
+
+
+@pytest.mark.asyncio
+async def test_connectors_registry_queues_local_messages(tmp_path):
+    registry = _registry(tmp_path, ["conn"])
+
+    listed = await registry.call_tool("hb_conn_list", {})
+    queued = await registry.call_tool(
+        "hb_conn_send",
+        {"connector": "local", "target": "ops", "message": "Check Homebase connectors"},
+    )
+    status = await registry.call_tool("hb_conn_status", {"connector": "local"})
+    received = await registry.call_tool("hb_conn_receive", {"connector": "local"})
+    missing = await registry.call_tool("hb_conn_send", {"connector": "email", "message": "test"})
+
+    assert listed["count"] == 2
+    assert queued["status"] == "queued"
+    assert queued["sent"] is False
+    assert queued["delivery"] == "local_outbox_only"
+    assert status["connector"]["outbox_pending"] == 1
+    assert received["status"] == "ok"
+    assert received["messages"] == []
+    assert missing["status"] == "unknown_connector"
+    assert missing["available"] == ["local", "telegram"]
 
 
 def test_registry_skips_unknown_module():
