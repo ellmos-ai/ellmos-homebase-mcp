@@ -8,6 +8,17 @@ Alpha MCP server for local LLM orchestration: memory, knowledge, routing, swarm 
 
 German README: [README_de.md](README_de.md)
 
+*Part of the [ellmos-ai](https://github.com/ellmos-ai) family.*
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![npm version](https://img.shields.io/npm/v/ellmos-homebase-mcp.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue.svg)](https://www.python.org/)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
+[![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet.svg)](https://modelcontextprotocol.io/)
+[![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+
+**Discoverability:** Published on [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) as `ellmos-homebase-mcp` and maintained in the [`ellmos-ai`](https://github.com/ellmos-ai) organization.
+
 ## Status
 
 - Transport: stdio via the Python MCP SDK
@@ -22,21 +33,24 @@ German README: [README_de.md](README_de.md)
 
 The npm package contains a Node wrapper that starts the Python server. You still need Python 3.10+ and the Python package `mcp>=1.0.0`.
 
+### Option 1: Install From npm
+
 ```powershell
 npm install -g ellmos-homebase-mcp@alpha
 ellmos-homebase
 ```
 
-For local development:
+### Option 2: Install From Source
 
 ```powershell
-cd "C:\Users\User\OneDrive\.TOPICS\.AI\.MCP\ellmos-homebase-mcp"
+git clone https://github.com/ellmos-ai/ellmos-homebase-mcp.git
+cd ellmos-homebase-mcp
 $env:PYTHONIOENCODING = "utf-8"
 python -m pip install -e ".[dev]"
 python -m pytest -q
 ```
 
-Do not create a `.venv` inside a OneDrive-synced folder. If you need an isolated environment, create it outside OneDrive.
+Avoid creating a `.venv` inside cloud-synced folders if your sync client locks files. If you need an isolated environment, create it outside that folder.
 
 ## Start From Source
 
@@ -45,7 +59,39 @@ $env:PYTHONPATH = "src"
 python -m homebase.server
 ```
 
-## Configuration
+## MCP Client Configuration
+
+### Global npm Install
+
+```json
+{
+  "mcpServers": {
+    "homebase": {
+      "command": "ellmos-homebase"
+    }
+  }
+}
+```
+
+### Source Checkout
+
+```json
+{
+  "mcpServers": {
+    "homebase": {
+      "command": "python",
+      "args": ["-m", "homebase.server"],
+      "env": {
+        "PYTHONPATH": "/absolute/path/to/ellmos-homebase-mcp/src"
+      }
+    }
+  }
+}
+```
+
+Replace `/absolute/path/to/ellmos-homebase-mcp` with your local checkout path.
+
+## Server Configuration
 
 Example: [config/homebase.example.toml](config/homebase.example.toml)
 
