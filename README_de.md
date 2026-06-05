@@ -14,7 +14,7 @@ Englische Standard-README: [README.md](README.md)
 - Paketstatus: öffentliches Alpha-Paket unter `ellmos-ai`
 - Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks
 - Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- i18n: lokalisierte MCP-Tool-Beschreibungen für `en`, `de`, `es`, `zh`, `ja`, `ru` mit Englisch-Fallback
+- i18n: lokalisierte MCP-Tool-Beschreibungen, Input-Schema-Feldbeschreibungen und Unknown-Tool-Fehler für `en`, `de`, `es`, `zh`, `ja`, `ru` mit Englisch-Fallback
 - Roadmap: echte Adapter für Routing, Schwarm, API-Probing, Tests, Automatisierung, Connectors und Plugins
 
 ## Installation

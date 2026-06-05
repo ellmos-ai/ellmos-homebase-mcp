@@ -14,7 +14,7 @@ German README: [README_de.md](README_de.md)
 - Package status: public alpha package under `ellmos-ai`
 - Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks
 - Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- i18n: localized MCP tool descriptions for `en`, `de`, `es`, `zh`, `ja`, `ru` with English fallback
+- i18n: localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` with English fallback
 - Roadmap: real adapters for the remaining routing, swarm, API, testing, automation, connector, and plugin modules
 
 ## Install

@@ -114,6 +114,27 @@ def test_tool_descriptions_are_localized(tmp_path):
     assert tools["hb_mem_store"].description.startswith("Speichert einen Fakt")
 
 
+def test_tool_input_schema_descriptions_are_localized(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+    registry.config.language = "de"
+    registry.i18n = I18n("de")
+
+    tools = {tool.name: tool for tool in registry.list_tools()}
+    properties = tools["hb_mem_store"].inputSchema["properties"]
+
+    assert properties["content"]["description"] == "Inhaltstext."
+    assert properties["confidence"]["description"] == "Konfidenzwert von 0 bis 1."
+
+
+def test_tool_input_schema_descriptions_gain_english_defaults(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+
+    tools = {tool.name: tool for tool in registry.list_tools()}
+    properties = tools["hb_mem_query"].inputSchema["properties"]
+
+    assert properties["limit"]["description"] == "Maximum number of results to return."
+
+
 def test_tool_descriptions_fallback_to_default_for_partial_locale(tmp_path):
     registry = _registry(tmp_path, ["mem"])
     registry.config.language = "es"
@@ -136,4 +157,13 @@ async def test_registry_rejects_unknown_tool(tmp_path):
     registry = _registry(tmp_path, ["mem"])
 
     with pytest.raises(ValueError, match="Unknown Homebase tool"):
+        await registry.call_tool("hb_missing", {})
+
+
+@pytest.mark.asyncio
+async def test_registry_rejects_unknown_tool_with_localized_error(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+    registry.i18n = I18n("de")
+
+    with pytest.raises(ValueError, match="Unbekanntes Homebase-Tool"):
         await registry.call_tool("hb_missing", {})

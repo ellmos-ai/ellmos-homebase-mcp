@@ -111,7 +111,7 @@ class ModuleRegistry:
                     types.Tool(
                         name=tool_def.name,
                         description=self.i18n.t(f"tool.{tool_def.name}", tool_def.description),
-                        inputSchema=tool_def.input_schema,
+                        inputSchema=self.i18n.localize_schema(tool_def.input_schema),
                     )
                 )
             logger.info("Prepared %d tools from module '%s'", len(module_tools), name)
@@ -126,7 +126,8 @@ class ModuleRegistry:
 
         handler = self._handlers.get(name)
         if handler is None:
-            raise ValueError(f"Unknown Homebase tool: {name}")
+            message = self.i18n.t("error.unknown_tool", "Unknown Homebase tool: {name}").format(name=name)
+            raise ValueError(message)
 
         result = await handler(**(arguments or {}))
         if isinstance(result, dict):
