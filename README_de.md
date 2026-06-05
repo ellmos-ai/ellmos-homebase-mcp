@@ -12,10 +12,11 @@ Englische Standard-README: [README.md](README.md)
 
 - Transport: stdio über das Python-MCP-SDK
 - Paketstatus: öffentliches Alpha-Paket unter `ellmos-ai`
-- Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks
+- Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs- und Probing-Adapter
 - Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
+- Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`
 - i18n: lokalisierte MCP-Tool-Beschreibungen, Input-Schema-Feldbeschreibungen und Unknown-Tool-Fehler für `en`, `de`, `es`, `zh`, `ja`, `ru` mit Englisch-Fallback
-- Roadmap: echte Adapter für Routing, Schwarm, API-Probing, Tests, Automatisierung, Connectors und Plugins
+- Roadmap: Backend-Ausführungsadapter für Automatisierung, Connectors, Plugins und optionale echte LLM/API-Integrationen
 
 ## Installation
 
@@ -75,9 +76,10 @@ Wichtige Tool-Gruppen:
 - `hb_kb_*` für SQLite-Knowledge
 - `hb_state_*` für persistenten SQLite-Zustand und Tasks
 - `hb_garden_*` für den kleinen SQLite-Garden-Store
-- `hb_api_*` für API-Exploration
-- `hb_test_*` für Selbsttests
-- `hb_route_*` und `hb_swarm_*`, wenn `requests` verfügbar ist
+- `hb_route_*` für credential-freie Modell-Routing-Empfehlungen und Feedback-Statistiken
+- `hb_swarm_*` für credential-freie Schwarm-Planungsmuster
+- `hb_api_*` für passive HTTP-API-Discovery mit SQLite-Historie
+- `hb_test_*` für eingebaute Metadata- und Smoke-Selbsttests
 
 ## Entwicklung
 
@@ -89,4 +91,4 @@ npm run smoke
 npm pack --dry-run
 ```
 
-Der nächste sinnvolle Schritt ist, die verbleibenden Draft-Handler für Routing, Schwarm, API-Probing und Test-Orchestrierung durch echte credential-freie Adapter mit Tests zu ersetzen.
+Der nächste sinnvolle Schritt ist, die verbleibenden Automatisierungs-, Connector- und Plugin-Module an credential-freie lokale Adapter anzubinden und optionale Ausführungsbackends nur explizit konfiguriert zu aktivieren.

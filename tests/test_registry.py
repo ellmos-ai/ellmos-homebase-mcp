@@ -1,3 +1,6 @@
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from threading import Thread
+
 import pytest
 
 from homebase.config import HomebaseConfig
@@ -11,6 +14,7 @@ def _registry(tmp_path, modules):
         "kb": {"db_path": str(tmp_path / "knowledge.db")},
         "garden": {"db_path": str(tmp_path / "garden.db")},
         "state": {"db_path": str(tmp_path / "state.db")},
+        "api": {"db_path": str(tmp_path / "probes.db"), "timeout": 2},
     }
     registry = ModuleRegistry(HomebaseConfig(enabled_modules=modules, module_configs=module_configs))
     registry.discover_and_load()
@@ -95,6 +99,95 @@ async def test_state_memory_and_tasks(tmp_path):
     assert tasks["tasks"][0]["title"] == "Tests ergänzen"
 
 
+@pytest.mark.asyncio
+async def test_routing_select_evaluate_and_stats(tmp_path):
+    registry = _registry(tmp_path, ["route"])
+
+    selected = await registry.call_tool(
+        "hb_route_select",
+        {"prompt": "Fix this Python bug and add tests", "constraints": {"speed": "fast"}},
+    )
+    evaluated = await registry.call_tool("hb_route_evaluate", {"route_id": selected["route_id"], "quality": 0.8})
+    stats = await registry.call_tool("hb_route_stats", {})
+
+    assert selected["status"] == "ok"
+    assert selected["strategy"] == "fast"
+    assert selected["signals"]["has_code"] is True
+    assert evaluated["status"] == "recorded"
+    assert stats["routes"] == 1
+    assert stats["average_quality"] == 0.8
+
+
+@pytest.mark.asyncio
+async def test_swarm_parallel_and_consensus_plans(tmp_path):
+    registry = _registry(tmp_path, ["swarm"])
+
+    parallel = await registry.call_tool(
+        "hb_swarm_parallel",
+        {"task": "Audit files", "chunks": ["README", "tests", "src"], "workers": 2},
+    )
+    consensus = await registry.call_tool("hb_swarm_consensus", {"question": "Ship?", "voters": 3})
+
+    assert parallel["status"] == "planned"
+    assert parallel["assignments"][2]["worker"] == "worker-1"
+    assert consensus["quorum"] == 2
+
+
+@pytest.mark.asyncio
+async def test_api_probe_history_and_export(tmp_path):
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path == "/openapi.json":
+                self.send_response(200)
+                self.send_header("content-type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"openapi":"3.1.0","paths":{"/health":{}}}')
+                return
+            if self.path == "/health":
+                self.send_response(204)
+                self.end_headers()
+                return
+            self.send_response(404)
+            self.end_headers()
+
+        def log_message(self, format, *args):
+            return
+
+    httpd = HTTPServer(("127.0.0.1", 0), Handler)
+    thread = Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        registry = _registry(tmp_path, ["api"])
+        base_url = f"http://127.0.0.1:{httpd.server_port}/"
+
+        probe = await registry.call_tool("hb_api_probe", {"url": base_url, "strategies": ["openapi", "wordlist"]})
+        history = await registry.call_tool("hb_api_history", {})
+        exported = await registry.call_tool("hb_api_export", {"probe_id": probe["probe_id"], "format": "markdown"})
+
+        assert probe["status"] == "ok"
+        assert any(item["is_openapi"] for item in probe["openapi"])
+        assert any(item["status_code"] == 204 for item in probe["wordlist"])
+        assert history["count"] == 1
+        assert "# API Probe" in exported["content"]
+    finally:
+        httpd.shutdown()
+        thread.join(timeout=2)
+
+
+@pytest.mark.asyncio
+async def test_testing_module_runs_builtin_battery(tmp_path):
+    registry = _registry(tmp_path, ["test"])
+
+    listed = await registry.call_tool("hb_test_list", {})
+    run = await registry.call_tool("hb_test_run", {"battery": "smoke"})
+    summary = await registry.call_tool("hb_test_results", {})
+
+    assert listed["count"] >= 2
+    assert run["status"] == "ok"
+    assert run["failed"] == 0
+    assert summary["passed"] == run["passed"]
+
+
 def test_registry_skips_unknown_module():
     registry = ModuleRegistry(HomebaseConfig(enabled_modules=["unknown"]))
 
@@ -124,6 +217,21 @@ def test_tool_input_schema_descriptions_are_localized(tmp_path):
 
     assert properties["content"]["description"] == "Inhaltstext."
     assert properties["confidence"]["description"] == "Konfidenzwert von 0 bis 1."
+
+
+def test_routing_and_swarm_schema_descriptions_are_localized(tmp_path):
+    registry = _registry(tmp_path, ["route", "swarm"])
+    registry.config.language = "de"
+    registry.i18n = I18n("de")
+
+    tools = {tool.name: tool for tool in registry.list_tools()}
+    route_properties = tools["hb_route_select"].inputSchema["properties"]
+    swarm_properties = tools["hb_swarm_parallel"].inputSchema["properties"]
+
+    assert route_properties["prompt"]["description"] == "Prompt-Text, der analysiert oder geroutet werden soll."
+    assert route_properties["constraints"]["description"].startswith("Optionale Routing-Vorgaben")
+    assert swarm_properties["chunks"]["description"] == "Task-Abschnitte, die auf Worker verteilt werden."
+    assert swarm_properties["workers"]["description"] == "Anzahl paralleler Worker, die geplant werden sollen."
 
 
 def test_tool_input_schema_descriptions_gain_english_defaults(tmp_path):

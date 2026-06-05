@@ -12,10 +12,11 @@ German README: [README_de.md](README_de.md)
 
 - Transport: stdio via the Python MCP SDK
 - Package status: public alpha package under `ellmos-ai`
-- Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks
+- Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks, local planning/probing adapters
 - Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
+- Credential-free alpha adapters: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`
 - i18n: localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` with English fallback
-- Roadmap: real adapters for the remaining routing, swarm, API, testing, automation, connector, and plugin modules
+- Roadmap: backend execution adapters for automation, connectors, plugins, and optional real LLM/API integrations
 
 ## Install
 
@@ -75,9 +76,10 @@ Important tool groups:
 - `hb_kb_*` for SQLite-backed knowledge entries
 - `hb_state_*` for persistent SQLite state and tasks
 - `hb_garden_*` for a small SQLite garden store
-- `hb_api_*` for API exploration
-- `hb_test_*` for self-tests
-- `hb_route_*` and `hb_swarm_*` when `requests` is available
+- `hb_route_*` for credential-free model-routing recommendations and feedback stats
+- `hb_swarm_*` for credential-free swarm planning patterns
+- `hb_api_*` for passive HTTP API discovery with SQLite history
+- `hb_test_*` for built-in metadata and smoke self-tests
 
 ## Development
 
@@ -89,4 +91,4 @@ npm run smoke
 npm pack --dry-run
 ```
 
-Next useful step: replace the remaining draft handlers for routing, swarm, API probing, and test orchestration with real credential-free adapters and tests.
+Next useful step: wire the remaining automation, connector, and plugin modules to credential-free local adapters, then add optional execution backends behind explicit configuration.

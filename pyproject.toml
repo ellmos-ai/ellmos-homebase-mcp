@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ellmos-homebase-mcp"
-version = "0.1.0a4"
+version = "0.1.0a5"
 description = "MCP server that gives local LLMs a complete capability stack: memory, routing, knowledge, swarm coordination, state, API exploration, testing, and more."
 readme = "README.md"
 license = "MIT"

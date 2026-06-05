@@ -1,25 +1,20 @@
-"""hb_swarm_ — Swarm coordination (wraps swarm_ai).
-
-Gives local LLMs coordination patterns: parallel, consensus, hierarchy, stigmergy.
-Requires: requests (backend must be configurable — not just anthropic).
-"""
+"""hb_swarm_ - Credential-free swarm coordination plans."""
 
 from __future__ import annotations
+
 from typing import Any
+
 from homebase.modules import ModuleBase, ToolDefinition
 
 
 class SwarmModule(ModuleBase):
-
-    @property
-    def required_packages(self) -> list[str]:
-        return ["requests"]
+    """Plan swarm patterns without launching model calls."""
 
     def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.backend = config.get("backend", "ollama")
         self.endpoint = config.get("endpoint", "http://localhost:11434")
-        self.model = config.get("model", "qwen3.5:35b-a3b")
+        self.model = config.get("model", "qwen2.5:7b")
 
     def get_tools(self) -> list[ToolDefinition]:
         return [
@@ -78,17 +73,68 @@ class SwarmModule(ModuleBase):
             ),
         ]
 
-    async def _parallel(self, **kwargs) -> str:
-        return f"[DRAFT] Would parallel-process {len(kwargs.get('chunks', []))} chunks via {self.backend}"
+    async def _parallel(self, **kwargs) -> dict[str, Any]:
+        chunks = [str(chunk) for chunk in kwargs.get("chunks", [])]
+        workers = max(1, int(kwargs.get("workers", 3)))
+        assignments = [
+            {"worker": f"worker-{index % workers + 1}", "chunk_index": index, "chunk": chunk}
+            for index, chunk in enumerate(chunks)
+        ]
+        return {
+            "status": "planned",
+            "pattern": "parallel",
+            "backend": self.backend,
+            "model": self.model,
+            "task": kwargs.get("task"),
+            "workers": workers,
+            "chunk_count": len(chunks),
+            "assignments": assignments,
+        }
 
-    async def _consensus(self, **kwargs) -> str:
-        return f"[DRAFT] Would run {kwargs.get('voters', 3)}-voter consensus via {self.backend}"
+    async def _consensus(self, **kwargs) -> dict[str, Any]:
+        voters = max(1, int(kwargs.get("voters", 3)))
+        return {
+            "status": "planned",
+            "pattern": "consensus",
+            "backend": self.backend,
+            "model": self.model,
+            "question": kwargs.get("question"),
+            "voters": voters,
+            "quorum": voters // 2 + 1,
+            "rounds": ["independent_answer", "compare_answers", "majority_or_escalate"],
+        }
 
-    async def _hierarchy(self, **kwargs) -> str:
-        return "[DRAFT] Would run boss-worker delegation"
+    async def _hierarchy(self, **kwargs) -> dict[str, Any]:
+        subtasks = kwargs.get("subtasks") or _derive_subtasks(str(kwargs.get("task", "")))
+        return {
+            "status": "planned",
+            "pattern": "hierarchy",
+            "backend": self.backend,
+            "model": self.model,
+            "task": kwargs.get("task"),
+            "boss": {"role": "planner-reviewer", "responsibilities": ["split", "assign", "integrate"]},
+            "workers": [{"worker": f"worker-{idx + 1}", "subtask": str(subtask)} for idx, subtask in enumerate(subtasks)],
+        }
 
-    async def _stigmergy(self, **kwargs) -> str:
-        return "[DRAFT] Would run stigmergy coordination"
+    async def _stigmergy(self, **kwargs) -> dict[str, Any]:
+        iterations = max(1, int(kwargs.get("iterations", 3)))
+        return {
+            "status": "planned",
+            "pattern": "stigmergy",
+            "backend": self.backend,
+            "model": self.model,
+            "task": kwargs.get("task"),
+            "blackboard_keys": ["current_state", "open_questions", "candidate_patches", "review_notes"],
+            "iterations": [
+                {"iteration": idx + 1, "action": "read shared state, contribute delta, update blackboard"}
+                for idx in range(iterations)
+            ],
+        }
+
+
+def _derive_subtasks(task: str) -> list[str]:
+    parts = [part.strip(" .") for part in task.replace("\n", ". ").split(".") if part.strip()]
+    return parts[:5] or [task or "Define task"]
 
 
 def create_module(config: dict[str, Any]) -> SwarmModule:
