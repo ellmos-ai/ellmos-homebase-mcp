@@ -4,7 +4,7 @@
   <img src="assets/homebase-logo.jpg" alt="ellmos Homebase MCP logo" width="640">
 </p>
 
-Alpha MCP server for local LLM orchestration: memory, knowledge, routing, swarm patterns, API probing, persistent state, tests, and later automation in one stdio server.
+Alpha MCP server for local LLM orchestration: memory, knowledge, routing, swarm patterns, API probing, persistent state, tests, automation planning, and plugin discovery in one stdio server.
 
 German README: [README_de.md](README_de.md)
 
@@ -23,11 +23,11 @@ German README: [README_de.md](README_de.md)
 
 - Transport: stdio via the Python MCP SDK
 - Package status: public alpha package under `ellmos-ai`
-- Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks, local planning/probing/queue adapters
+- Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks, local planning/probing/queue/dry-run adapters
 - Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Credential-free alpha adapters: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`
+- Credential-free alpha adapters: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
 - i18n: localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` with English fallback
-- Roadmap: backend execution adapters for automation, plugins, and optional real LLM/API integrations
+- Roadmap: optional real LLM/API integrations and explicit execution backends
 
 ## Install
 
@@ -109,7 +109,7 @@ name = "ellmos-homebase"
 language = "en" # en, de, es, zh, ja, ru
 
 [modules]
-enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn"]
+enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug"]
 ```
 
 Modules with missing optional dependencies are skipped without blocking server startup.
@@ -127,6 +127,8 @@ Important tool groups:
 - `hb_api_*` for passive HTTP API discovery with SQLite history
 - `hb_test_*` for built-in metadata and smoke self-tests
 - `hb_conn_*` for a local connector registry plus SQLite-backed inbox/outbox queues without network sends
+- `hb_auto_*` for local automation chain definitions and queued plan-only runs without backend execution
+- `hb_plug_*` for local plugin discovery and dry-run records without executing plugin code
 
 ## Development
 
@@ -138,4 +140,4 @@ npm run smoke
 npm pack --dry-run
 ```
 
-Next useful step: wire the remaining automation and plugin modules to credential-free local adapters, then add optional execution backends behind explicit configuration.
+Next useful step: add optional execution backends behind explicit configuration.

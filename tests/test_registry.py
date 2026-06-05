@@ -16,6 +16,11 @@ def _registry(tmp_path, modules):
         "state": {"db_path": str(tmp_path / "state.db")},
         "api": {"db_path": str(tmp_path / "probes.db"), "timeout": 2},
         "conn": {"db_path": str(tmp_path / "connectors.db"), "connectors": ["local", "telegram"]},
+        "auto": {
+            "db_path": str(tmp_path / "automation.db"),
+            "chains": [{"name": "care", "description": "Care workflow", "steps": ["inspect", "patch", "test"]}],
+        },
+        "plug": {"db_path": str(tmp_path / "plugins.db"), "plugins_dir": str(tmp_path / "plugins")},
     }
     registry = ModuleRegistry(HomebaseConfig(enabled_modules=modules, module_configs=module_configs))
     registry.discover_and_load()
@@ -211,6 +216,52 @@ async def test_connectors_registry_queues_local_messages(tmp_path):
     assert received["messages"] == []
     assert missing["status"] == "unknown_connector"
     assert missing["available"] == ["local", "telegram"]
+
+
+@pytest.mark.asyncio
+async def test_automation_chains_queue_local_runs(tmp_path):
+    registry = _registry(tmp_path, ["auto"])
+
+    listed = await registry.call_tool("hb_auto_list_chains", {})
+    queued = await registry.call_tool("hb_auto_run", {"chain": "care", "input": "Fix adapters"})
+    status = await registry.call_tool("hb_auto_status", {"run_id": queued["run_id"]})
+    result = await registry.call_tool("hb_auto_result", {"run_id": queued["run_id"]})
+    missing = await registry.call_tool("hb_auto_run", {"chain": "missing"})
+
+    assert listed["count"] == 1
+    assert listed["chains"][0]["steps"] == ["inspect", "patch", "test"]
+    assert queued["status"] == "queued"
+    assert queued["executed"] is False
+    assert status["run"]["status"] == "queued_local_only"
+    assert result["result"]["delivery"] == "local_plan_only"
+    assert missing["status"] == "unknown_chain"
+    assert missing["available"] == ["care"]
+
+
+@pytest.mark.asyncio
+async def test_plugins_discover_info_and_dry_run(tmp_path):
+    plugin_root = tmp_path / "plugins"
+    plugin_dir = plugin_root / "demo-plugin"
+    plugin_dir.mkdir(parents=True)
+    (plugin_dir / "plugin.json").write_text(
+        '{"name":"demo-plugin","description":"Demo plugin","kind":"utility"}',
+        encoding="utf-8",
+    )
+    registry = _registry(tmp_path, ["plug"])
+
+    discovered = await registry.call_tool("hb_plug_discover", {"path": str(plugin_root)})
+    listed = await registry.call_tool("hb_plug_list", {})
+    info = await registry.call_tool("hb_plug_info", {"plugin": "demo-plugin"})
+    run = await registry.call_tool("hb_plug_run", {"plugin": "demo-plugin", "args": {"dry": True}})
+    missing = await registry.call_tool("hb_plug_info", {"plugin": "missing"})
+
+    assert discovered["count"] == 1
+    assert listed["plugins"][0]["name"] == "demo-plugin"
+    assert info["plugin"]["description"] == "Demo plugin"
+    assert run["status"] == "dry_run_recorded"
+    assert run["executed"] is False
+    assert run["result"]["execution"] == "disabled"
+    assert missing["status"] == "not_found"
 
 
 def test_registry_skips_unknown_module():

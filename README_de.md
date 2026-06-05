@@ -4,7 +4,7 @@
   <img src="assets/homebase-logo.jpg" alt="ellmos Homebase MCP Logo" width="640">
 </p>
 
-Alpha-MCP-Server für lokale LLM-Orchestrierung: Memory, Knowledge, Routing, Schwarmmuster, API-Probing, persistenter Zustand, Tests und spätere Automatisierung in einem stdio-Server.
+Alpha-MCP-Server für lokale LLM-Orchestrierung: Memory, Knowledge, Routing, Schwarmmuster, API-Probing, persistenter Zustand, Tests, Automatisierungsplanung und Plugin-Discovery in einem stdio-Server.
 
 Englische Standard-README: [README.md](README.md)
 
@@ -23,11 +23,11 @@ Englische Standard-README: [README.md](README.md)
 
 - Transport: stdio über das Python-MCP-SDK
 - Paketstatus: öffentliches Alpha-Paket unter `ellmos-ai`
-- Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs-, Probing- und Queue-Adapter
+- Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs-, Probing-, Queue- und Dry-run-Adapter
 - Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`
+- Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
 - i18n: lokalisierte MCP-Tool-Beschreibungen, Input-Schema-Feldbeschreibungen und Unknown-Tool-Fehler für `en`, `de`, `es`, `zh`, `ja`, `ru` mit Englisch-Fallback
-- Roadmap: Backend-Ausführungsadapter für Automatisierung, Plugins und optionale echte LLM/API-Integrationen
+- Roadmap: optionale echte LLM/API-Integrationen und explizite Ausführungsbackends
 
 ## Installation
 
@@ -109,7 +109,7 @@ name = "ellmos-homebase"
 language = "de" # en, de, es, zh, ja, ru
 
 [modules]
-enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn"]
+enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug"]
 ```
 
 Module mit fehlenden optionalen Dependencies werden beim Laden übersprungen, ohne den Serverstart zu blockieren.
@@ -127,6 +127,8 @@ Wichtige Tool-Gruppen:
 - `hb_api_*` für passive HTTP-API-Discovery mit SQLite-Historie
 - `hb_test_*` für eingebaute Metadata- und Smoke-Selbsttests
 - `hb_conn_*` für eine lokale Connector-Registry plus SQLite-gestützte Inbox-/Outbox-Queues ohne Netzwerksends
+- `hb_auto_*` für lokale Automatisierungsketten und queue-basierte Planläufe ohne Backend-Ausführung
+- `hb_plug_*` für lokale Plugin-Discovery und Dry-run-Protokolle ohne Plugin-Code auszuführen
 
 ## Entwicklung
 
@@ -138,4 +140,4 @@ npm run smoke
 npm pack --dry-run
 ```
 
-Der nächste sinnvolle Schritt ist, die verbleibenden Automatisierungs- und Plugin-Module an credential-freie lokale Adapter anzubinden und optionale Ausführungsbackends nur explizit konfiguriert zu aktivieren.
+Der nächste sinnvolle Schritt ist, optionale Ausführungsbackends nur explizit konfiguriert zu aktivieren.

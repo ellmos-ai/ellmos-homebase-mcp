@@ -11,9 +11,7 @@ language = "en"
 
 [modules]
 # Credential-free alpha modules
-enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn"]
-# Remaining Phase 2 modules are skipped automatically when dependencies are missing.
-# enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug"]
+enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug"]
 
 # --- Memory ---
 [mem]
@@ -55,11 +53,12 @@ timeout = 10                                    # HTTP timeout in seconds
 [test]
 test_root = "~/.homebase/tests/"
 
-# --- Phase 2: Automation ---
-# [auto]
-# chains_dir = "~/.homebase/chains/"
-# backend = "ollama"
-# endpoint = "http://localhost:11434"
+# --- Automation ---
+[auto]
+db_path = "~/.homebase/automation.db"
+chains_dir = "~/.homebase/chains/"
+# Runs are recorded as local plans until real backends are explicitly configured.
+# chains = [{ name = "care", description = "Inspect, patch, test", steps = ["inspect", "patch", "test"] }]
 
 # --- Connectors ---
 [conn]
@@ -70,6 +69,8 @@ connectors = ["local"]
 # telegram_token = "$TELEGRAM_BOT_TOKEN"
 # discord_token = "$DISCORD_BOT_TOKEN"
 
-# --- Phase 2: Plugins ---
-# [plug]
-# plugins_dir = "~/.homebase/plugins/"
+# --- Plugins ---
+[plug]
+db_path = "~/.homebase/plugins.db"
+plugins_dir = "~/.homebase/plugins/"
+# Plugin execution is disabled in alpha; `hb_plug_run` records a dry-run only.
