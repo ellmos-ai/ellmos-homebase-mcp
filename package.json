@@ -20,10 +20,14 @@
     "assets/",
     "bin/",
     "config/",
-    "src/",
+    "src/**/*.py",
     "README.md",
     "README_de.md",
     "KONZEPT.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "llms.txt",
+    "server.json",
     "pyproject.toml"
   ],
   "keywords": [

@@ -1,0 +1,41 @@
+# ellmos-homebase-mcp
+
+Canonical repository: https://github.com/ellmos-ai/ellmos-homebase-mcp
+Package: https://www.npmjs.com/package/ellmos-homebase-mcp
+License: MIT
+Status: public alpha
+
+ellmos Homebase is a local-first MCP stdio server for LLM orchestration. It combines local memory, knowledge entries, persistent state, garden storage, model-routing recommendations, swarm planning, passive API discovery, self-tests, connector queues, automation-chain planning, and plugin discovery in one server.
+
+Important files:
+
+- `README.md`: English installation and usage guide.
+- `README_de.md`: German installation and usage guide.
+- `KONZEPT.md`: German concept and module roadmap.
+- `config/homebase.example.toml`: Example configuration.
+- `server.json`: MCP Registry metadata.
+- `src/homebase/server.py`: MCP stdio server entry point.
+- `src/homebase/registry.py`: Module discovery and tool dispatch.
+- `src/homebase/modules/`: Homebase tool modules.
+- `tests/`: Pytest coverage for config, registry, modules, and localization.
+
+Tool namespace groups:
+
+- `hb_mem_*`: SQLite-backed local memory.
+- `hb_kb_*`: SQLite-backed knowledge entries.
+- `hb_state_*`: persistent local state and tasks.
+- `hb_garden_*`: small local knowledge garden.
+- `hb_route_*`: credential-free routing recommendations and feedback stats.
+- `hb_swarm_*`: swarm planning patterns.
+- `hb_api_*`: passive API probing with local history.
+- `hb_test_*`: built-in self-tests.
+- `hb_conn_*`: local connector registry and queues without network sends.
+- `hb_auto_*`: local automation chain definitions and plan-only queued runs.
+- `hb_plug_*`: plugin discovery and dry-run records without executing plugin code.
+
+Search phrases:
+
+- ellmos Homebase MCP server
+- local-first LLM orchestration MCP
+- MCP memory knowledge routing swarm state API testing
+- stdio MCP server for local LLM agents

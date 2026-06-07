@@ -16,6 +16,7 @@ Englische Standard-README: [README.md](README.md)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet.svg)](https://modelcontextprotocol.io/)
 [![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
 
 **Auffindbarkeit:** Veröffentlicht auf [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) als `ellmos-homebase-mcp` und gepflegt in der Organisation [`ellmos-ai`](https://github.com/ellmos-ai).
 
@@ -23,6 +24,8 @@ Englische Standard-README: [README.md](README.md)
 
 - Transport: stdio über das Python-MCP-SDK
 - Paketstatus: öffentliches Alpha-Paket unter `ellmos-ai`
+- Release-Metadaten: MIT-`LICENSE`, `CHANGELOG.md`, `llms.txt` und MCP-Registry-Metadaten in `server.json`
+- Test-Gate: GitHub Actions prüft Python 3.10/3.11/3.12 sowie Node.js 20/22/24 mit Smoke- und npm-Paketchecks
 - Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs-, Probing-, Queue- und Dry-run-Adapter
 - Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
 - Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
@@ -95,6 +98,10 @@ python -m homebase.server
 
 Beispiel: [config/homebase.example.toml](config/homebase.example.toml)
 
+Maschinenlesbarer Projektkontext: [llms.txt](llms.txt)
+
+MCP-Registry-Metadaten: [server.json](server.json)
+
 Standardpfade:
 
 - `%USERPROFILE%\.homebase\homebase.toml`
@@ -137,7 +144,7 @@ $env:PYTHONIOENCODING = "utf-8"
 $env:PYTHONDONTWRITEBYTECODE = "1"
 python -m pytest -q
 npm run smoke
-npm pack --dry-run
+npm pack --dry-run --json
 ```
 
 Der nächste sinnvolle Schritt ist, optionale Ausführungsbackends nur explizit konfiguriert zu aktivieren.

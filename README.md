@@ -16,6 +16,7 @@ German README: [README_de.md](README_de.md)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet.svg)](https://modelcontextprotocol.io/)
 [![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
 
 **Discoverability:** Published on [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) as `ellmos-homebase-mcp` and maintained in the [`ellmos-ai`](https://github.com/ellmos-ai) organization.
 
@@ -23,6 +24,8 @@ German README: [README_de.md](README_de.md)
 
 - Transport: stdio via the Python MCP SDK
 - Package status: public alpha package under `ellmos-ai`
+- Release metadata: MIT `LICENSE`, `CHANGELOG.md`, `llms.txt`, and MCP Registry metadata in `server.json`
+- Test gate: GitHub Actions covers Python 3.10/3.11/3.12 plus Node.js 20/22/24 smoke and npm package checks
 - Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks, local planning/probing/queue/dry-run adapters
 - Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
 - Credential-free alpha adapters: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
@@ -95,6 +98,10 @@ Replace `/absolute/path/to/ellmos-homebase-mcp` with your local checkout path.
 
 Example: [config/homebase.example.toml](config/homebase.example.toml)
 
+Machine-readable project context: [llms.txt](llms.txt)
+
+MCP Registry metadata: [server.json](server.json)
+
 Default paths:
 
 - `%USERPROFILE%\.homebase\homebase.toml`
@@ -137,7 +144,7 @@ $env:PYTHONIOENCODING = "utf-8"
 $env:PYTHONDONTWRITEBYTECODE = "1"
 python -m pytest -q
 npm run smoke
-npm pack --dry-run
+npm pack --dry-run --json
 ```
 
 Next useful step: add optional execution backends behind explicit configuration.
