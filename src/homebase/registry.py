@@ -100,13 +100,13 @@ class ModuleRegistry:
 
     def list_tools(self) -> list[types.Tool]:
         """Return all loaded module tools as MCP Tool definitions."""
-        self._handlers.clear()
+        handlers: dict[str, Any] = {}
         tools: list[types.Tool] = []
 
         for name, module in self._modules.items():
             module_tools = module.get_tools()
             for tool_def in module_tools:
-                self._handlers[tool_def.name] = tool_def.handler
+                handlers[tool_def.name] = tool_def.handler
                 tools.append(
                     types.Tool(
                         name=tool_def.name,
@@ -116,6 +116,7 @@ class ModuleRegistry:
                 )
             logger.info("Prepared %d tools from module '%s'", len(module_tools), name)
 
+        self._handlers = handlers
         self._tool_count = len(tools)
         return tools
 
