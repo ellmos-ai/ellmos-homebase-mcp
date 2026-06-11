@@ -33,9 +33,25 @@ Tool namespace groups:
 - `hb_auto_*`: local automation chain definitions and plan-only queued runs.
 - `hb_plug_*`: plugin discovery and dry-run records without executing plugin code.
 
-Search phrases:
+## Audience
 
-- ellmos Homebase MCP server
-- local-first LLM orchestration MCP
-- MCP memory knowledge routing swarm state API testing
-- stdio MCP server for local LLM agents
+- LLM developers and AI engineers building local agent workflows with MCP-compatible tools
+- Claude Code, Codex, and Gemini CLI users who want persistent local memory, state, and routing without cloud dependencies
+- Developers orchestrating multi-agent swarms or automation chains locally
+- Teams running self-hosted LLM setups who need a local knowledge base and API-probing layer
+- Python and Node.js developers looking for a comprehensive, offline-first MCP server
+
+## Search Phrases
+
+```
+ellmos Homebase MCP server
+local-first LLM orchestration MCP
+MCP memory knowledge routing swarm state API testing
+stdio MCP server for local LLM agents
+ellmos-ai homebase mcp local memory
+MCP knowledge garden persistent state SQLite
+local swarm planning MCP agent coordination
+offline LLM orchestration memory routing
+```
+
+## Last-checked: 2026-06-11
