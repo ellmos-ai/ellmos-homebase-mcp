@@ -32,8 +32,17 @@
   ],
   "keywords": [
     "mcp",
+    "mcp-server",
     "llm",
+    "llm-memory",
+    "local-first",
     "memory",
+    "sqlite",
+    "knowledge-base",
+    "agent-orchestration",
+    "swarm-planning",
+    "api-discovery",
+    "plugin-discovery",
     "i18n",
     "orchestration",
     "ellmos"

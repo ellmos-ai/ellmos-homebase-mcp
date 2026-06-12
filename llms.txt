@@ -45,6 +45,7 @@ Tool namespace groups:
 
 ```
 ellmos Homebase MCP server
+ellmos-ai ellmos-homebase-mcp
 local-first LLM orchestration MCP
 MCP memory knowledge routing swarm state API testing
 stdio MCP server for local LLM agents
@@ -52,6 +53,13 @@ ellmos-ai homebase mcp local memory
 MCP knowledge garden persistent state SQLite
 local swarm planning MCP agent coordination
 offline LLM orchestration memory routing
+MCP server SQLite memory knowledge routing
+offline agent orchestration MCP server
+MCP swarm planning persistent state API discovery
 ```
 
-## Last-checked: 2026-06-11
+## Disambiguation
+
+This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
+
+## Last-checked: 2026-06-12

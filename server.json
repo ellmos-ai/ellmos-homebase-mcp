@@ -3,7 +3,7 @@
   "name": "io.github.ellmos-ai/ellmos-homebase-mcp",
   "version": "0.1.0-alpha.8",
   "title": "ellmos Homebase",
-  "description": "Alpha MCP stdio server for local LLM orchestration across memory, knowledge, state, routing, swarm planning, API discovery, tests, automation planning, and plugin discovery.",
+  "description": "Alpha MCP stdio server for local-first LLM orchestration across SQLite memory, knowledge entries, persistent state, routing, swarm planning, passive API discovery, tests, automation planning, connector queues, and plugin discovery.",
   "websiteUrl": "https://github.com/ellmos-ai/ellmos-homebase-mcp",
   "repository": {
     "url": "https://github.com/ellmos-ai/ellmos-homebase-mcp",

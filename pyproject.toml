@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [{ name = "Lukas Geiger" }]
-keywords = ["mcp", "llm", "ollama", "ai-tools", "i18n", "ellmos"]
+keywords = ["mcp", "mcp-server", "llm", "llm-memory", "local-first", "sqlite", "knowledge-base", "agent-orchestration", "swarm-planning", "api-discovery", "plugin-discovery", "ollama", "ai-tools", "i18n", "ellmos"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

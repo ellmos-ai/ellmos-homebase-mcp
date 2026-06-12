@@ -20,6 +20,16 @@ Englische Standard-README: [README.md](README.md)
 
 **Auffindbarkeit:** Veröffentlicht auf [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) als `ellmos-homebase-mcp` und gepflegt in der Organisation [`ellmos-ai`](https://github.com/ellmos-ai).
 
+## Einstieg
+
+| Bedarf | Einstieg |
+|---|---|
+| Alpha-MCP-Server installieren | `npm install -g ellmos-homebase-mcp@alpha` |
+| Aus einem Quellcode-Checkout starten | `python -m homebase.server` mit `PYTHONPATH=src` |
+| Claude, Codex oder einen anderen MCP-Client konfigurieren | [MCP-Client-Konfiguration](#mcp-client-konfiguration) |
+| Maschinenlesbare Projektzusammenfassung prüfen | [llms.txt](llms.txt) |
+| Registry-Metadaten prüfen | [server.json](server.json) |
+
 ## Status
 
 - Transport: stdio über das Python-MCP-SDK
@@ -136,6 +146,20 @@ Wichtige Tool-Gruppen:
 - `hb_conn_*` für eine lokale Connector-Registry plus SQLite-gestützte Inbox-/Outbox-Queues ohne Netzwerksends
 - `hb_auto_*` für lokale Automatisierungsketten und queue-basierte Planläufe ohne Backend-Ausführung
 - `hb_plug_*` für lokale Plugin-Discovery und Dry-run-Protokolle ohne Plugin-Code auszuführen
+
+## Auffindbarkeitskontext
+
+`ellmos-homebase-mcp` ist der passende Suchanker für einen local-first MCP-Server, der SQLite-Memory, Knowledge-Einträge, persistenten Zustand, Modell-Routing-Empfehlungen, Schwarmplanung, passive API-Discovery, Connector-Queues, Automatisierungskettenplanung und Plugin-Discovery bündelt.
+
+Geeignete Suchphrasen:
+
+- `ellmos Homebase MCP server`
+- `local-first LLM orchestration MCP`
+- `MCP server SQLite memory knowledge routing`
+- `offline agent orchestration MCP server`
+- `MCP swarm planning persistent state API discovery`
+
+Nicht gemeint sind Elmo-/ELMO-Voice-Tools, AllenAI-ELMo-Embeddings, Eclipse LMOS, generische Cloud-Agent-Plattformen oder einzelne MCP-Memory-Server ohne Orchestrierungsschicht.
 
 ## Entwicklung
 

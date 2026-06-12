@@ -2,6 +2,13 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 2026-06-12
+
+### Documentation
+
+- Added README start-here tables and discovery context for local-first MCP orchestration searches.
+- Expanded `llms.txt`, npm keywords, Python keywords, and MCP Registry metadata with SQLite memory, agent orchestration, swarm planning, API discovery, connector queue, and plugin discovery search anchors.
+
 ## 2026-06-10
 
 ### Fixed
