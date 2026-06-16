@@ -9,6 +9,11 @@ if (process.argv.includes("--version")) {
   process.exit(0);
 }
 
+// Update-Hinweis nur im interaktiven Terminal (nie im MCP-/Pipe-Betrieb); update-notifier v7 ist ESM -> dynamic import
+if (process.stdout.isTTY) {
+  import("update-notifier").then(({ default: notifier }) => notifier({ pkg }).notify()).catch(() => {});
+}
+
 const python = process.env.PYTHON || (process.platform === "win32" ? "python" : "python3");
 const srcPath = path.resolve(__dirname, "..", "src");
 const env = {
