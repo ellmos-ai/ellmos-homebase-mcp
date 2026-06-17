@@ -2,6 +2,16 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.11 - 2026-06-17
+
+### Changed
+
+- Add a TTY-guarded `update-notifier` check for interactive CLI starts while keeping MCP stdio output unchanged.
+
+### Fixed
+
+- Align `package.json`, lockfile, `pyproject.toml`, Python `__version__`, and `server.json` metadata after the update-notifier release.
+
 ## 0.1.0-alpha.9 - 2026-06-13
 
 ### Fixed
