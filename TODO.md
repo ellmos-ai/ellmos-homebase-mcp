@@ -72,8 +72,17 @@
 > relevant?"), das eigentliche **Einschieben** macht ein clientseitiger Hook (Claude Code
 > `UserPromptSubmit`-Hook bzw. BACHs Wrapper).
 
-- [ ] **Injektoren aus BACH als eigenständiges `.MODULES`-Modul extrahieren** (Arbeitsname
-      z. B. `mnemo` / `recall-injectors`). Quelle: `BACH/system/tools/injectors.py`,
+> **Strategie-Anschluss (2026-06-17):** Dies ist Cluster 8 „Kognitive Steuerung (Injektoren)"
+> aus `.OS/sovereign-private/_concepts/BACH_HANDLER_CLUSTER_UND_ARCHITEKTUR.md` — der **einzige
+> Handler-Cluster ohne Modul-Heimat** in der dortigen Deckungsanalyse/Bauplan. Die Extraktion
+> folgt der etablierten Linie „**aus BACH generieren, nicht handpflegen**" (`exporter.py` +
+> `dist_type`, Richtung BACH→GEN mit Auto-Regen), damit BACH Quelle der Wahrheit bleibt und sich
+> das Modul mit BACH mitentwickelt. Diesen Punkt zugleich in der dortigen Substanz-Matrix
+> nachtragen (aktuell fehlt Cluster 8 als Zeile).
+
+- [ ] **Injektoren aus BACH als eigenständiges Modul generieren** (Arbeitsname
+      z. B. `mnemo` / `recall-injectors`), via BACH `exporter.py`/`skill_export.py` (BACH→GEN,
+      Auto-Regen) — NICHT als handgepflegte Parallelkopie. Quelle: `BACH/system/tools/injectors.py`,
       `hub/reminder_injector.py`, `hub/meta_feedback_injector.py`. Enthält:
       StrategyInjector (Trigger-Wort → Hinweis), ContextInjector (Auto-Kontext + Cooldown),
       TimeInjector (Zeit-Updates), BetweenInjector (Post-Task-Reminder),
