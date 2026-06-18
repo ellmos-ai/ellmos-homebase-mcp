@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from homebase.modules import ModuleBase, ToolDefinition
-from homebase.storage import connect_db, contains_term, utc_now
+from homebase.storage import connect_db, contains_term, ensure_column, resolve_agent_id, utc_now
 
 
 class MemoryModule(ModuleBase):
@@ -25,10 +25,12 @@ class MemoryModule(ModuleBase):
                     content TEXT NOT NULL,
                     category TEXT NOT NULL,
                     confidence REAL NOT NULL DEFAULT 1.0,
+                    agent_id TEXT NOT NULL DEFAULT 'unknown',
                     created_at TEXT NOT NULL
                 )
                 """
             )
+            ensure_column(connection, "memories", "agent_id", "TEXT NOT NULL DEFAULT 'unknown'")
 
     def get_tools(self) -> list[ToolDefinition]:
         return [
@@ -50,6 +52,10 @@ class MemoryModule(ModuleBase):
                             "maximum": 1,
                             "description": "Confidence score (0-1)",
                         },
+                        "agent_id": {
+                            "type": "string",
+                            "description": "Agent identifier for shared-memory provenance",
+                        },
                     },
                     "required": ["content", "category"],
                 },
@@ -63,6 +69,7 @@ class MemoryModule(ModuleBase):
                     "properties": {
                         "query": {"type": "string", "description": "Search query"},
                         "category": {"type": "string", "enum": ["fact", "lesson", "working", "all"]},
+                        "agent_id": {"type": "string", "description": "Optional agent filter"},
                         "limit": {"type": "integer", "default": 10},
                     },
                     "required": ["query"],
@@ -77,6 +84,7 @@ class MemoryModule(ModuleBase):
                     "properties": {
                         "max_tokens": {"type": "integer", "default": 500, "description": "Approximate token budget"},
                         "focus": {"type": "string", "description": "Optional topic focus"},
+                        "agent_id": {"type": "string", "description": "Optional agent filter"},
                     },
                 },
                 handler=self._context,
@@ -88,6 +96,7 @@ class MemoryModule(ModuleBase):
                     "type": "object",
                     "properties": {
                         "dry_run": {"type": "boolean", "default": True, "description": "Preview merge without applying"},
+                        "agent_id": {"type": "string", "description": "Optional agent filter"},
                     },
                 },
                 handler=self._merge,
@@ -98,26 +107,34 @@ class MemoryModule(ModuleBase):
         content = str(kwargs["content"])
         category = str(kwargs["category"])
         confidence = min(1.0, max(0.0, float(kwargs.get("confidence", 1.0))))
+        agent_id = resolve_agent_id(self.config, kwargs.get("agent_id"))
 
         with connect_db(self.db_path) as connection:
             cursor = connection.execute(
                 """
-                INSERT INTO memories (content, category, confidence, created_at)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO memories (content, category, confidence, agent_id, created_at)
+                VALUES (?, ?, ?, ?, ?)
                 """,
-                (content, category, confidence, utc_now()),
+                (content, category, confidence, agent_id, utc_now()),
             )
             memory_id = int(cursor.lastrowid)
 
-        return {"status": "stored", "id": memory_id, "category": category, "confidence": confidence}
+        return {
+            "status": "stored",
+            "id": memory_id,
+            "category": category,
+            "confidence": confidence,
+            "agent_id": agent_id,
+        }
 
     async def _query(self, **kwargs) -> dict[str, Any]:
         query = str(kwargs["query"])
         category = str(kwargs.get("category", "all"))
         limit = int(kwargs.get("limit", 10))
+        agent_id = kwargs.get("agent_id")
 
         sql = """
-            SELECT id, content, category, confidence, created_at
+            SELECT id, content, category, confidence, agent_id, created_at
             FROM memories
             WHERE content LIKE ?
         """
@@ -125,24 +142,37 @@ class MemoryModule(ModuleBase):
         if category != "all":
             sql += " AND category = ?"
             params.append(category)
+        if agent_id:
+            sql += " AND agent_id = ?"
+            params.append(str(agent_id))
         sql += " ORDER BY id DESC LIMIT ?"
         params.append(limit)
 
         with connect_db(self.db_path) as connection:
             rows = connection.execute(sql, params).fetchall()
 
-        return {"status": "ok", "query": query, "count": len(rows), "results": [dict(row) for row in rows]}
+        return {
+            "status": "ok",
+            "query": query,
+            "agent_id": agent_id,
+            "count": len(rows),
+            "results": [dict(row) for row in rows],
+        }
 
     async def _context(self, **kwargs) -> dict[str, Any]:
         max_tokens = int(kwargs.get("max_tokens", 500))
         focus = kwargs.get("focus")
+        agent_id = kwargs.get("agent_id")
         char_budget = max_tokens * 4
 
-        sql = "SELECT content, category, confidence, created_at FROM memories"
+        sql = "SELECT content, category, confidence, agent_id, created_at FROM memories WHERE 1 = 1"
         params: list[Any] = []
         if focus:
-            sql += " WHERE content LIKE ?"
+            sql += " AND content LIKE ?"
             params.append(contains_term(str(focus)))
+        if agent_id:
+            sql += " AND agent_id = ?"
+            params.append(str(agent_id))
         sql += " ORDER BY confidence DESC, id DESC LIMIT 50"
 
         with connect_db(self.db_path) as connection:
@@ -151,28 +181,43 @@ class MemoryModule(ModuleBase):
         parts = []
         used_chars = 0
         for row in rows:
-            line = f"- [{row['category']}:{row['confidence']:.2f}] {row['content']}"
+            line = f"- [{row['agent_id']}:{row['category']}:{row['confidence']:.2f}] {row['content']}"
             if used_chars + len(line) > char_budget:
                 break
             parts.append(line)
             used_chars += len(line)
 
-        return {"status": "ok", "focus": focus, "context": "\n".join(parts), "entries": len(parts)}
+        return {
+            "status": "ok",
+            "focus": focus,
+            "agent_id": agent_id,
+            "context": "\n".join(parts),
+            "entries": len(parts),
+        }
 
     async def _merge(self, **kwargs) -> dict[str, Any]:
         dry_run = bool(kwargs.get("dry_run", True))
+        agent_id = kwargs.get("agent_id")
+        params: list[Any] = []
+        where = ""
+        if agent_id:
+            where = "WHERE agent_id = ?"
+            params.append(str(agent_id))
         with connect_db(self.db_path) as connection:
             duplicates = connection.execute(
-                """
-                SELECT content, category, COUNT(*) AS count
+                f"""
+                SELECT content, category, agent_id, COUNT(*) AS count
                 FROM memories
-                GROUP BY content, category
+                {where}
+                GROUP BY content, category, agent_id
                 HAVING COUNT(*) > 1
-                """
+                """,
+                params,
             ).fetchall()
 
         return {
             "status": "dry_run" if dry_run else "not_implemented",
+            "agent_id": agent_id,
             "duplicate_groups": [dict(row) for row in duplicates],
             "message": "Automatic merge is intentionally preview-only in this alpha.",
         }

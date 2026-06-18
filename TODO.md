@@ -15,19 +15,24 @@
 
 ## P0 — Multi-Agent-Grundlagen (ohne diese ist es kein Team-Gedächtnis)
 
-- [ ] **Provenance / `agent_id` in allen Memory-Tabellen.**
+- [x] **Provenance / `agent_id` in allen Memory-Tabellen.**
       Aktuell hat `memory.py`/`knowledge.py`/`state.py` keine Autor-Spalte → man weiß nicht,
       welcher Agent was geschrieben hat. Für ein geteiltes Gedächtnis ist „wer sagt das" ein
       Kernmerkmal. Schema um `agent_id TEXT` erweitern, in jedem `*_store`/`*_set` setzen,
       in `*_query`/`*_context` filterbar machen.
       → Vorbild: USMC (`UNIQUE(agent_id, category, key)`), BACH `shared_memory_*` (`agent_id`,
       `namespace`, `visibility`).
+      Erledigt 2026-06-18: `hb_mem_*`, `hb_kb_*` und `hb_state_*` schreiben und filtern
+      `agent_id`; `state_memory` nutzt `(agent_id, key)` als eindeutige Kombination und
+      migriert ältere Alpha-Datenbanken automatisch.
 
-- [ ] **Concurrency-Härtung in `storage.py`.**
+- [x] **Concurrency-Härtung in `storage.py`.**
       `sqlite3.connect(path)` läuft ohne WAL und ohne `busy_timeout` → bei zwei gleichzeitig
       schreibenden Agenten drohen „database is locked"-Fehler. Setzen:
       `PRAGMA journal_mode=WAL;`, `connect(..., timeout=…)` bzw. `PRAGMA busy_timeout`.
       Gilt für alle acht `~/.homebase/*.db`.
+      Erledigt 2026-06-18: `connect_db()` setzt `timeout=30.0`, `PRAGMA journal_mode=WAL`,
+      `PRAGMA busy_timeout=30000` und `PRAGMA foreign_keys=ON`.
 
 - [ ] **`hb_mem` auf USMC als Backend umstellen, statt eigener Reimplementierung.**
       Die `KONZEPT.md` nennt USMC als Quelle, der Code reimplementiert die Memory aber selbst.
@@ -108,8 +113,9 @@
 
 ## Qualitäts-Schulden (aus Audit 2026-06-17)
 
-- [ ] Modul-Unit-Tests: aktuell nur `test_config.py` + `test_registry.py`; die Module selbst
-      (mem/kb/state/api/…) sind ungetestet.
+- [ ] Modul-Unit-Tests: `test_registry.py` deckt inzwischen die wichtigsten Modulpfade ab,
+      inklusive `agent_id`-Provenance für mem/kb/state; separate Modul-Unit-Tests und
+      Migrations-Smokes für alle Module fehlen noch.
 - [ ] Doku-Korrektheit: KONZEPT.md verspricht FTS5/semantische Suche/Merge, die der Code
       (noch) nicht hat — angleichen, sobald P1/P2 umgesetzt oder Doku ehrlich machen.
 - [ ] Versions-Sync prüfen (package.json / pyproject.toml / server.json / `__version__`).

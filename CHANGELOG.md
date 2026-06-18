@@ -2,6 +2,20 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## Unreleased
+
+## 0.1.0-alpha.12 - 2026-06-18
+
+### Added
+
+- `hb_mem_*`, `hb_kb_*`, and `hb_state_*` now record `agent_id` provenance for shared Team-Memory use.
+- Memory, knowledge, state-memory, and task queries can filter by `agent_id`.
+- `hb_state_mem_set` now stores the same key separately per agent through a `(agent_id, key)` uniqueness rule, with migration for older alpha databases.
+
+### Changed
+
+- Homebase SQLite connections now enable WAL mode, a 30-second busy timeout, and foreign-key checks to reduce multi-agent write-lock failures.
+
 ## 0.1.0-alpha.11 - 2026-06-17
 
 ### Changed

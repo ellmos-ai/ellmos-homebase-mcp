@@ -38,6 +38,7 @@ Englische Standard-README: [README.md](README.md)
 - Test-Gate: GitHub Actions prüft Python 3.10/3.11/3.12 sowie Node.js 20/22/24 mit Smoke- und npm-Paketchecks
 - Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs-, Probing-, Queue- und Dry-run-Adapter
 - Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
+- Team-Memory-Grundlagen: `agent_id`-Herkunft und Filter für Memory, Knowledge, State-Memory und Tasks; SQLite nutzt WAL plus Busy-Timeout für sicherere parallele Agenten
 - Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
 - i18n: lokalisierte MCP-Tool-Beschreibungen, Input-Schema-Feldbeschreibungen und Unknown-Tool-Fehler für `en`, `de`, `es`, `zh`, `ja`, `ru` mit Englisch-Fallback
 - Roadmap: optionale echte LLM/API-Integrationen und explizite Ausführungsbackends
@@ -119,6 +120,7 @@ Standardpfade:
 - Override per `HOMEBASE_CONFIG`
 
 Die Sprache kann über `[server].language`, `HOMEBASE_LANG` oder `HOMEBASE_LOCALE` gesetzt werden.
+Der schreibende Agent kann pro Tool-Aufruf als `agent_id` übergeben werden; sonst nutzen die Module `HOMEBASE_AGENT_ID`, `AGENT_ID`, eine modulweite `agent_id` oder `unknown`.
 
 ```toml
 [server]

@@ -38,6 +38,7 @@ German README: [README_de.md](README_de.md)
 - Test gate: GitHub Actions covers Python 3.10/3.11/3.12 plus Node.js 20/22/24 smoke and npm package checks
 - Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks, local planning/probing/queue/dry-run adapters
 - Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
+- Team-memory basics: `agent_id` provenance and filters for memory, knowledge, state memory, and tasks; SQLite uses WAL plus a busy timeout for safer concurrent agents
 - Credential-free alpha adapters: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
 - i18n: localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` with English fallback
 - Roadmap: optional real LLM/API integrations and explicit execution backends
@@ -119,6 +120,8 @@ Default paths:
 - override with `HOMEBASE_CONFIG`
 
 Language can be configured with `[server].language`, `HOMEBASE_LANG`, or `HOMEBASE_LOCALE`.
+The writing agent can be passed per tool call as `agent_id`; otherwise modules use
+`HOMEBASE_AGENT_ID`, `AGENT_ID`, a module-level `agent_id`, or `unknown`.
 
 ```toml
 [server]

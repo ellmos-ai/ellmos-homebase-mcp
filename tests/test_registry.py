@@ -6,6 +6,7 @@ import pytest
 from homebase.config import HomebaseConfig
 from homebase.i18n import I18n, normalize_locale
 from homebase.registry import ModuleRegistry
+from homebase.storage import connect_db
 
 
 def _registry(tmp_path, modules):
@@ -52,9 +53,34 @@ async def test_memory_store_query_and_context(tmp_path):
     context = await registry.call_tool("hb_mem_context", {"focus": "SQLite", "max_tokens": 80})
 
     assert stored["status"] == "stored"
+    assert stored["agent_id"] == "unknown"
     assert query["count"] == 1
+    assert query["results"][0]["agent_id"] == "unknown"
     assert query["results"][0]["content"] == "Homebase speichert jetzt SQLite-Memory"
     assert "SQLite-Memory" in context["context"]
+
+
+@pytest.mark.asyncio
+async def test_memory_agent_id_provenance_and_filter(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+
+    await registry.call_tool(
+        "hb_mem_store",
+        {"category": "lesson", "content": "Gemeinsame Memory braucht Herkunft.", "agent_id": "codex"},
+    )
+    await registry.call_tool(
+        "hb_mem_store",
+        {"category": "lesson", "content": "Gemeinsame Memory braucht Herkunft.", "agent_id": "claude"},
+    )
+
+    codex = await registry.call_tool("hb_mem_query", {"query": "Herkunft", "agent_id": "codex"})
+    context = await registry.call_tool("hb_mem_context", {"focus": "Herkunft", "agent_id": "codex"})
+    duplicates = await registry.call_tool("hb_mem_merge", {"agent_id": "codex"})
+
+    assert codex["count"] == 1
+    assert codex["results"][0]["agent_id"] == "codex"
+    assert "[codex:lesson:" in context["context"]
+    assert duplicates["duplicate_groups"] == []
 
 
 @pytest.mark.asyncio
@@ -70,8 +96,33 @@ async def test_knowledge_ingest_search_get_and_list(tmp_path):
     listed = await registry.call_tool("hb_kb_list", {})
 
     assert search["count"] == 1
+    assert ingested["agent_id"] == "unknown"
+    assert search["results"][0]["agent_id"] == "unknown"
     assert fetched["entry"]["source"] == "test"
     assert listed["tags"] == ["mcp", "ops"]
+
+
+@pytest.mark.asyncio
+async def test_knowledge_agent_id_provenance_and_filter(tmp_path):
+    registry = _registry(tmp_path, ["kb"])
+
+    await registry.call_tool(
+        "hb_kb_ingest",
+        {"content": "Alpha-Adapter dokumentieren.", "tags": ["alpha"], "agent_id": "codex"},
+    )
+    await registry.call_tool(
+        "hb_kb_ingest",
+        {"content": "Alpha-Adapter dokumentieren.", "tags": ["alpha", "review"], "agent_id": "gemini"},
+    )
+
+    search = await registry.call_tool("hb_kb_search", {"query": "Adapter", "agent_id": "gemini"})
+    tags = await registry.call_tool("hb_kb_list", {"agent_id": "codex"})
+    hidden = await registry.call_tool("hb_kb_get", {"id": search["results"][0]["id"], "agent_id": "codex"})
+
+    assert search["count"] == 1
+    assert search["results"][0]["agent_id"] == "gemini"
+    assert tags["tags"] == ["alpha"]
+    assert hidden["status"] == "not_found"
 
 
 @pytest.mark.asyncio
@@ -100,9 +151,58 @@ async def test_state_memory_and_tasks(tmp_path):
     tasks = await registry.call_tool("hb_state_task_list", {"status": "done"})
 
     assert mem["status"] == "stored"
+    assert mem["agent_id"] == "unknown"
     assert mem_list["results"][0]["value"] == "MCP"
+    assert mem_list["results"][0]["agent_id"] == "unknown"
+    assert task["agent_id"] == "unknown"
     assert updated["status"] == "updated"
     assert tasks["tasks"][0]["title"] == "Tests ergänzen"
+
+
+@pytest.mark.asyncio
+async def test_state_memory_keeps_same_key_per_agent(tmp_path):
+    registry = _registry(tmp_path, ["state"])
+
+    await registry.call_tool("hb_state_mem_set", {"key": "focus", "value": "Homebase", "agent_id": "codex"})
+    await registry.call_tool("hb_state_mem_set", {"key": "focus", "value": "ServerCommander", "agent_id": "claude"})
+    await registry.call_tool("hb_state_mem_set", {"key": "focus", "value": "Homebase P0", "agent_id": "codex"})
+
+    codex = await registry.call_tool("hb_state_mem_get", {"query": "focus", "agent_id": "codex"})
+    all_agents = await registry.call_tool("hb_state_mem_get", {"query": "focus"})
+
+    assert codex["count"] == 1
+    assert codex["results"][0]["value"] == "Homebase P0"
+    assert codex["results"][0]["agent_id"] == "codex"
+    assert all_agents["count"] == 2
+
+
+@pytest.mark.asyncio
+async def test_state_tasks_filter_by_agent_id(tmp_path):
+    registry = _registry(tmp_path, ["state"])
+
+    codex_task = await registry.call_tool("hb_state_task_create", {"title": "Codex task", "agent_id": "codex"})
+    await registry.call_tool("hb_state_task_create", {"title": "Claude task", "agent_id": "claude"})
+    await registry.call_tool(
+        "hb_state_task_update",
+        {"task_id": codex_task["task_id"], "status": "done", "agent_id": "codex"},
+    )
+
+    codex = await registry.call_tool("hb_state_task_list", {"status": "all", "agent_id": "codex"})
+    claude_done = await registry.call_tool("hb_state_task_list", {"status": "done", "agent_id": "claude"})
+
+    assert codex["count"] == 1
+    assert codex["tasks"][0]["agent_id"] == "codex"
+    assert codex["tasks"][0]["status"] == "done"
+    assert claude_done["tasks"] == []
+
+
+def test_connect_db_enables_wal_and_busy_timeout(tmp_path):
+    with connect_db(str(tmp_path / "wal.db")) as connection:
+        journal_mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
+        busy_timeout = connection.execute("PRAGMA busy_timeout").fetchone()[0]
+
+    assert journal_mode == "wal"
+    assert busy_timeout == 30000
 
 
 @pytest.mark.asyncio

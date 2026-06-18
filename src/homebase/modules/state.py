@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from homebase.modules import ModuleBase, ToolDefinition
-from homebase.storage import connect_db, contains_term, utc_now
+from homebase.storage import connect_db, contains_term, ensure_column, resolve_agent_id, utc_now
 
 
 class StateModule(ModuleBase):
@@ -16,16 +16,7 @@ class StateModule(ModuleBase):
 
     def _init_db(self) -> None:
         with connect_db(self.db_path) as connection:
-            connection.execute(
-                """
-                CREATE TABLE IF NOT EXISTS state_memory (
-                    key TEXT PRIMARY KEY,
-                    value TEXT NOT NULL,
-                    type TEXT NOT NULL DEFAULT 'fact',
-                    updated_at TEXT NOT NULL
-                )
-                """
-            )
+            _ensure_state_memory_table(connection)
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS tasks (
@@ -34,11 +25,13 @@ class StateModule(ModuleBase):
                     description TEXT,
                     priority TEXT NOT NULL DEFAULT 'medium',
                     status TEXT NOT NULL DEFAULT 'open',
+                    agent_id TEXT NOT NULL DEFAULT 'unknown',
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL
                 )
                 """
             )
+            ensure_column(connection, "tasks", "agent_id", "TEXT NOT NULL DEFAULT 'unknown'")
 
     def get_tools(self) -> list[ToolDefinition]:
         return [
@@ -50,6 +43,7 @@ class StateModule(ModuleBase):
                     "properties": {
                         "query": {"type": "string"},
                         "type": {"type": "string", "enum": ["fact", "lesson", "all"]},
+                        "agent_id": {"type": "string", "description": "Optional agent filter"},
                     },
                 },
                 handler=self._mem_get,
@@ -63,6 +57,10 @@ class StateModule(ModuleBase):
                         "key": {"type": "string"},
                         "value": {"type": "string"},
                         "type": {"type": "string", "enum": ["fact", "lesson"]},
+                        "agent_id": {
+                            "type": "string",
+                            "description": "Agent identifier for state-memory provenance",
+                        },
                     },
                     "required": ["key", "value"],
                 },
@@ -75,6 +73,7 @@ class StateModule(ModuleBase):
                     "type": "object",
                     "properties": {
                         "status": {"type": "string", "enum": ["open", "in_progress", "done", "all"]},
+                        "agent_id": {"type": "string", "description": "Optional agent filter"},
                     },
                 },
                 handler=self._task_list,
@@ -88,6 +87,7 @@ class StateModule(ModuleBase):
                         "title": {"type": "string"},
                         "description": {"type": "string"},
                         "priority": {"type": "string", "enum": ["low", "medium", "high"]},
+                        "agent_id": {"type": "string", "description": "Agent identifier for task provenance"},
                     },
                     "required": ["title"],
                 },
@@ -103,6 +103,7 @@ class StateModule(ModuleBase):
                         "status": {"type": "string", "enum": ["open", "in_progress", "done"]},
                         "description": {"type": "string"},
                         "priority": {"type": "string", "enum": ["low", "medium", "high"]},
+                        "agent_id": {"type": "string", "description": "Optional agent filter"},
                     },
                     "required": ["task_id"],
                 },
@@ -127,7 +128,8 @@ class StateModule(ModuleBase):
     async def _mem_get(self, **kwargs) -> dict[str, Any]:
         query = kwargs.get("query")
         memory_type = str(kwargs.get("type", "all"))
-        sql = "SELECT key, value, type, updated_at FROM state_memory WHERE 1 = 1"
+        agent_id = kwargs.get("agent_id")
+        sql = "SELECT id, key, value, type, agent_id, updated_at FROM state_memory WHERE 1 = 1"
         params: list[Any] = []
         if query:
             sql += " AND (key LIKE ? OR value LIKE ?)"
@@ -135,6 +137,9 @@ class StateModule(ModuleBase):
         if memory_type != "all":
             sql += " AND type = ?"
             params.append(memory_type)
+        if agent_id:
+            sql += " AND agent_id = ?"
+            params.append(str(agent_id))
         sql += " ORDER BY updated_at DESC"
 
         with connect_db(self.db_path) as connection:
@@ -144,27 +149,33 @@ class StateModule(ModuleBase):
     async def _mem_set(self, **kwargs) -> dict[str, Any]:
         key = str(kwargs["key"])
         memory_type = str(kwargs.get("type", "fact"))
+        agent_id = resolve_agent_id(self.config, kwargs.get("agent_id"))
         with connect_db(self.db_path) as connection:
             connection.execute(
                 """
-                INSERT INTO state_memory (key, value, type, updated_at)
-                VALUES (?, ?, ?, ?)
-                ON CONFLICT(key) DO UPDATE SET
+                INSERT INTO state_memory (key, value, type, agent_id, updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(agent_id, key) DO UPDATE SET
                     value = excluded.value,
                     type = excluded.type,
+                    agent_id = excluded.agent_id,
                     updated_at = excluded.updated_at
                 """,
-                (key, str(kwargs["value"]), memory_type, utc_now()),
+                (key, str(kwargs["value"]), memory_type, agent_id, utc_now()),
             )
-        return {"status": "stored", "key": key, "type": memory_type}
+        return {"status": "stored", "key": key, "type": memory_type, "agent_id": agent_id}
 
     async def _task_list(self, **kwargs) -> dict[str, Any]:
         status = str(kwargs.get("status", "open"))
-        sql = "SELECT id, title, description, priority, status, created_at, updated_at FROM tasks"
+        agent_id = kwargs.get("agent_id")
+        sql = "SELECT id, title, description, priority, status, agent_id, created_at, updated_at FROM tasks"
         params: list[Any] = []
         if status != "all":
             sql += " WHERE status = ?"
             params.append(status)
+        if agent_id:
+            sql += " AND agent_id = ?" if " WHERE " in sql else " WHERE agent_id = ?"
+            params.append(str(agent_id))
         sql += " ORDER BY id DESC"
 
         with connect_db(self.db_path) as connection:
@@ -173,16 +184,24 @@ class StateModule(ModuleBase):
 
     async def _task_create(self, **kwargs) -> dict[str, Any]:
         now = utc_now()
+        agent_id = resolve_agent_id(self.config, kwargs.get("agent_id"))
         with connect_db(self.db_path) as connection:
             cursor = connection.execute(
                 """
-                INSERT INTO tasks (title, description, priority, status, created_at, updated_at)
-                VALUES (?, ?, ?, 'open', ?, ?)
+                INSERT INTO tasks (title, description, priority, status, agent_id, created_at, updated_at)
+                VALUES (?, ?, ?, 'open', ?, ?, ?)
                 """,
-                (str(kwargs["title"]), kwargs.get("description"), str(kwargs.get("priority", "medium")), now, now),
+                (
+                    str(kwargs["title"]),
+                    kwargs.get("description"),
+                    str(kwargs.get("priority", "medium")),
+                    agent_id,
+                    now,
+                    now,
+                ),
             )
             task_id = int(cursor.lastrowid)
-        return {"status": "created", "task_id": task_id}
+        return {"status": "created", "task_id": task_id, "agent_id": agent_id}
 
     async def _task_update(self, **kwargs) -> dict[str, Any]:
         task_id = int(kwargs["task_id"])
@@ -197,10 +216,15 @@ class StateModule(ModuleBase):
         updates.append("updated_at = ?")
         params.append(utc_now())
         params.append(task_id)
+        agent_id = kwargs.get("agent_id")
+        where = "id = ?"
+        if agent_id:
+            where += " AND agent_id = ?"
+            params.append(str(agent_id))
 
         with connect_db(self.db_path) as connection:
-            cursor = connection.execute(f"UPDATE tasks SET {', '.join(updates)} WHERE id = ?", params)
-        return {"status": "updated" if cursor.rowcount else "not_found", "task_id": task_id}
+            cursor = connection.execute(f"UPDATE tasks SET {', '.join(updates)} WHERE {where}", params)
+        return {"status": "updated" if cursor.rowcount else "not_found", "task_id": task_id, "agent_id": agent_id}
 
     async def _dispatch(self, **kwargs) -> dict[str, Any]:
         return {
@@ -212,3 +236,44 @@ class StateModule(ModuleBase):
 
 def create_module(config: dict[str, Any]) -> StateModule:
     return StateModule(config)
+
+
+def _ensure_state_memory_table(connection) -> None:
+    rows = connection.execute("PRAGMA table_info(state_memory)").fetchall()
+    columns = {row["name"] for row in rows}
+    if not columns:
+        _create_state_memory_table(connection)
+        return
+    if {"id", "agent_id"}.issubset(columns):
+        connection.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_state_memory_agent_key ON state_memory(agent_id, key)"
+        )
+        return
+
+    legacy_agent_expr = "COALESCE(agent_id, 'unknown')" if "agent_id" in columns else "'unknown'"
+    connection.execute("ALTER TABLE state_memory RENAME TO state_memory_legacy")
+    _create_state_memory_table(connection)
+    connection.execute(
+        f"""
+        INSERT OR IGNORE INTO state_memory (key, value, type, agent_id, updated_at)
+        SELECT key, value, type, {legacy_agent_expr}, updated_at
+        FROM state_memory_legacy
+        """
+    )
+    connection.execute("DROP TABLE state_memory_legacy")
+
+
+def _create_state_memory_table(connection) -> None:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS state_memory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            key TEXT NOT NULL,
+            value TEXT NOT NULL,
+            type TEXT NOT NULL DEFAULT 'fact',
+            agent_id TEXT NOT NULL DEFAULT 'unknown',
+            updated_at TEXT NOT NULL,
+            UNIQUE(agent_id, key)
+        )
+        """
+    )

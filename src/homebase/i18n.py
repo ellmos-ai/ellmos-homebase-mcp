@@ -33,6 +33,7 @@ ALIASES = {
 
 DEFAULT_SCHEMA_DESCRIPTIONS: dict[str, str] = {
     "args": "Optional argument object.",
+    "agent_id": "Agent identifier for provenance or filtering.",
     "battery": "Test battery name.",
     "category": "Category filter or category to store.",
     "chain": "Automation chain name.",
@@ -82,6 +83,7 @@ DEFAULT_SCHEMA_DESCRIPTIONS: dict[str, str] = {
 SCHEMA_TRANSLATIONS: dict[str, dict[str, str]] = {
     "de": {
         "args": "Optionales Argumentobjekt.",
+        "agent_id": "Agentenkennung für Herkunft oder Filterung.",
         "battery": "Name der Test-Batterie.",
         "category": "Kategoriefilter oder zu speichernde Kategorie.",
         "chain": "Name der Automatisierungskette.",
@@ -129,6 +131,7 @@ SCHEMA_TRANSLATIONS: dict[str, dict[str, str]] = {
     },
     "es": {
         "args": "Objeto opcional de argumentos.",
+        "agent_id": "Identificador del agente para procedencia o filtrado.",
         "battery": "Nombre de la batería de pruebas.",
         "category": "Filtro de categoría o categoría a guardar.",
         "chain": "Nombre de la cadena de automatización.",
@@ -176,6 +179,7 @@ SCHEMA_TRANSLATIONS: dict[str, dict[str, str]] = {
     },
     "zh": {
         "args": "可选参数对象。",
+        "agent_id": "用于来源记录或过滤的智能体标识。",
         "battery": "测试集名称。",
         "category": "类别过滤器或要保存的类别。",
         "chain": "自动化链名称。",
@@ -223,6 +227,7 @@ SCHEMA_TRANSLATIONS: dict[str, dict[str, str]] = {
     },
     "ja": {
         "args": "任意の引数オブジェクト。",
+        "agent_id": "来歴または絞り込み用のエージェント ID。",
         "battery": "テストバッテリー名。",
         "category": "カテゴリフィルター、または保存するカテゴリ。",
         "chain": "自動化チェーン名。",
@@ -270,6 +275,7 @@ SCHEMA_TRANSLATIONS: dict[str, dict[str, str]] = {
     },
     "ru": {
         "args": "Необязательный объект аргументов.",
+        "agent_id": "Идентификатор агента для происхождения или фильтрации.",
         "battery": "Название набора тестов.",
         "category": "Фильтр категории или категория для сохранения.",
         "chain": "Название цепочки автоматизации.",

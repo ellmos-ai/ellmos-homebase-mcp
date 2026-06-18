@@ -16,6 +16,8 @@ enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "con
 # --- Memory ---
 [mem]
 db_path = "~/.homebase/memory.db"
+# Optional default writer identity. Per-call `agent_id` wins; otherwise HOMEBASE_AGENT_ID/AGENT_ID wins.
+# agent_id = "codex"
 
 # --- Routing ---
 [route]
@@ -28,6 +30,7 @@ ollama_endpoint = "http://localhost:11434"
 # --- Knowledge ---
 [kb]
 db_path = "~/.homebase/knowledge.db"
+# agent_id = "codex"
 
 # --- Swarm ---
 [swarm]
@@ -39,6 +42,7 @@ max_workers = 3
 # --- State ---
 [state]
 db_path = "~/.homebase/rinnsal.db"
+# agent_id = "codex"
 
 # --- Garden ---
 [garden]
