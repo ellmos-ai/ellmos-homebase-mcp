@@ -4,7 +4,9 @@
   <img src="assets/homebase-logo.jpg" alt="ellmos Homebase MCP Logo" width="640">
 </p>
 
-Alpha-MCP-Server für lokale LLM-Orchestrierung: Memory, Knowledge, Routing, Schwarmmuster, API-Probing, persistenter Zustand, Tests, Automatisierungsplanung und Plugin-Discovery in einem stdio-Server.
+Alpha-MCP-Server für **local-first LLM-Orchestrierung**: Memory, Knowledge, Routing, Schwarmmuster, API-Probing, persistenter Zustand, Tests, Automatisierungsplanung und Plugin-Discovery in einem stdio-Server.
+
+Homebase ist primär für **lokale LLMs** (Ollama, Qwen, Llama oder beliebige lokal gehostete Modelle über eine MCP-fähige Harness) konzipiert. Alle persistenten Daten werden per SQLite ohne Cloud-Abhängigkeit gespeichert. Externe LLM-Anbieter (Claude, Codex, Gemini, OpenAI) können sich ebenfalls als MCP-Clients verbinden, aber lokale, offline-fähige Setups sind das primäre Zielszenario.
 
 Englische Standard-README: [README.md](README.md)
 
@@ -26,7 +28,7 @@ Englische Standard-README: [README.md](README.md)
 |---|---|
 | Alpha-MCP-Server installieren | `npm install -g ellmos-homebase-mcp@alpha` |
 | Aus einem Quellcode-Checkout starten | `python -m homebase.server` mit `PYTHONPATH=src` |
-| Claude, Codex oder einen anderen MCP-Client konfigurieren | [MCP-Client-Konfiguration](#mcp-client-konfiguration) |
+| Lokale LLM-Harness, Claude Code, Codex oder anderen MCP-Client konfigurieren | [MCP-Client-Konfiguration](#mcp-client-konfiguration) |
 | Maschinenlesbare Projektzusammenfassung prüfen | [llms.txt](llms.txt) |
 | Registry-Metadaten prüfen | [server.json](server.json) |
 
@@ -74,6 +76,10 @@ python -m homebase.server
 ```
 
 ## MCP-Client-Konfiguration
+
+Homebase nutzt das standardisierte stdio-`mcpServers`-Format. Dasselbe Snippet funktioniert in jedem MCP-fähigen Client oder jeder Harness: BACH/Buddha (lokales Ollama), Claude Code, Codex, Cursor oder einem anderen MCP-Host.
+
+> **Hinweis zu lokalen LLMs:** Eine bare Ollama-Instanz spricht kein MCP nativ — dafür braucht es eine MCP-fähige Harness (z.B. BACH, einen Open-Source-MCP-Proxy oder eine andere Orchestrierungsschicht). Diese Harness wird dann so konfiguriert, dass sie Homebase als MCP-Server einbindet (Snippet unten).
 
 ### Globale npm-Installation
 
@@ -151,7 +157,7 @@ Wichtige Tool-Gruppen:
 
 ## Auffindbarkeitskontext
 
-`ellmos-homebase-mcp` ist der passende Suchanker für einen local-first MCP-Server, der SQLite-Memory, Knowledge-Einträge, persistenten Zustand, Modell-Routing-Empfehlungen, Schwarmplanung, passive API-Discovery, Connector-Queues, Automatisierungskettenplanung und Plugin-Discovery bündelt.
+`ellmos-homebase-mcp` ist der passende Suchanker für einen local-first, offline-fähigen MCP-Server, der lokalen LLMs (Ollama, Qwen, Llama o.ä.) persistentes Gedächtnis, Knowledge-Management, Routing und Orchestrierung gibt — ohne Cloud-Abhängigkeit. Externe LLM-Anbieter können ihn ebenfalls als MCP-Server nutzen, aber lokale Setups sind das primäre Designziel.
 
 Geeignete Suchphrasen:
 
