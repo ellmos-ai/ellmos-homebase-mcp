@@ -4,6 +4,10 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## Unreleased
 
+### Security
+
+- Expand repository and npm package hygiene rules for local Homebase configs, npm/PyPI tokens, token JSON files, recovery codes, and private SSH key filenames.
+
 ## 0.1.0-alpha.12 - 2026-06-18
 
 ### Added

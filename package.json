@@ -19,7 +19,7 @@
   "files": [
     "assets/",
     "bin/",
-    "config/",
+    "config/homebase.example.toml",
     "src/**/*.py",
     "README.md",
     "README_de.md",
