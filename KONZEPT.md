@@ -25,7 +25,43 @@ einen einzigen MCP-Server — ein Zuhause für obdachlose LLMs.
 | `hb_conn_` | connectors (BACH) | Kanal-Anbindung (Telegram, Discord, HomeAssistant) | Phase 2 — aus BACH extrahieren |
 | `hb_plug_` | plugin_system (BACH) | Plugin-Discovery und -Ausführung | Phase 2 — BACH-Version fertigstellen, dann integrieren |
 
+### Integrationskandidaten (Audit 2026-06-27, noch nicht beschlossen)
+
+| Namespace | Quelle | Fähigkeit | Status |
+|---|---|---|---|
+| `hb_bridge_` | ellmos-agent-bridge | Partner-Registry, Complexity-Score → Modell-/Partner-Empfehlung, Delegation | Kandidat (HOCH) — könnte `hb_route_`/`hb_swarm_` als Delegations-Rückgrat unterlegen |
+| `hb_note_` | llm-note | Notiz-/Logbuch-Engine (SQLite Thought-Log, Notebooks, brainstorm→task) | Kandidat (MITTEL-HOCH) — ergänzt `hb_mem_`/`hb_kb_`, Abgrenzung nötig |
+| `hb_lock_` | lock-master | Multi-Agent-Datei-Locks (`LOCK*.txt`, Team-Locks) für Schreibkoordination | Kandidat (MITTEL) — mit systemweitem LOCK-System abstimmen |
+| `hb_mind_` | build-your-users-mind | ToM/Feedback-Präkognition (User-Reaktion vorhersagen) | Kandidat (MITTEL) — selbe Schicht wie `hb_inject_` (P2): Logik in homebase, Injektion clientseitig |
+| (kein Modul) | ticket-master | Intake→Score→Provider-Match | Nur Logik-Übernahme prüfen für `hb_state_task_`; kein eigenes Modul (prompt-getriebener Workflow) |
+
+### Bewusst nicht integriert (Audit 2026-06-27)
+
+Diese vier `.MODULES` sind **keine** homebase-Module, weil die Abhängigkeitsrichtung umgekehrt ist
+(sie konsumieren homebase oder sind Deployment/Fremddomäne):
+
+- **ellmos-chat** — Chat-*Runtime* (Tool-Use-Loop); **Konsument** der homebase-Tools, keine Engine darin.
+- **ellmos-core** — FastAPI/HTMX Web-UI + Auth/RBAC; **App/Frontend**, das homebase als Backend nutzen kann.
+- **ellmos-stack** — Self-hosted Deployment-Bundle (Ollama+n8n+Rinnsal+KnowledgeDigest); homebase wäre Teil *des Stacks*.
+- **open-compute** — Computer-Use-Core (GUI-Automation); andere Domäne als homebases kognitive Infrastruktur. Optionales Fernziel `hb_compute_`.
+
 ## Tool-Katalog (Phase 1)
+
+> **Status-Hinweis (Alpha 0.1.0a12, Stand 2026-06-27) — was der Code HEUTE wirklich tut:**
+> Der folgende Katalog beschreibt das Zielbild. Im Alpha gilt:
+> - **Suche:** `hb_kb_search` und `hb_mem_query` nutzen jetzt **FTS5** (External-Content-Index + Sync-Trigger,
+>   Prefix-Match mit implizitem AND), mit automatischem **LIKE-Fallback**, falls die SQLite-Build kein FTS5 hat
+>   (2026-06-27). **Semantische/Embedding-Suche** bleibt Stretch-Goal.
+> - **`hb_mem_merge`:** echtes Confidence-Merge implementiert (2026-06-27) — `dry_run=true` zeigt
+>   Duplikatgruppen, `dry_run=false` behält pro Gruppe den Survivor mit der höchsten Confidence und
+>   löscht die redundanten Zeilen (idempotent, getestet).
+> - **Engines:** alle Module sind **eigene credential-freie Implementierungen**, nicht die realen
+>   USMC/clutch/Rinnsal/Gardener-Engines (siehe „Modul-Bezug / Distribution").
+> - **Ausführung deaktiviert (by design):** `hb_swarm_` (plant, führt nicht aus), `hb_auto_`
+>   (zeichnet Ketten auf), `hb_conn_` (lokale In-/Outbox, kein Netzwerk-Send), `hb_plug_`
+>   (Discovery + Dry-Run), `hb_garden_run` (nur mit `allow_run=true`).
+> Die genannten Punkte sind in TODO.md als P1/A-Linie geführt; dieser Hinweis hält Konzept und
+> Code-Realität ehrlich auseinander.
 
 ### hb_mem_ — Memory (USMC)
 - `hb_mem_store` — Fakt/Lesson/Working-Memory speichern
@@ -131,6 +167,49 @@ nur das betroffene Modul — der Server startet trotzdem. Bei Start:
 2. Jedes Modul meldet seine Required-Dependencies
 3. Registry prüft Verfügbarkeit → registriert nur funktionierende Module
 4. Log zeigt: "Loaded: mem, route, kb, garden, api, test | Skipped: swarm (anthropic not installed)"
+
+### Modul-Bezug / Distribution für Dritt-Nutzer (Entscheidung 2026-06-27)
+
+**Frage:** Bekommen Fremd-Nutzer Rinnsal/Gardener/clutch mitgeliefert, fest verbaut, oder die jeweils
+aktuelle GitHub-Version?
+
+**Ist-Stand (Alpha 0.1.0a12):** Komplett **self-contained**. Die acht Module sind eigene,
+credential-freie Reimplementierungen in `src/homebase/modules/` und importieren **kein** Fremdmodul
+(nur `mcp` + stdlib + `homebase.storage`). Ein `pip install ellmos-homebase-mcp` bzw. `npx ellmos-homebase-mcp`
+liefert also genau diese eingebauten Implementierungen — Rinnsal/Gardener/clutch sind heute nur die
+**konzeptionellen Quellen**, nichts davon wird gebündelt oder zur Laufzeit geladen.
+
+**Zielmodell — GitHub-first, PyPI als koordinierter Endschritt (Entscheidung 2026-06-27):**
+
+1. **Default = eingebaute Zero-Dependency-Implementierung (Boden).** Jeder Nutzer hat sofort einen
+   lauffähigen Server ohne Fremd-Pakete. Bleibt die garantierte Untergrenze.
+
+2. **Primär = reale Engine per GitHub-Install — für ALLE Nutzer, nicht nur Eigenbetrieb.**
+   Die echten Engines werden über einen **einmaligen Install-Zeit-Fetch aus GitHub** bezogen (kein
+   Laufzeit-Fetch): `pip install "rinnsal @ git+https://github.com/ellmos-ai/rinnsal.git@<tag>"`
+   (auf Tag/Commit gepinnt für Reproduzierbarkeit). Das ist der reguläre Bezugsweg auch für Dritte,
+   die ohnehin GitHub nutzen — **kein PyPI nötig**. Jedes Modul bekommt eine **Seam**: reale Engine
+   importieren wenn vorhanden, sonst die eingebaute Implementierung (`check_dependencies()` +
+   Graceful-Degradation sind dafür schon da). Solange homebase **selbst** per Git/npm (nicht PyPI)
+   verteilt wird, dürfen seine optionalen Extras git-URL-Dependencies tragen — der GitHub-Weg ist
+   damit vollwertig, nicht nur Notbehelf.
+
+3. **Letzter Schritt = PyPI, koordiniert für alle Engines gemeinsam.** Erst **wenn** auf PyPI
+   veröffentlicht werden soll, **ziehen alle beteiligten Pakete gemeinsam nach** (rinnsal, gardener →
+   ggf. `ellmos-gardener` wegen Namenskollision, clutch, swarm_ai, USMC). Warum „alle zusammen": Ein
+   auf PyPI veröffentlichtes Paket darf **keine** git-URL-Dependencies in seinen Metadaten tragen
+   (PyPI lehnt „direct references" ab) — d. h. sobald homebase selbst auf PyPI geht, müssen seine
+   Engine-Extras bereits dort liegen. PyPI ist deshalb ein **All-or-nothing-Endschritt**, kein
+   gradueller. Danach: `pip install ellmos-homebase-mcp[all]`, Updates via `pip install -U`.
+
+4. **Verworfen:** Laufzeit-Fetch bei jedem Start (fragil, bricht offline, untauglich für stdio-MCP)
+   und Vendoring als Default (eingefrorene Kopie driftet, dupliziert Lizenz/Attribution). Muss ein
+   Modul *doch* gebündelt werden, dann als bewusst gepinnte `_vendor/`-Kopie mit Sync-Aufgabe.
+
+**Reihenfolge (erst bauen, dann publishen):** Zuerst die Modul-Seams + GitHub-Install-Integration
+umsetzen und alles lauffähig machen (Schicht 1+2). Die PyPI-Migration (Schicht 3) ist der **letzte
+Meilenstein**, keine Vorbedingung — sie blockiert den Bau nicht. PyPI ist damit **nicht** mehr gating
+(frühere „Voraussetzung"-Notiz ersetzt).
 
 ### Konfiguration
 

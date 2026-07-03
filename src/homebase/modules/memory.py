@@ -5,7 +5,15 @@ from __future__ import annotations
 from typing import Any
 
 from homebase.modules import ModuleBase, ToolDefinition
-from homebase.storage import connect_db, contains_term, ensure_column, resolve_agent_id, utc_now
+from homebase.storage import (
+    connect_db,
+    contains_term,
+    ensure_column,
+    fts_match_query,
+    resolve_agent_id,
+    setup_fts,
+    utc_now,
+)
 
 
 class MemoryModule(ModuleBase):
@@ -31,6 +39,7 @@ class MemoryModule(ModuleBase):
                 """
             )
             ensure_column(connection, "memories", "agent_id", "TEXT NOT NULL DEFAULT 'unknown'")
+            self._fts = setup_fts(connection, "memories", "memories_fts", ["content"])
 
     def get_tools(self) -> list[ToolDefinition]:
         return [
@@ -91,15 +100,29 @@ class MemoryModule(ModuleBase):
             ),
             ToolDefinition(
                 name="hb_mem_merge",
-                description="Preview confidence-based merge candidates for overlapping memories",
+                description="Confidence-based merge of duplicate memories (dry_run previews; dry_run=false applies the merge)",
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "dry_run": {"type": "boolean", "default": True, "description": "Preview merge without applying"},
+                        "dry_run": {"type": "boolean", "default": True, "description": "Preview merge without applying. Set false to apply."},
                         "agent_id": {"type": "string", "description": "Optional agent filter"},
                     },
                 },
                 handler=self._merge,
+            ),
+            ToolDefinition(
+                name="hb_mem_consolidate",
+                description="Decay memory confidence and prune low-confidence entries (dry_run previews; dry_run=false applies)",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "dry_run": {"type": "boolean", "default": True, "description": "Preview without applying. Set false to apply."},
+                        "decay": {"type": "number", "default": 0.1, "minimum": 0, "maximum": 1, "description": "Absolute confidence reduction per entry."},
+                        "min_confidence": {"type": "number", "default": 0.2, "minimum": 0, "maximum": 1, "description": "Entries below this (after decay) are pruned."},
+                        "agent_id": {"type": "string", "description": "Optional agent filter"},
+                    },
+                },
+                handler=self._consolidate,
             ),
         ]
 
@@ -132,6 +155,34 @@ class MemoryModule(ModuleBase):
         category = str(kwargs.get("category", "all"))
         limit = int(kwargs.get("limit", 10))
         agent_id = kwargs.get("agent_id")
+
+        if getattr(self, "_fts", False):
+            match = fts_match_query(query)
+            if match:
+                fsql = """
+                    SELECT m.id, m.content, m.category, m.confidence, m.agent_id, m.created_at
+                    FROM memories_fts f JOIN memories m ON m.id = f.rowid
+                    WHERE memories_fts MATCH ?
+                """
+                fparams: list[Any] = [match]
+                if category != "all":
+                    fsql += " AND m.category = ?"
+                    fparams.append(category)
+                if agent_id:
+                    fsql += " AND m.agent_id = ?"
+                    fparams.append(str(agent_id))
+                fsql += " ORDER BY rank LIMIT ?"
+                fparams.append(limit)
+                with connect_db(self.db_path) as connection:
+                    rows = connection.execute(fsql, fparams).fetchall()
+                return {
+                    "status": "ok",
+                    "query": query,
+                    "mode": "fts5",
+                    "agent_id": agent_id,
+                    "count": len(rows),
+                    "results": [dict(row) for row in rows],
+                }
 
         sql = """
             SELECT id, content, category, confidence, agent_id, created_at
@@ -203,10 +254,11 @@ class MemoryModule(ModuleBase):
         if agent_id:
             where = "WHERE agent_id = ?"
             params.append(str(agent_id))
+
         with connect_db(self.db_path) as connection:
             duplicates = connection.execute(
                 f"""
-                SELECT content, category, agent_id, COUNT(*) AS count
+                SELECT content, category, agent_id, COUNT(*) AS count, MAX(confidence) AS max_confidence
                 FROM memories
                 {where}
                 GROUP BY content, category, agent_id
@@ -215,11 +267,100 @@ class MemoryModule(ModuleBase):
                 params,
             ).fetchall()
 
+            if dry_run:
+                return {
+                    "status": "dry_run",
+                    "agent_id": agent_id,
+                    "duplicate_groups": [dict(row) for row in duplicates],
+                    "message": "Preview only. Call with dry_run=false to apply the confidence-based merge.",
+                }
+
+            # Confidence-based merge: per duplicate group keep one survivor that
+            # carries the group's highest confidence; delete the redundant rows.
+            merged_groups = 0
+            removed_rows = 0
+            for group in duplicates:
+                rows = connection.execute(
+                    """
+                    SELECT id, confidence FROM memories
+                    WHERE content = ? AND category = ? AND agent_id = ?
+                    ORDER BY confidence DESC, id ASC
+                    """,
+                    (group["content"], group["category"], group["agent_id"]),
+                ).fetchall()
+                if len(rows) <= 1:
+                    continue
+                survivor_id = int(rows[0]["id"])
+                max_confidence = max(float(row["confidence"]) for row in rows)
+                loser_ids = [(int(row["id"]),) for row in rows[1:]]
+                connection.execute(
+                    "UPDATE memories SET confidence = ? WHERE id = ?",
+                    (max_confidence, survivor_id),
+                )
+                connection.executemany("DELETE FROM memories WHERE id = ?", loser_ids)
+                merged_groups += 1
+                removed_rows += len(loser_ids)
+
         return {
-            "status": "dry_run" if dry_run else "not_implemented",
+            "status": "merged",
             "agent_id": agent_id,
-            "duplicate_groups": [dict(row) for row in duplicates],
-            "message": "Automatic merge is intentionally preview-only in this alpha.",
+            "merged_groups": merged_groups,
+            "removed_rows": removed_rows,
+            "message": f"Merged {merged_groups} duplicate group(s); removed {removed_rows} redundant row(s).",
+        }
+
+    async def _consolidate(self, **kwargs) -> dict[str, Any]:
+        dry_run = bool(kwargs.get("dry_run", True))
+        agent_id = kwargs.get("agent_id")
+        decay = min(1.0, max(0.0, float(kwargs.get("decay", 0.1))))
+        min_confidence = min(1.0, max(0.0, float(kwargs.get("min_confidence", 0.2))))
+
+        where = ""
+        params: list[Any] = []
+        if agent_id:
+            where = "WHERE agent_id = ?"
+            params.append(str(agent_id))
+
+        with connect_db(self.db_path) as connection:
+            rows = connection.execute(
+                f"SELECT id, confidence FROM memories {where}", params
+            ).fetchall()
+
+            survivors = 0
+            prune_ids: list[tuple[int]] = []
+            for row in rows:
+                new_confidence = max(0.0, float(row["confidence"]) - decay)
+                if new_confidence < min_confidence:
+                    prune_ids.append((int(row["id"]),))
+                    continue
+                survivors += 1
+                if not dry_run and new_confidence != float(row["confidence"]):
+                    connection.execute(
+                        "UPDATE memories SET confidence = ? WHERE id = ?",
+                        (new_confidence, int(row["id"])),
+                    )
+
+            if dry_run:
+                return {
+                    "status": "dry_run",
+                    "agent_id": agent_id,
+                    "decay": decay,
+                    "min_confidence": min_confidence,
+                    "would_keep": survivors,
+                    "would_prune": len(prune_ids),
+                }
+
+            if prune_ids:
+                connection.executemany("DELETE FROM memories WHERE id = ?", prune_ids)
+
+        return {
+            "status": "consolidated",
+            "agent_id": agent_id,
+            "decay": decay,
+            "min_confidence": min_confidence,
+            "kept": survivors,
+            "pruned": len(prune_ids),
+            "message": f"Decayed confidence by {decay}; kept {survivors}, pruned {len(prune_ids)} below {min_confidence}.",
         }
 
 

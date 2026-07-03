@@ -6,7 +6,7 @@ import pytest
 from homebase.config import HomebaseConfig
 from homebase.i18n import I18n, normalize_locale
 from homebase.registry import ModuleRegistry
-from homebase.storage import connect_db
+from homebase.storage import connect_db, fts_match_query
 
 
 def _registry(tmp_path, modules):
@@ -84,6 +84,141 @@ async def test_memory_agent_id_provenance_and_filter(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_memory_merge_applies_confidence_based_dedup(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+
+    # Two identical entries (same content/category/agent) with different confidence.
+    await registry.call_tool(
+        "hb_mem_store",
+        {"category": "fact", "content": "Doppelter Fakt", "confidence": 0.4, "agent_id": "codex"},
+    )
+    await registry.call_tool(
+        "hb_mem_store",
+        {"category": "fact", "content": "Doppelter Fakt", "confidence": 0.8, "agent_id": "codex"},
+    )
+    # A distinct entry that must survive untouched.
+    await registry.call_tool(
+        "hb_mem_store",
+        {"category": "fact", "content": "Einzigartiger Fakt", "confidence": 0.5, "agent_id": "codex"},
+    )
+
+    preview = await registry.call_tool("hb_mem_merge", {"dry_run": True})
+    assert preview["status"] == "dry_run"
+    assert len(preview["duplicate_groups"]) == 1
+
+    applied = await registry.call_tool("hb_mem_merge", {"dry_run": False})
+    assert applied["status"] == "merged"
+    assert applied["merged_groups"] == 1
+    assert applied["removed_rows"] == 1
+
+    # The duplicate is gone; the survivor carries the group's highest confidence.
+    remaining = await registry.call_tool("hb_mem_query", {"query": "Doppelter Fakt", "category": "all"})
+    assert remaining["count"] == 1
+    assert remaining["results"][0]["confidence"] == 0.8
+    # Distinct entry untouched.
+    distinct = await registry.call_tool("hb_mem_query", {"query": "Einzigartiger", "category": "all"})
+    assert distinct["count"] == 1
+
+    # Idempotent: a second merge finds nothing left to do.
+    again = await registry.call_tool("hb_mem_merge", {"dry_run": False})
+    assert again["merged_groups"] == 0
+    assert again["removed_rows"] == 0
+
+
+@pytest.mark.asyncio
+async def test_memory_consolidate_decays_and_prunes(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+    await registry.call_tool("hb_mem_store", {"category": "fact", "content": "Starker Fakt", "confidence": 0.9})
+    await registry.call_tool("hb_mem_store", {"category": "fact", "content": "Schwacher Fakt", "confidence": 0.25})
+    await registry.call_tool("hb_mem_store", {"category": "fact", "content": "Sehr schwacher Fakt", "confidence": 0.15})
+
+    preview = await registry.call_tool("hb_mem_consolidate", {"dry_run": True, "decay": 0.1, "min_confidence": 0.2})
+    assert preview["status"] == "dry_run"
+    assert preview["would_keep"] == 1
+    assert preview["would_prune"] == 2
+
+    applied = await registry.call_tool("hb_mem_consolidate", {"dry_run": False, "decay": 0.1, "min_confidence": 0.2})
+    assert applied["status"] == "consolidated"
+    assert applied["kept"] == 1
+    assert applied["pruned"] == 2
+
+    remaining = await registry.call_tool("hb_mem_query", {"query": "Fakt", "category": "all"})
+    assert remaining["count"] == 1
+    assert remaining["results"][0]["content"] == "Starker Fakt"
+    assert remaining["results"][0]["confidence"] == pytest.approx(0.8)
+
+
+@pytest.mark.asyncio
+async def test_memory_consolidate_respects_agent_filter(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+    await registry.call_tool(
+        "hb_mem_store", {"category": "fact", "content": "Codex-Fakt", "confidence": 0.15, "agent_id": "codex"}
+    )
+    await registry.call_tool(
+        "hb_mem_store", {"category": "fact", "content": "Claude-Fakt", "confidence": 0.15, "agent_id": "claude"}
+    )
+
+    applied = await registry.call_tool(
+        "hb_mem_consolidate", {"dry_run": False, "decay": 0.1, "min_confidence": 0.2, "agent_id": "codex"}
+    )
+    assert applied["kept"] == 0
+    assert applied["pruned"] == 1
+
+    # Only the codex-owned entry was pruned; the claude entry is untouched.
+    remaining = await registry.call_tool("hb_mem_query", {"query": "Fakt", "category": "all"})
+    assert remaining["count"] == 1
+    assert remaining["results"][0]["agent_id"] == "claude"
+    assert remaining["results"][0]["confidence"] == pytest.approx(0.15)
+
+
+@pytest.mark.asyncio
+async def test_memory_merge_respects_agent_filter_when_applying(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+    await registry.call_tool(
+        "hb_mem_store", {"category": "fact", "content": "Geteilter Fakt", "confidence": 0.3, "agent_id": "codex"}
+    )
+    await registry.call_tool(
+        "hb_mem_store", {"category": "fact", "content": "Geteilter Fakt", "confidence": 0.7, "agent_id": "codex"}
+    )
+    await registry.call_tool(
+        "hb_mem_store", {"category": "fact", "content": "Geteilter Fakt", "confidence": 0.5, "agent_id": "claude"}
+    )
+    await registry.call_tool(
+        "hb_mem_store", {"category": "fact", "content": "Geteilter Fakt", "confidence": 0.9, "agent_id": "claude"}
+    )
+
+    applied = await registry.call_tool("hb_mem_merge", {"dry_run": False, "agent_id": "codex"})
+    assert applied["merged_groups"] == 1
+    assert applied["removed_rows"] == 1
+
+    # claude's duplicate pair is untouched by the codex-scoped merge.
+    remaining = await registry.call_tool("hb_mem_query", {"query": "Geteilter", "category": "all"})
+    assert remaining["count"] == 3
+    claude_confidences = sorted(
+        row["confidence"] for row in remaining["results"] if row["agent_id"] == "claude"
+    )
+    assert claude_confidences == [0.5, 0.9]
+
+
+@pytest.mark.asyncio
+async def test_memory_query_fts_mode_reports_mode_and_respects_category(tmp_path):
+    registry = _registry(tmp_path, ["mem"])
+    await registry.call_tool(
+        "hb_mem_store", {"category": "fact", "content": "Homebase nutzt FTS5 fuer Memory-Suche"}
+    )
+    await registry.call_tool(
+        "hb_mem_store", {"category": "lesson", "content": "Homebase nutzt FTS5 fuer Wissenssuche"}
+    )
+
+    result = await registry.call_tool("hb_mem_query", {"query": "FTS5", "category": "all"})
+    assert result["count"] == 2
+    if result.get("mode") == "fts5":
+        fact_only = await registry.call_tool("hb_mem_query", {"query": "FTS5", "category": "fact"})
+        assert fact_only["count"] == 1
+        assert fact_only["results"][0]["category"] == "fact"
+
+
+@pytest.mark.asyncio
 async def test_knowledge_ingest_search_get_and_list(tmp_path):
     registry = _registry(tmp_path, ["kb"])
 
@@ -123,6 +258,53 @@ async def test_knowledge_agent_id_provenance_and_filter(tmp_path):
     assert search["results"][0]["agent_id"] == "gemini"
     assert tags["tags"] == ["alpha"]
     assert hidden["status"] == "not_found"
+
+
+def test_fts_match_query_builds_prefix_terms():
+    assert fts_match_query("Doppelter Fakt") == "doppelter* fakt*"
+    assert fts_match_query("  MCP-Server!  ") == "mcp* server*"
+    assert fts_match_query("   ") == ""
+
+
+@pytest.mark.asyncio
+async def test_knowledge_search_multi_term_and_single_term(tmp_path):
+    registry = _registry(tmp_path, ["kb"])
+    await registry.call_tool(
+        "hb_kb_ingest",
+        {"content": "Homebase Routing waehlt ein Modell.", "tags": ["route"]},
+    )
+    await registry.call_tool(
+        "hb_kb_ingest",
+        {"content": "Homebase Memory speichert Fakten.", "tags": ["mem"]},
+    )
+
+    # When FTS5 is available, multi-term queries use implicit AND -> only the
+    # routing entry has both "routing" and "modell".
+    both = await registry.call_tool("hb_kb_search", {"query": "routing modell"})
+    if both.get("mode") == "fts5":
+        assert both["count"] == 1
+        assert "Routing" in both["results"][0]["content"]
+
+    # A shared single term matches both entries in either mode (FTS5 or LIKE).
+    shared = await registry.call_tool("hb_kb_search", {"query": "Homebase"})
+    assert shared["count"] == 2
+
+
+@pytest.mark.asyncio
+async def test_knowledge_search_category_filter_applies_in_fts_mode(tmp_path):
+    registry = _registry(tmp_path, ["kb"])
+    await registry.call_tool(
+        "hb_kb_ingest",
+        {"content": "Homebase Routing waehlt ein Modell.", "tags": ["route"]},
+    )
+    await registry.call_tool(
+        "hb_kb_ingest",
+        {"content": "Homebase Memory speichert Fakten.", "tags": ["mem"]},
+    )
+
+    routed = await registry.call_tool("hb_kb_search", {"query": "Homebase", "category": "route"})
+    assert routed["count"] == 1
+    assert "route" in routed["results"][0]["tags"]
 
 
 @pytest.mark.asyncio
@@ -427,7 +609,8 @@ def test_tool_descriptions_fallback_to_default_for_partial_locale(tmp_path):
     tools = {tool.name: tool for tool in registry.list_tools()}
 
     assert tools["hb_mem_store"].description.startswith("Guarda")
-    assert tools["hb_mem_merge"].description.startswith("Preview")
+    # hb_mem_merge has no Spanish override → falls back to the default (English) description.
+    assert tools["hb_mem_merge"].description.startswith("Confidence-based")
 
 
 def test_locale_normalization():

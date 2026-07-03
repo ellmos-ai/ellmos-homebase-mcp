@@ -44,12 +44,12 @@
 
 ## P1 — Gegen Overflow + tatsächliche Nutzung
 
-- [ ] **Automatisches Decay / Konsolidierung (`hb_mem_consolidate`).**
-      Entscheidend gegen „unsichtbaren Overflow": eine DB, die still alles ansammelt, verlagert
-      das Müll-Problem der `.md`-Dateien nur dorthin, wo es niemand sieht. Einträge müssen mit
-      der Zeit / sinkender Confidence von selbst herausfallen, Facts zu Lessons verdichten.
-      → Vorbild: BACH `system/hub/consolidation.py` (produktiv erprobt; USMC hat nur
-      Confidence-Scores, kein Decay).
+- [x] **Automatisches Decay / Konsolidierung (`hb_mem_consolidate`) — Basis erledigt 2026-06-27.**
+      Neues Tool: senkt Confidence pro Eintrag um `decay` und prunt Einträge unter `min_confidence`
+      (dry_run-Preview + Apply, agent-filterbar, getestet). Damit fallen Einträge mit sinkender
+      Confidence von selbst heraus → wirkt dem „unsichtbaren Overflow" entgegen.
+      **Offen (P2-Ausbau):** zeit-/altersbasiertes Decay und Facts→Lessons-Verdichtung
+      (Vorbild BACH `system/hub/consolidation.py`).
 
 - [ ] **Lifecycle-Verdrahtung — der eigentliche Grund, warum heute alle drei DBs leer sind.**
       Kein Tool nützt, wenn es nicht automatisch befüllt/gelesen wird. Drei Hooks definieren
@@ -60,13 +60,15 @@
       - [ ] Decay periodisch (Cron / Session-Ende).
       → Für Claude Code via `SessionStart`/`Stop`-Hooks; für BACH via Startup/Shutdown-Handler.
 
-- [ ] **FTS5 statt LIKE in `hb_kb_*` und `hb_mem_query`.**
-      KONZEPT.md wirbt mit „FTS5-Volltextsuche" und „semantisch/keyword-basiert", der Code nutzt
-      aber plain `LIKE`. Entweder FTS5-Virtual-Table nachrüsten oder die Doku ehrlich auf
-      Keyword-LIKE korrigieren. Optionale Embedding-Suche als Stretch-Goal.
+- [x] **FTS5 statt LIKE in `hb_kb_search` und `hb_mem_query` (2026-06-27).**
+      External-Content-FTS5-Index + Sync-Trigger in `storage.setup_fts()`, Query-Builder
+      `storage.fts_match_query()` (Prefix + implizites AND), automatischer **LIKE-Fallback** wenn die
+      SQLite-Build kein FTS5 hat. Tests in `test_registry.py`. Offen bleibt nur die optionale
+      **semantische/Embedding-Suche** (Stretch-Goal).
 
-- [ ] **`hb_mem_merge` echt implementieren (aktuell nur Dry-Run/Preview).**
-      Für Konfliktauflösung zwischen Agenten nötig, sobald `agent_id` da ist.
+- [x] **`hb_mem_merge` echt implementiert (2026-06-27).** `dry_run=false` führt Duplikatgruppen
+      (content+category+agent_id) confidence-basiert zusammen: Survivor = höchste Confidence, redundante
+      Zeilen gelöscht; idempotent. Unit-Test in `test_registry.py`. (Decay/Konsolidierung bleibt offen, P1.)
 
 ## P2 — Erinnerungshilfen: Injektoren als neues Modul (`hb_inject_`)
 
@@ -119,3 +121,92 @@
 - [ ] Doku-Korrektheit: KONZEPT.md verspricht FTS5/semantische Suche/Merge, die der Code
       (noch) nicht hat — angleichen, sobald P1/P2 umgesetzt oder Doku ehrlich machen.
 - [ ] Versions-Sync prüfen (package.json / pyproject.toml / server.json / `__version__`).
+
+---
+
+## Modul-Integrations-Audit (2026-06-27)
+
+> Auslöser: Prüfung von 14 `.MODULES`-Kandidaten gegen homebase. Befund:
+> Die acht Alpha-Module sind **eigenständige credential-freie Reimplementierungen**
+> (verifiziert in `modules/routing.py`, `modules/connectors.py` — kein Import der realen
+> `.MODULES`-Pakete). Es gibt also zwei Arbeitslinien: (A) reale `.MODULES`-Engines hinter
+> die bestehenden Namespaces ziehen, (B) neue, bisher nicht im KONZEPT geführte Kandidaten
+> bewerten/integrieren. Architektur-Entscheidung (Kandidat/abgelehnt) ist in `KONZEPT.md`
+> in der Modul-Tabelle nachgetragen — hier stehen nur die ausführbaren Aufgaben.
+
+### A — Bestehende Namespaces: Stub → reale `.MODULES`-Engine (Schichtung „Engine = .MODULES, homebase = MCP-Wrapper")
+
+- [ ] **`hb_route_` auf `.MODULES/clutch` umstellen.** Aktuell reine Heuristik in `routing.py`
+      (kein `clutch`-Import). clutch als optionale Routing-Engine einbinden (Epsilon-Greedy,
+      Road-Types, Auto-Learning, Budget-Zonen) — credential-frei bleiben, Provider-Calls hinter
+      expliziter Konfiguration. Knüpft an P0 (USMC-Schichtung) und P3 an.
+- [ ] **`hb_swarm_` auf `.MODULES/swarm_ai` umstellen.** Reale Schwarm-Patterns
+      (parallel/consensus/hierarchy/stigmergy) statt Alpha-Stub; Backend konfigurierbar (Ollama-default).
+- [ ] **`hb_api_` auf `.MODULES/ApiProber` umstellen.** Reale Probe-/Discovery-Engine (OpenAPI,
+      Wordlist, HATEOAS) hinter den Namespace; stdlib-only, daher unkritisch.
+- [ ] **`hb_conn_` auf `.MODULES/connectors` v1.0.0 binden** (bereits in P3 vermerkt — hier als
+      A-Linie präzisiert: `connectors.py` ist Alpha-Stub ohne Netzwerk; v1.0.0 einbinden statt neu bauen).
+- [ ] **`hb_auto_` auf `.MODULES/llmauto` mit Backend-Abstraktion** (Dublette zu P3/`.MCP/TODO`;
+      hier nur Querverweis, nicht erneut auflisten).
+- [ ] **`hb_state_` auf reale `.AI/.OS/rinnsal`-Engine binden.** Rinnsal ist die im KONZEPT genannte
+      Quelle (Memory/Tasks/Connectors/Automation/Ollama-Runner, stdlib-only); `state.py` ist Alpha-Reimpl.
+      Zusatznutzen: Rinnsals **Ollama-Runner** kann das Ausführungs-Backend für `hb_route_`/`hb_swarm_`/`hb_auto_`
+      liefern (credential-frei, lokal). Knüpft an P0 (USMC vs. Rinnsal als State-Engine abgrenzen).
+- [ ] **`hb_garden_` auf reale `.AI/.OS/gardener`-Engine binden** (find/get/put/run, eine `everything`-Tabelle
+      + FTS5). Gardeners **FTS5** ist zugleich der Substrat-Kandidat für P1 „FTS5 statt LIKE" in
+      `hb_kb_`/`hb_mem_query` — gemeinsam lösen statt zweimal bauen.
+
+> **Bezugsweg + Reihenfolge (Entscheidung 2026-06-27): GitHub-first, PyPI als Endschritt.**
+> Die realen Engines werden zunächst **per Install-Zeit-Git-Fetch** bezogen — für ALLE Nutzer, nicht
+> nur Eigenbetrieb (`pip install "rinnsal @ git+https://…@<tag>"`). Jedes A-Modul bekommt eine **Seam**
+> (reale Engine wenn importierbar, sonst eingebaute Impl.). **Reihenfolge: erst bauen, dann publishen** —
+> Seams + Git-Install zuerst, lauffähig machen; **PyPI ist der letzte, koordinierte Schritt**, bei dem
+> ALLE Engine-Pakete gemeinsam nachziehen (rinnsal, `ellmos-gardener`, clutch, swarm_ai, USMC), weil
+> PyPI keine git-URL-Deps in publizierten Metadaten erlaubt (All-or-nothing). PyPI ist damit **nicht**
+> gating. Details: `KONZEPT.md` → „Modul-Bezug / Distribution". (Ersetzt die frühere P0-Annahme
+> „erst PyPI-paketieren".)
+
+> **Hinweis Skill-/Config-Infrastruktur (2026-06-27):** Die geprüften Infrastruktur-Skills
+> (`agent-config-sync`, `agents-bridge`, `ai-portable-setup`, `mcp-config-sync`, `skill-explorer`,
+> `system-onboarding`) sind **ControlCenter-Domäne** (Skill-/MCP-/Config-Erkennung und -Sync), nicht
+> homebase. Der gewünschte **Skill-Finder** wurde dort in ROADMAP/TODO ergänzt. homebase bleibt die
+> kognitive Backend-Schicht (Memory/Routing/Wissen/State).
+
+### B — Neue Integrationskandidaten (nicht im bisherigen KONZEPT)
+
+- [ ] **`ellmos-agent-bridge` → neuer Namespace `hb_bridge_` / Delegations-Rückgrat (HOCH).**
+      Sauberer stdlib-only BACH-Extrakt (Partner-Registry, `ComplexityScorer` 0–100 →
+      Modell- + Partner-Empfehlung, Delegation, Health-Checks). Starke Überlappung mit `hb_route_`
+      und `hb_swarm_`: kann das Partner-/Delegations-Backbone liefern, das homebase für echtes
+      Multi-Agent-Routing fehlt. Prüfen, ob `hb_route_` darauf aufsetzt statt eigener Heuristik.
+- [ ] **`llm-note` → Namespace `hb_note_` (MITTEL-HOCH).** Local-first Notiz-Engine (SQLite
+      Thought-Log + Notebooks, brainstorm→task), stdlib-only, ebenfalls BACH-Extrakt. Ergänzt
+      `hb_mem_`/`hb_kb_` um die „flüchtige Gedanke/Logbuch"-Ebene. Abgrenzung zu `hb_mem_` definieren
+      (Note = unkonsolidiert, Memory = konsolidiert), Doppelspeicherung vermeiden.
+- [ ] **`lock-master` → Namespace `hb_lock_` (MITTEL).** Portables Multi-Agent-Datei-Lock-System
+      (zero-dep, `LOCK*.txt`, Team-Locks, Scan/Prune). homebase ist als *Team*-Gedächtnis gedacht
+      (P0 Concurrency) — `hb_lock_check`/`hb_lock_acquire`/`hb_lock_release` würde LLMs erlauben,
+      Schreibkollisionen vor `hb_mem_*`-Writes zu koordinieren. Mit dem systemweiten LOCK-System
+      (`_scripts/LOCK-SYSTEM.md`) abstimmen, kein zweiter Standard.
+- [ ] **`build-your-users-mind` → Namespace `hb_mind_` (MITTEL, an P2-Injektoren koppeln).**
+      ToM/Feedback-Präkognition (Vorhersage der User-Reaktion + Konfidenz, Eskalation bei 🔴).
+      Architektur-Nuance identisch zu P2: homebase hostet die **Auswahl-/Vorhersagelogik**
+      (`hb_mind_predict`, liest aus `hb_mem_`), das **Einschieben** macht ein clientseitiger Hook.
+      Gemeinsam mit dem `hb_inject_`-Modul (P2) entwerfen — selbe Schicht.
+- [ ] **`ticket-master` → nur Scoring-/Routing-Logik in `hb_state_task_` prüfen (NIEDRIG-MITTEL).**
+      ticket-master ist ein *prompt-getriebener Workflow* (kein importierbares Engine-Paket), daher
+      NICHT als Modul übernehmen. Aber Intake→Score→Provider-Match-Logik bewerten, ob sie
+      `hb_state_task_create/update` um Priorisierung/Provider-Empfehlung anreichern kann.
+
+### C — Bewusst NICHT integrieren (Konsumenten/Deploy/Fremddomäne — Entscheidung, kein offener Task)
+
+- [ ] (Dokumentations-Task) In `KONZEPT.md` festhalten, **warum** diese vier nicht in homebase gehören:
+      - **`ellmos-chat`** — backend-agnostische Chat-*Runtime* (ChatRuntime, Tool-Use-Loop). Ist ein
+        **Konsument** von homebase-Tools, keine Engine *in* homebase (würde homebase importieren).
+      - **`ellmos-core`** — FastAPI/HTMX Web-UI + Auth/RBAC (On-Prem-Suite). **App/Frontend**, das
+        homebase später als Backend nutzen könnte — nicht umgekehrt.
+      - **`ellmos-stack`** — Self-hosted Deployment-Bundle (Ollama+n8n+Rinnsal+KnowledgeDigest,
+        docker-compose). **Komposition/Deployment**; homebase wäre Teil *des Stacks*, nicht andersherum.
+      - **`open-compute`** — Computer-Use-Core (Perception→Action GUI-Loop). **Andere Domäne** als
+        homebases kognitive Infrastruktur (Memory/Routing/Wissen). Optionales Fernziel `hb_compute_`,
+        aber außerhalb des aktuellen Konzepts „Zuhause für obdachlose LLMs".

@@ -6,7 +6,15 @@ import json
 from typing import Any
 
 from homebase.modules import ModuleBase, ToolDefinition
-from homebase.storage import connect_db, contains_term, ensure_column, resolve_agent_id, utc_now
+from homebase.storage import (
+    connect_db,
+    contains_term,
+    ensure_column,
+    fts_match_query,
+    resolve_agent_id,
+    setup_fts,
+    utc_now,
+)
 
 
 class KnowledgeModule(ModuleBase):
@@ -30,6 +38,9 @@ class KnowledgeModule(ModuleBase):
                 """
             )
             ensure_column(connection, "knowledge_entries", "agent_id", "TEXT NOT NULL DEFAULT 'unknown'")
+            self._fts = setup_fts(
+                connection, "knowledge_entries", "knowledge_fts", ["content", "source", "tags"]
+            )
 
     def get_tools(self) -> list[ToolDefinition]:
         return [
@@ -95,6 +106,34 @@ class KnowledgeModule(ModuleBase):
         limit = int(kwargs.get("limit", 10))
         category = kwargs.get("category")
         agent_id = kwargs.get("agent_id")
+
+        if getattr(self, "_fts", False):
+            match = fts_match_query(query)
+            if match:
+                fsql = """
+                    SELECT e.id, e.content, e.source, e.tags, e.agent_id, e.created_at
+                    FROM knowledge_fts f JOIN knowledge_entries e ON e.id = f.rowid
+                    WHERE knowledge_fts MATCH ?
+                """
+                fparams: list[Any] = [match]
+                if category:
+                    fsql += " AND e.tags LIKE ?"
+                    fparams.append(contains_term(str(category)))
+                if agent_id:
+                    fsql += " AND e.agent_id = ?"
+                    fparams.append(str(agent_id))
+                fsql += " ORDER BY rank LIMIT ?"
+                fparams.append(limit)
+                with connect_db(self.db_path) as connection:
+                    rows = connection.execute(fsql, fparams).fetchall()
+                return {
+                    "status": "ok",
+                    "query": query,
+                    "mode": "fts5",
+                    "agent_id": agent_id,
+                    "count": len(rows),
+                    "results": [_entry_from_row(row) for row in rows],
+                }
 
         params: list[Any] = [contains_term(query), contains_term(query), contains_term(query)]
         sql = """

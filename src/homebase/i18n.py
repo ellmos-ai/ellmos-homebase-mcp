@@ -328,7 +328,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "tool.hb_mem_store": "Speichert einen Fakt, eine Lektion oder einen Working-Memory-Eintrag.",
         "tool.hb_mem_query": "Sucht Memory-Einträge per Schlüsselwort.",
         "tool.hb_mem_context": "Erzeugt kompakten Kontext für Prompt-Injektion.",
-        "tool.hb_mem_merge": "Zeigt mögliche Zusammenführungen überlappender Memories an.",
+        "tool.hb_mem_merge": "Confidence-basierte Zusammenführung doppelter Memories (dry_run zeigt Vorschau; dry_run=false wendet an).",
         "tool.hb_route_select": "Analysiert einen Prompt und empfiehlt Modell oder Provider.",
         "tool.hb_route_evaluate": "Speichert Qualitätsfeedback für eine Routing-Entscheidung.",
         "tool.hb_route_stats": "Gibt Routing-Statistiken und Lernfortschritt aus.",
