@@ -2,7 +2,14 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
-## Unreleased
+## 0.1.0-alpha.13 - 2026-07-03
+
+### Added
+
+- `hb_kb_search` and `hb_mem_query` now use a real external-content FTS5 index (`storage.setup_fts` / `fts_match_query`) for prefix-match keyword search, with automatic `LIKE` fallback when the local SQLite build lacks FTS5.
+- `hb_mem_merge` applies a real confidence-based dedup (previously preview-only): keeps the highest-confidence survivor per duplicate group and deletes the redundant rows.
+- New `hb_mem_consolidate` tool decays memory confidence and prunes low-confidence entries (`dry_run` previews, `dry_run=false` applies).
+- Tests for FTS category filtering, agent-scoped merge/consolidate, and mode reporting.
 
 ### Security
 
