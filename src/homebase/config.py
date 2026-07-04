@@ -22,16 +22,36 @@ DEFAULT_ENABLED_MODULES = [
     "mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug",
 ]
 
+# Zero-dependency default: a source checkout or npm/pip install with no
+# homebase.toml at all must stay fully self-contained (see KONZEPT.md "Engine
+# Seams"). Systems that want the real Gardener/Rinnsal/clutch engines set
+# `[engines].mode = "canonical"` explicitly in their own homebase.toml.
+DEFAULT_ENGINE_MODE = "bundled"
+
 
 @dataclass
 class HomebaseConfig:
     enabled_modules: list[str] = field(default_factory=lambda: list(DEFAULT_ENABLED_MODULES))
     language: str = "en"
     module_configs: dict[str, dict[str, Any]] = field(default_factory=dict)
+    engine_mode: str = DEFAULT_ENGINE_MODE
+    engine_configs: dict[str, dict[str, Any]] = field(default_factory=dict)
     raw: dict[str, Any] = field(default_factory=dict)
 
     def module_config(self, name: str) -> dict[str, Any]:
         return self.module_configs.get(name, {})
+
+    def engine_settings(self, name: str) -> dict[str, Any]:
+        """Resolve the effective engine mode/path for one module.
+
+        Per-module `[engines.<name>]` overrides the global `[engines].mode`.
+        `mode` is either "canonical" (use the real Gardener/Rinnsal/clutch
+        engine when importable) or "bundled" (always use the built-in
+        zero-dependency SQLite implementation).
+        """
+        per_module = self.engine_configs.get(name, {})
+        mode = str(per_module.get("mode") or self.engine_mode)
+        return {"mode": mode, "path": per_module.get("path")}
 
 
 def load_config(path: str | Path | None = None) -> HomebaseConfig:
@@ -59,15 +79,23 @@ def load_config(path: str | Path | None = None) -> HomebaseConfig:
         enabled = [enabled]
     language = _env_language(server_section.get("language") or server_section.get("locale") or "en")
 
+    engines_section = raw.get("engines", {})
+    engine_mode = str(engines_section.get("mode") or DEFAULT_ENGINE_MODE)
+    engine_configs = {
+        key: value for key, value in engines_section.items() if isinstance(value, dict)
+    }
+
     module_configs = {}
     for key, value in raw.items():
-        if key not in ("server", "modules") and isinstance(value, dict):
+        if key not in ("server", "modules", "engines") and isinstance(value, dict):
             module_configs[key] = value
 
     return HomebaseConfig(
         enabled_modules=enabled,
         language=language,
         module_configs=module_configs,
+        engine_mode=engine_mode,
+        engine_configs=engine_configs,
         raw=raw,
     )
 

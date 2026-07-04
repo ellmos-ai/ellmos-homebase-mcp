@@ -13,6 +13,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
 from homebase.config import load_config
+from homebase.engines import engine_summary
 from homebase.registry import ModuleRegistry
 
 logger = logging.getLogger("homebase")
@@ -48,6 +49,7 @@ async def serve():
     for name, reason in registry.skipped_modules:
         logger.warning("Module skipped: %s (%s)", name, reason)
 
+    logger.info("Engine seams: %s", ", ".join(engine_summary(registry.config)))
     logger.info(
         "Homebase ready - %d modules, %d tools",
         len(registry.loaded_names),

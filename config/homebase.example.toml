@@ -13,6 +13,24 @@ language = "en"
 # Credential-free alpha modules
 enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug"]
 
+# --- Engine seams (see KONZEPT.md "Engine Seams") ---
+# "bundled" (default) = zero-dependency built-in SQLite implementation, always works.
+# "canonical" = delegate to the real Gardener/Rinnsal engine when it can be found on disk
+# (checked via HOMEBASE_ENGINE_<NAME>_PATH env var, then the `path` below, then this
+# ecosystem's default .AI/.OS/* locations). Falls back to bundled (logged) if not found.
+# Only hb_garden_* and hb_state_task_* have a canonical seam implemented so far;
+# hb_mem_*/hb_kb_*/hb_route_* stay bundled-only even if canonical is requested here.
+[engines]
+mode = "bundled"
+
+# [engines.garden]
+# mode = "canonical"
+# path = "~/OneDrive/.TOPICS/.AI/.OS/gardener"
+
+# [engines.state]
+# mode = "canonical"
+# path = "~/OneDrive/.TOPICS/.AI/.OS/rinnsal"
+
 # --- Memory ---
 [mem]
 db_path = "~/.homebase/memory.db"
@@ -41,8 +59,11 @@ max_workers = 3
 
 # --- State ---
 [state]
-db_path = "~/.homebase/rinnsal.db"
+db_path = "~/.homebase/rinnsal.db"              # used by hb_state_mem_* (always bundled)
 # agent_id = "codex"
+# task_db_path override for canonical hb_state_task_* (default: ~/.rinnsal/scanner_tasks.db,
+# or $SCANNER_TASKS_DB if set). Only used when [engines.state].mode = "canonical".
+# task_db_path = "~/.rinnsal/scanner_tasks.db"
 
 # --- Garden ---
 [garden]

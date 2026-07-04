@@ -47,7 +47,7 @@ Diese vier `.MODULES` sind **keine** homebase-Module, weil die Abhängigkeitsric
 
 ## Tool-Katalog (Phase 1)
 
-> **Status-Hinweis (Alpha 0.1.0a12, Stand 2026-06-27) — was der Code HEUTE wirklich tut:**
+> **Status-Hinweis (Alpha 0.1.0a14, Stand 2026-07-04) — was der Code HEUTE wirklich tut:**
 > Der folgende Katalog beschreibt das Zielbild. Im Alpha gilt:
 > - **Suche:** `hb_kb_search` und `hb_mem_query` nutzen jetzt **FTS5** (External-Content-Index + Sync-Trigger,
 >   Prefix-Match mit implizitem AND), mit automatischem **LIKE-Fallback**, falls die SQLite-Build kein FTS5 hat
@@ -55,11 +55,14 @@ Diese vier `.MODULES` sind **keine** homebase-Module, weil die Abhängigkeitsric
 > - **`hb_mem_merge`:** echtes Confidence-Merge implementiert (2026-06-27) — `dry_run=true` zeigt
 >   Duplikatgruppen, `dry_run=false` behält pro Gruppe den Survivor mit der höchsten Confidence und
 >   löscht die redundanten Zeilen (idempotent, getestet).
-> - **Engines:** alle Module sind **eigene credential-freie Implementierungen**, nicht die realen
->   USMC/clutch/Rinnsal/Gardener-Engines (siehe „Modul-Bezug / Distribution").
+> - **Engines:** `hb_garden_*` und `hb_state_task_*` haben jetzt eine **Seam** auf die echten
+>   Gardener-/Rinnsal-Engines (siehe „Engine Seams" unten, umgesetzt 2026-07-04). `hb_mem_*`, `hb_kb_*`
+>   und `hb_route_*` bleiben **eigene credential-freie Implementierungen**, nicht die realen
+>   USMC/clutch-Engines — siehe „Engine Seams" für den Stand pro Modul.
 > - **Ausführung deaktiviert (by design):** `hb_swarm_` (plant, führt nicht aus), `hb_auto_`
 >   (zeichnet Ketten auf), `hb_conn_` (lokale In-/Outbox, kein Netzwerk-Send), `hb_plug_`
->   (Discovery + Dry-Run), `hb_garden_run` (nur mit `allow_run=true`).
+>   (Discovery + Dry-Run), `hb_garden_run` (nur mit `allow_run=true`; im canonical-Modus ruft dies
+>   die reale Gardener-Code-Ausführung auf, weiterhin nur hinter dem expliziten Flag).
 > Die genannten Punkte sind in TODO.md als P1/A-Linie geführt; dieser Hinweis hält Konzept und
 > Code-Realität ehrlich auseinander.
 
@@ -210,6 +213,51 @@ liefert also genau diese eingebauten Implementierungen — Rinnsal/Gardener/clut
 umsetzen und alles lauffähig machen (Schicht 1+2). Die PyPI-Migration (Schicht 3) ist der **letzte
 Meilenstein**, keine Vorbedingung — sie blockiert den Bau nicht. PyPI ist damit **nicht** mehr gating
 (frühere „Voraussetzung"-Notiz ersetzt).
+
+### Engine Seams (canonical|bundled) — Umsetzungsstand (2026-07-04, Ticket T-20260704-01)
+
+Vorstufe zu obigem Zielmodell, bereits umgesetzt (ohne Git-URL-Dependencies — die Seam sucht die
+Engine **lokal auf der Platte**, kein Install-Zeit-Fetch): `homebase.engines` löst pro Modul einen
+Engine-Modus auf (`canonical` = echte Engine importieren, `bundled` = eingebaute
+Zero-Dependency-Implementierung) und importiert die reale Engine nur bei Bedarf, mit
+Graceful-Fallback auf bundled (geloggt), falls sie fehlt oder der Import fehlschlägt — der Server
+startet in jedem Fall.
+
+**Konfiguration** (`homebase.toml`):
+
+```toml
+[engines]
+mode = "bundled"          # Default für einen nackten Checkout/Install (Zero-Dependency-Garantie)
+
+# Pro-Modul-Override (gewinnt gegenüber [engines].mode):
+[engines.garden]
+mode = "canonical"
+# path = "~/OneDrive/.TOPICS/.AI/.OS/gardener"   # optional; sonst Default-Kandidaten/ENV
+
+[engines.state]
+mode = "canonical"
+```
+
+Auflösereihenfolge pro Engine: `HOMEBASE_ENGINE_<NAME>_PATH` (ENV) → `[engines.<name>].path`
+(Config) → eingebaute Default-Kandidaten (`.AI/.OS/gardener`, `.AI/.OS/rinnsal` unter
+`~/OneDrive/.TOPICS/...` bzw. `~/.TOPICS/...`). Auf **diesem System** ist `canonical` der sinnvolle
+Default (echte Engines liegen lokal vor); für Dritt-Installs/Sovereign-Distribution bleibt
+`bundled` der Code-Default, solange keine `homebase.toml` etwas anderes sagt.
+
+**Pro Modul, Stand 2026-07-04:**
+
+| Modul | canonical-Ziel | Status |
+|---|---|---|
+| `hb_garden_*` | echte `gardener.Gardener` (`everything`+FTS5, `~/.gardener/gardener.db`) | **Umgesetzt.** find/get/put/run delegieren 1:1; `key`/`value`/`updated_at`-Form bleibt für Bestandsnutzer erhalten, zusätzliche Felder (`type`, `tags`, `pinned`, `source`) werden durchgereicht. `allow_run`-Gate bleibt bestehen, entriegelt jetzt echte Code-Ausführung über Gardener. Live-Roundtrip verifiziert (MCP-put → echter Gardener-get und umgekehrt, inkl. Cleanup). |
+| `hb_state_task_*` | echte `rinnsal.tasks.client.TaskClient` (`rinnsal_tasks`-Tabelle, Default `~/.rinnsal/scanner_tasks.db`) | **Umgesetzt** (nur die Task-CRUD-Tools; `hb_state_mem_*`/`hb_state_dispatch` bleiben unverändert bundled — das war nicht Teil des Auftrags). Status-Vokabular übersetzt (`in_progress` ↔ Rinnsals `active`); `cancelled` ist über dieses Tool nicht erreichbar (dokumentierte Lücke, „nur kompatible Operationen"). Agent-Filter beim Update wird von Rinnsal nicht erzwungen (Rinnsal kennt keine Agent-Scope-Guard). Live-Roundtrip verifiziert (MCP-create → echter `TaskClient.get` und umgekehrt, Statusübersetzung geprüft). |
+| `hb_mem_*` | Gardener als Backend | **Bundled-only, explizit deklariert.** Gardeners generisches `everything`-Schema (kein `confidence`-Feld, kein natives Merge/Decay) bildet `hb_mem_merge`/`hb_mem_consolidate` nicht sauber ab, ohne die Confidence-Semantik in `meta`-JSON zu verstecken. Bleibt Folgearbeit. Bei `[engines].mode=canonical` loggt der Server `mem=bundled-only (canonical requested, no seam implemented yet)` statt es stillschweigend zu ignorieren. |
+| `hb_kb_*` | Gardener als Backend | **Bundled-only, explizit deklariert** — gleiche Begründung wie `hb_mem_*` (Tags/FTS-Schema von `knowledge_entries` müsste auf `everything.tags`+`meta` abgebildet werden; Folgearbeit). |
+| `hb_route_*` | `.MODULES/clutch` (`Fahrer.kuppeln()`) | **Bundled-only, explizit deklariert.** `Fahrer.kuppeln()` (nach `strecke_analysieren()`) ist credential-frei und DB-gestützt (`clutch.db`) und wäre grundsätzlich seam-fähig — aber `Fahrer` braucht `config_dir` mit Getriebe-/Kupplungs-Konfigurationsdateien (`Getriebe`, `Kupplung`, `Fahrschule`, `Tankuhr`) und ist deutlich komplexer als Gardener/Rinnsal. Als klar beschriebene Folgearbeit zurückgestellt statt eine unfertige Seam zu bauen. |
+| `hb_swarm_*` | — | Unangetastet (Ticket-Vorgabe: einziger bereits „sauberer" Teil, von `ellmos-core` genutzt). |
+
+**Folgearbeit (nicht Teil dieses Tickets):** `hb_mem_*`/`hb_kb_*` auf Gardener konsolidieren
+(Confidence/Tags im `meta`-JSON abbilden, ohne Bestandsverhalten zu brechen); `hb_route_*` auf
+`clutch.Fahrer.kuppeln()` seam-fähig machen (setzt eine minimal konfigurierte `config_dir` voraus).
 
 ### Konfiguration
 

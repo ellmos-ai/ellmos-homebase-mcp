@@ -140,6 +140,13 @@
       (kein `clutch`-Import). clutch als optionale Routing-Engine einbinden (Epsilon-Greedy,
       Road-Types, Auto-Learning, Budget-Zonen) — credential-frei bleiben, Provider-Calls hinter
       expliziter Konfiguration. Knüpft an P0 (USMC-Schichtung) und P3 an.
+      **Geprüft 2026-07-04 (Ticket T-20260704-01):** `Fahrer.kuppeln()` (nach
+      `strecke_analysieren()`) ist tatsächlich credential-frei und DB-gestützt (`clutch.db`,
+      kein Netzwerk-Call) — grundsätzlich seam-fähig wie Gardener/Rinnsal. Zurückgestellt, weil
+      `Fahrer.__init__` eine `config_dir` mit Getriebe-/Kupplungs-/Fahrschule-Konfiguration
+      voraussetzt (deutlich mehr Vorarbeit als die anderen beiden Seams). Bleibt bundled-only,
+      Server loggt das explizit bei `[engines].mode=canonical`. Folgearbeit, kein neues Ticket
+      nötig — hier weiterführen.
 - [ ] **`hb_swarm_` auf `.MODULES/swarm_ai` umstellen.** Reale Schwarm-Patterns
       (parallel/consensus/hierarchy/stigmergy) statt Alpha-Stub; Backend konfigurierbar (Ollama-default).
 - [ ] **`hb_api_` auf `.MODULES/ApiProber` umstellen.** Reale Probe-/Discovery-Engine (OpenAPI,
@@ -148,13 +155,16 @@
       A-Linie präzisiert: `connectors.py` ist Alpha-Stub ohne Netzwerk; v1.0.0 einbinden statt neu bauen).
 - [ ] **`hb_auto_` auf `.MODULES/llmauto` mit Backend-Abstraktion** (Dublette zu P3/`.MCP/TODO`;
       hier nur Querverweis, nicht erneut auflisten).
-- [ ] **`hb_state_` auf reale `.AI/.OS/rinnsal`-Engine binden.** Rinnsal ist die im KONZEPT genannte
-      Quelle (Memory/Tasks/Connectors/Automation/Ollama-Runner, stdlib-only); `state.py` ist Alpha-Reimpl.
-      Zusatznutzen: Rinnsals **Ollama-Runner** kann das Ausführungs-Backend für `hb_route_`/`hb_swarm_`/`hb_auto_`
-      liefern (credential-frei, lokal). Knüpft an P0 (USMC vs. Rinnsal als State-Engine abgrenzen).
-- [ ] **`hb_garden_` auf reale `.AI/.OS/gardener`-Engine binden** (find/get/put/run, eine `everything`-Tabelle
-      + FTS5). Gardeners **FTS5** ist zugleich der Substrat-Kandidat für P1 „FTS5 statt LIKE" in
-      `hb_kb_`/`hb_mem_query` — gemeinsam lösen statt zweimal bauen.
+- [x] **`hb_state_` auf reale `.AI/.OS/rinnsal`-Engine binden.** Erledigt 2026-07-04 (Ticket
+      T-20260704-01): `hb_state_task_*` seam-fähig über `[engines.state].mode = "canonical"` →
+      echte `rinnsal.tasks.client.TaskClient` (`rinnsal_tasks`-Tabelle). `hb_state_mem_*`/
+      `hb_state_dispatch` bleiben bewusst bundled (war nicht Teil des Auftrags). Live-Roundtrip
+      gegen die reale Engine verifiziert. Details: KONZEPT.md „Engine Seams".
+- [x] **`hb_garden_` auf reale `.AI/.OS/gardener`-Engine binden** (find/get/put/run, eine `everything`-Tabelle
+      + FTS5). Erledigt 2026-07-04 (Ticket T-20260704-01): `[engines.garden].mode = "canonical"` →
+      echte `gardener.Gardener`; `allow_run`-Gate bleibt bestehen. Live-Roundtrip verifiziert.
+      Gardeners FTS5 als Substrat für `hb_kb_`/`hb_mem_query` bleibt offen (siehe `hb_mem_`/`hb_kb_`
+      Bundled-only-Vermerk in KONZEPT.md „Engine Seams" — Confidence/Tags-Schema passt nicht 1:1).
 
 > **Bezugsweg + Reihenfolge (Entscheidung 2026-06-27): GitHub-first, PyPI als Endschritt.**
 > Die realen Engines werden zunächst **per Install-Zeit-Git-Fetch** bezogen — für ALLE Nutzer, nicht

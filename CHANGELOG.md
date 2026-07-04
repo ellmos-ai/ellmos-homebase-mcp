@@ -2,6 +2,35 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.14 - 2026-07-04
+
+### Added
+
+- **Engine seams (`[engines].mode = "canonical" | "bundled"`).** `hb_garden_*` and
+  `hb_state_task_*` can now delegate to the real canonical engines instead of homebase's
+  own disconnected SQLite copies: `hb_garden_*` to the real Gardener (`everything` + FTS5,
+  `~/.gardener/gardener.db`) and `hb_state_task_*` to the real Rinnsal `TaskClient`
+  (`rinnsal_tasks` table, defaults to `~/.rinnsal/scanner_tasks.db`). `mode = "bundled"`
+  (still the zero-dependency default for a bare install) keeps the previous self-contained
+  behavior unchanged. New `homebase/engines.py` resolves engine paths (config override, then
+  `HOMEBASE_ENGINE_<NAME>_PATH` env var, then this ecosystem's default `.AI/.OS/*` locations)
+  and imports the real engine module, falling back to bundled with a logged warning if the
+  canonical engine is missing or fails to import — the server never fails to start over this.
+- Startup now logs one `Engine seams: ...` line summarizing the resolved mode per module,
+  including an explicit `bundled-only (canonical requested, no seam implemented yet)` marker
+  for `hb_mem_*`/`hb_kb_*`/`hb_route_*` when canonical mode is requested globally but no seam
+  exists yet for that module (see KONZEPT.md "Engine Seams").
+- Tool responses from `hb_garden_*`/`hb_state_task_*` now include an `"engine"` field
+  (`"canonical"` or `"bundled"`) so callers can tell which store answered.
+- Tests: `tests/test_engine_seams.py` covers path resolution, import fallback, and full
+  canonical-mode roundtrips against fixture doubles of the real Gardener/Rinnsal APIs.
+
+### Fixed
+
+- `hb_garden_*` and `hb_state_task_*` no longer silently diverge from the real Gardener/Rinnsal
+  data other tools (the CLI, the `_tasks` scanner) read and write, closing the gap noted in the
+  KONZEPT.md status callout ("credential-free reimplementations, not the real engines").
+
 ## 0.1.0-alpha.13 - 2026-07-03
 
 ### Added

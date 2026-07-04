@@ -1,22 +1,59 @@
-"""hb_state_ - Persistent state."""
+"""hb_state_ - Persistent state, with a seam onto the real Rinnsal task engine."""
 
 from __future__ import annotations
 
+import logging
+import os
+from pathlib import Path
 from typing import Any
 
+from homebase import engines as engine_seams
 from homebase.modules import ModuleBase, ToolDefinition
 from homebase.storage import connect_db, contains_term, ensure_column, resolve_agent_id, utc_now
+
+logger = logging.getLogger("homebase.state")
+
+# Rinnsal's TaskClient uses a different status/priority vocabulary than the
+# hb_state_task_* MCP schema (which predates this seam). Translate at the
+# boundary rather than changing either vocabulary.
+_TO_RINNSAL_STATUS = {"in_progress": "active"}
+_TO_HOMEBASE_STATUS = {"active": "in_progress"}
 
 
 class StateModule(ModuleBase):
     def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.db_path = config.get("db_path", "~/.homebase/rinnsal.db")
-        self._init_db()
 
-    def _init_db(self) -> None:
+        self.task_engine_mode = "bundled"
+        self._task_client_cls = None
+        self._task_db_path: str | None = None
+        requested_mode = str(config.get("_engine_mode", "bundled"))
+        if requested_mode == "canonical":
+            self._task_client_cls = engine_seams.load_rinnsal_task_client_class(config.get("_engine_path"))
+            if self._task_client_cls is not None:
+                self.task_engine_mode = "canonical"
+                self._task_db_path = str(
+                    config.get("task_db_path")
+                    or os.environ.get("SCANNER_TASKS_DB")
+                    or (Path.home() / ".rinnsal" / "scanner_tasks.db")
+                )
+            else:
+                logger.warning(
+                    "hb_state_task_*: canonical mode requested but the real Rinnsal TaskClient "
+                    "was not found/importable; falling back to the bundled task store."
+                )
+
+        self._init_state_memory()
+        if self.task_engine_mode == "bundled":
+            self._init_bundled_tasks()
+
+    def _init_state_memory(self) -> None:
         with connect_db(self.db_path) as connection:
             _ensure_state_memory_table(connection)
+
+    def _init_bundled_tasks(self) -> None:
+        with connect_db(self.db_path) as connection:
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS tasks (
@@ -32,6 +69,10 @@ class StateModule(ModuleBase):
                 """
             )
             ensure_column(connection, "tasks", "agent_id", "TEXT NOT NULL DEFAULT 'unknown'")
+
+    def _task_client(self, agent_id: str):
+        """Build a fresh TaskClient bound to one agent_id (matches upstream usage: cheap, stateless)."""
+        return self._task_client_cls(db_path=self._task_db_path, agent_id=agent_id)
 
     def get_tools(self) -> list[ToolDefinition]:
         return [
@@ -168,6 +209,16 @@ class StateModule(ModuleBase):
     async def _task_list(self, **kwargs) -> dict[str, Any]:
         status = str(kwargs.get("status", "open"))
         agent_id = kwargs.get("agent_id")
+
+        if self.task_engine_mode == "canonical":
+            client = self._task_client(str(agent_id) if agent_id else "unknown")
+            rinnsal_status = None if status == "all" else _TO_RINNSAL_STATUS.get(status, status)
+            rows = client.list(status=rinnsal_status, include_done=(status == "all"), limit=200)
+            if agent_id:
+                rows = [row for row in rows if row.get("agent_id") == str(agent_id)]
+            tasks = [_to_homebase_task(row) for row in rows]
+            return {"status": "ok", "engine": "canonical", "count": len(tasks), "tasks": tasks}
+
         sql = "SELECT id, title, description, priority, status, agent_id, created_at, updated_at FROM tasks"
         params: list[Any] = []
         if status != "all":
@@ -180,11 +231,21 @@ class StateModule(ModuleBase):
 
         with connect_db(self.db_path) as connection:
             rows = connection.execute(sql, params).fetchall()
-        return {"status": "ok", "count": len(rows), "tasks": [dict(row) for row in rows]}
+        return {"status": "ok", "engine": "bundled", "count": len(rows), "tasks": [dict(row) for row in rows]}
 
     async def _task_create(self, **kwargs) -> dict[str, Any]:
-        now = utc_now()
         agent_id = resolve_agent_id(self.config, kwargs.get("agent_id"))
+
+        if self.task_engine_mode == "canonical":
+            client = self._task_client(agent_id)
+            task = client.add(
+                str(kwargs["title"]),
+                description=str(kwargs.get("description") or ""),
+                priority=str(kwargs.get("priority", "medium")),
+            )
+            return {"status": "created", "engine": "canonical", "task_id": task["id"], "agent_id": agent_id}
+
+        now = utc_now()
         with connect_db(self.db_path) as connection:
             cursor = connection.execute(
                 """
@@ -201,10 +262,39 @@ class StateModule(ModuleBase):
                 ),
             )
             task_id = int(cursor.lastrowid)
-        return {"status": "created", "task_id": task_id, "agent_id": agent_id}
+        return {"status": "created", "engine": "bundled", "task_id": task_id, "agent_id": agent_id}
 
     async def _task_update(self, **kwargs) -> dict[str, Any]:
         task_id = int(kwargs["task_id"])
+        agent_id = kwargs.get("agent_id")
+
+        if self.task_engine_mode == "canonical":
+            # Rinnsal's TaskClient has no agent-scoped update guard; the
+            # agent_id filter from the bundled implementation is not
+            # enforced here (documented gap, see KONZEPT.md "Engine Seams").
+            client = self._task_client(str(agent_id) if agent_id else "unknown")
+            changed = False
+            if "description" in kwargs or "priority" in kwargs:
+                changed = client.update(
+                    task_id,
+                    description=kwargs.get("description"),
+                    priority=kwargs.get("priority"),
+                ) or changed
+            if "status" in kwargs:
+                rinnsal_status = _TO_RINNSAL_STATUS.get(str(kwargs["status"]), str(kwargs["status"]))
+                if rinnsal_status == "active":
+                    changed = client.activate(task_id) or changed
+                elif rinnsal_status == "done":
+                    changed = client.done(task_id) or changed
+                elif rinnsal_status == "open":
+                    changed = client.reopen(task_id) or changed
+            return {
+                "status": "updated" if changed else "not_found",
+                "engine": "canonical",
+                "task_id": task_id,
+                "agent_id": agent_id,
+            }
+
         updates = []
         params: list[Any] = []
         for key in ("status", "description", "priority"):
@@ -212,11 +302,10 @@ class StateModule(ModuleBase):
                 updates.append(f"{key} = ?")
                 params.append(kwargs[key])
         if not updates:
-            return {"status": "unchanged", "task_id": task_id}
+            return {"status": "unchanged", "engine": "bundled", "task_id": task_id}
         updates.append("updated_at = ?")
         params.append(utc_now())
         params.append(task_id)
-        agent_id = kwargs.get("agent_id")
         where = "id = ?"
         if agent_id:
             where += " AND agent_id = ?"
@@ -224,7 +313,12 @@ class StateModule(ModuleBase):
 
         with connect_db(self.db_path) as connection:
             cursor = connection.execute(f"UPDATE tasks SET {', '.join(updates)} WHERE {where}", params)
-        return {"status": "updated" if cursor.rowcount else "not_found", "task_id": task_id, "agent_id": agent_id}
+        return {
+            "status": "updated" if cursor.rowcount else "not_found",
+            "engine": "bundled",
+            "task_id": task_id,
+            "agent_id": agent_id,
+        }
 
     async def _dispatch(self, **kwargs) -> dict[str, Any]:
         return {
@@ -232,6 +326,12 @@ class StateModule(ModuleBase):
             "connector": kwargs.get("connector"),
             "message": "Connector dispatch is intentionally disabled until connectors are configured.",
         }
+
+
+def _to_homebase_task(row: dict[str, Any]) -> dict[str, Any]:
+    task = dict(row)
+    task["status"] = _TO_HOMEBASE_STATUS.get(task.get("status"), task.get("status"))
+    return task
 
 
 def create_module(config: dict[str, Any]) -> StateModule:

@@ -70,7 +70,7 @@ class ModuleRegistry:
                 continue
 
             try:
-                instance = factory(self.config.module_config(name))
+                instance = factory(self._module_config_with_engine(name))
             except Exception as e:
                 skipped.append((name, f"init error: {e}"))
                 continue
@@ -86,6 +86,20 @@ class ModuleRegistry:
         self.loaded_names = loaded
         self.skipped_modules = skipped
         return loaded, skipped
+
+    def _module_config_with_engine(self, name: str) -> dict[str, Any]:
+        """Merge the module's own config with its resolved engine seam settings.
+
+        Modules read `_engine_mode`/`_engine_path` to decide whether to try a
+        canonical engine (see homebase.engines). Kept as underscore-prefixed
+        keys so they are visibly distinct from user-authored module config.
+        """
+        cfg = dict(self.config.module_config(name))
+        engine = self.config.engine_settings(name)
+        cfg["_engine_mode"] = engine["mode"]
+        if engine.get("path"):
+            cfg["_engine_path"] = engine["path"]
+        return cfg
 
     def register_tools(self, server: Server) -> None:
         """Register MCP list/call handlers for all loaded modules."""
