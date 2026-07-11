@@ -1,6 +1,6 @@
 # ellmos-homebase-mcp — Entwicklungsziele (TODO)
 
-> Stand: 2026-06-17. Diese Datei hält die strategische Entwicklungsrichtung fest, damit
+> Stand: 2026-07-11. Diese Datei hält die strategische Entwicklungsrichtung fest, damit
 > homebase gezielt zum **gemeinsamen Gedächtnis des KI-Teams** (Claude, Codex, Gemini, Kimi,
 > lokale LLMs via BACH/Buddha) ausgebaut wird. Grundlage: Vergleichsanalyse der drei
 > Shared-Memory-Ansätze (BACH-Shared-Memory, USMC, homebase) vom 2026-06-17.
@@ -118,9 +118,12 @@
 - [ ] Modul-Unit-Tests: `test_registry.py` deckt inzwischen die wichtigsten Modulpfade ab,
       inklusive `agent_id`-Provenance für mem/kb/state; separate Modul-Unit-Tests und
       Migrations-Smokes für alle Module fehlen noch.
-- [ ] Doku-Korrektheit: KONZEPT.md verspricht FTS5/semantische Suche/Merge, die der Code
-      (noch) nicht hat — angleichen, sobald P1/P2 umgesetzt oder Doku ehrlich machen.
-- [ ] Versions-Sync prüfen (package.json / pyproject.toml / server.json / `__version__`).
+- [x] Doku-Korrektheit: KONZEPT.md trennt Code-Realität und Zielbild wieder explizit:
+      FTS5 und `hb_mem_merge` sind umgesetzt, semantische/Embedding-Suche bleibt Stretch-Goal
+      und die Engine-Seams nennen bundled-only-Folgearbeit statt fertige Canonical-Seams.
+- [x] Versions-Sync prüfen (package.json / pyproject.toml / server.json / `__version__`).
+      Erledigt 2026-07-11: `tests/test_metadata.py` gleicht npm-, PEP-440-,
+      MCP-Registry- und Python-Runtime-Versionen ab.
 
 ---
 
@@ -210,7 +213,7 @@
 
 ### C — Bewusst NICHT integrieren (Konsumenten/Deploy/Fremddomäne — Entscheidung, kein offener Task)
 
-- [ ] (Dokumentations-Task) In `KONZEPT.md` festhalten, **warum** diese vier nicht in homebase gehören:
+- [x] (Dokumentations-Task) In `KONZEPT.md` festhalten, **warum** diese vier nicht in homebase gehören:
       - **`ellmos-chat`** — backend-agnostische Chat-*Runtime* (ChatRuntime, Tool-Use-Loop). Ist ein
         **Konsument** von homebase-Tools, keine Engine *in* homebase (würde homebase importieren).
       - **`ellmos-core`** — FastAPI/HTMX Web-UI + Auth/RBAC (On-Prem-Suite). **App/Frontend**, das
@@ -220,3 +223,5 @@
       - **`open-compute`** — Computer-Use-Core (Perception→Action GUI-Loop). **Andere Domäne** als
         homebases kognitive Infrastruktur (Memory/Routing/Wissen). Optionales Fernziel `hb_compute_`,
         aber außerhalb des aktuellen Konzepts „Zuhause für obdachlose LLMs".
+      Erledigt 2026-07-11: `KONZEPT.md` enthält den Abschnitt „Bewusst nicht integriert"
+      und `tests/test_metadata.py` schützt die vier Abgrenzungen gegen erneutes Verschwinden.

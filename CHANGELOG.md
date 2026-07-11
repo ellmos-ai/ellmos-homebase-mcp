@@ -2,6 +2,18 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## Unreleased
+
+### Added
+
+- Add metadata regression tests that keep npm, Python, MCP registry, and runtime versions
+  synchronized and guard the documented non-module boundaries for `ellmos-chat`, `ellmos-core`,
+  `ellmos-stack`, and `open-compute`.
+
+### Changed
+
+- Mark the completed Homebase concept-boundary and release-metadata TODOs as done.
+
 ## 0.1.0-alpha.14 - 2026-07-04
 
 ### Added
