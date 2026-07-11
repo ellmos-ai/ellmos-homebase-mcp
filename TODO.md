@@ -107,7 +107,7 @@
 ## P3 — Roadmap (bereits in KONZEPT.md, hier nur referenziert)
 
 - [ ] Phase-2-Module: `hb_auto_` (llmauto, Backend-Abstraktion), `hb_conn_` (connectors aus
-      BACH — bereits als `.MODULES/connectors` v1.0.0 extrahiert, einbinden statt neu bauen),
+      BACH — bereits als `.MODULES/.CONNECTORS/connectors` v1.0.0 extrahiert, einbinden statt neu bauen),
       `hb_plug_` (Plugin-System).
 - [ ] Phase 3: npm-Publish, ControlCenter-Integration, Status-Dashboard-Modul.
 
@@ -136,7 +136,7 @@
 
 ### A — Bestehende Namespaces: Stub → reale `.MODULES`-Engine (Schichtung „Engine = .MODULES, homebase = MCP-Wrapper")
 
-- [ ] **`hb_route_` auf `.MODULES/clutch` umstellen.** Aktuell reine Heuristik in `routing.py`
+- [ ] **`hb_route_` auf `.MODULES/.ORCHESTRATION/clutch` umstellen.** Aktuell reine Heuristik in `routing.py`
       (kein `clutch`-Import). clutch als optionale Routing-Engine einbinden (Epsilon-Greedy,
       Road-Types, Auto-Learning, Budget-Zonen) — credential-frei bleiben, Provider-Calls hinter
       expliziter Konfiguration. Knüpft an P0 (USMC-Schichtung) und P3 an.
@@ -147,13 +147,13 @@
       voraussetzt (deutlich mehr Vorarbeit als die anderen beiden Seams). Bleibt bundled-only,
       Server loggt das explizit bei `[engines].mode=canonical`. Folgearbeit, kein neues Ticket
       nötig — hier weiterführen.
-- [ ] **`hb_swarm_` auf `.MODULES/swarm_ai` umstellen.** Reale Schwarm-Patterns
+- [ ] **`hb_swarm_` auf `.MODULES/.ORCHESTRATION/swarm_ai` umstellen.** Reale Schwarm-Patterns
       (parallel/consensus/hierarchy/stigmergy) statt Alpha-Stub; Backend konfigurierbar (Ollama-default).
-- [ ] **`hb_api_` auf `.MODULES/ApiProber` umstellen.** Reale Probe-/Discovery-Engine (OpenAPI,
+- [ ] **`hb_api_` auf `.MODULES/.TOOLS/ApiProber` umstellen.** Reale Probe-/Discovery-Engine (OpenAPI,
       Wordlist, HATEOAS) hinter den Namespace; stdlib-only, daher unkritisch.
-- [ ] **`hb_conn_` auf `.MODULES/connectors` v1.0.0 binden** (bereits in P3 vermerkt — hier als
+- [ ] **`hb_conn_` auf `.MODULES/.CONNECTORS/connectors` v1.0.0 binden** (bereits in P3 vermerkt — hier als
       A-Linie präzisiert: `connectors.py` ist Alpha-Stub ohne Netzwerk; v1.0.0 einbinden statt neu bauen).
-- [ ] **`hb_auto_` auf `.MODULES/llmauto` mit Backend-Abstraktion** (Dublette zu P3/`.MCP/TODO`;
+- [ ] **`hb_auto_` auf `.MODULES/.ORCHESTRATION/llmauto` mit Backend-Abstraktion** (Dublette zu P3/`.MCP/TODO`;
       hier nur Querverweis, nicht erneut auflisten).
 - [x] **`hb_state_` auf reale `.AI/.OS/rinnsal`-Engine binden.** Erledigt 2026-07-04 (Ticket
       T-20260704-01): `hb_state_task_*` seam-fähig über `[engines.state].mode = "canonical"` →

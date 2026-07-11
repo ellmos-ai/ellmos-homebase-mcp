@@ -252,7 +252,7 @@ Default (echte Engines liegen lokal vor); für Dritt-Installs/Sovereign-Distribu
 | `hb_state_task_*` | echte `rinnsal.tasks.client.TaskClient` (`rinnsal_tasks`-Tabelle, Default `~/.rinnsal/scanner_tasks.db`) | **Umgesetzt** (nur die Task-CRUD-Tools; `hb_state_mem_*`/`hb_state_dispatch` bleiben unverändert bundled — das war nicht Teil des Auftrags). Status-Vokabular übersetzt (`in_progress` ↔ Rinnsals `active`); `cancelled` ist über dieses Tool nicht erreichbar (dokumentierte Lücke, „nur kompatible Operationen"). Agent-Filter beim Update wird von Rinnsal nicht erzwungen (Rinnsal kennt keine Agent-Scope-Guard). Live-Roundtrip verifiziert (MCP-create → echter `TaskClient.get` und umgekehrt, Statusübersetzung geprüft). |
 | `hb_mem_*` | Gardener als Backend | **Bundled-only, explizit deklariert.** Gardeners generisches `everything`-Schema (kein `confidence`-Feld, kein natives Merge/Decay) bildet `hb_mem_merge`/`hb_mem_consolidate` nicht sauber ab, ohne die Confidence-Semantik in `meta`-JSON zu verstecken. Bleibt Folgearbeit. Bei `[engines].mode=canonical` loggt der Server `mem=bundled-only (canonical requested, no seam implemented yet)` statt es stillschweigend zu ignorieren. |
 | `hb_kb_*` | Gardener als Backend | **Bundled-only, explizit deklariert** — gleiche Begründung wie `hb_mem_*` (Tags/FTS-Schema von `knowledge_entries` müsste auf `everything.tags`+`meta` abgebildet werden; Folgearbeit). |
-| `hb_route_*` | `.MODULES/clutch` (`Fahrer.kuppeln()`) | **Bundled-only, explizit deklariert.** `Fahrer.kuppeln()` (nach `strecke_analysieren()`) ist credential-frei und DB-gestützt (`clutch.db`) und wäre grundsätzlich seam-fähig — aber `Fahrer` braucht `config_dir` mit Getriebe-/Kupplungs-Konfigurationsdateien (`Getriebe`, `Kupplung`, `Fahrschule`, `Tankuhr`) und ist deutlich komplexer als Gardener/Rinnsal. Als klar beschriebene Folgearbeit zurückgestellt statt eine unfertige Seam zu bauen. |
+| `hb_route_*` | `.MODULES/.ORCHESTRATION/clutch` (`Fahrer.kuppeln()`) | **Bundled-only, explizit deklariert.** `Fahrer.kuppeln()` (nach `strecke_analysieren()`) ist credential-frei und DB-gestützt (`clutch.db`) und wäre grundsätzlich seam-fähig — aber `Fahrer` braucht `config_dir` mit Getriebe-/Kupplungs-Konfigurationsdateien (`Getriebe`, `Kupplung`, `Fahrschule`, `Tankuhr`) und ist deutlich komplexer als Gardener/Rinnsal. Als klar beschriebene Folgearbeit zurückgestellt statt eine unfertige Seam zu bauen. |
 | `hb_swarm_*` | — | Unangetastet (Ticket-Vorgabe: einziger bereits „sauberer" Teil, von `ellmos-core` genutzt). |
 
 **Folgearbeit (nicht Teil dieses Tickets):** `hb_mem_*`/`hb_kb_*` auf Gardener konsolidieren
@@ -307,15 +307,15 @@ test_root = "~/.homebase/tests/"
 | Modul | Quellpfad | Sprache | LoC | Dependencies |
 |---|---|---|---|---|
 | USMC | `.MEMORY/USMC/` (vorher `.MODULES/USMC/`) | Python | ~800 | stdlib |
-| clutch | `.MODULES/clutch/` | Python | ~2000 | anthropic, google-genai, requests |
-| KnowledgeDigest | `.MODULES/KnowledgeDigest/` | Python | ~4800 | stdlib (+ optional LLM) |
-| swarm_ai | `.MODULES/swarm_ai/` | Python | ~3000 | anthropic, requests |
+| clutch | `.MODULES/.ORCHESTRATION/clutch/` | Python | ~2000 | anthropic, google-genai, requests |
+| KnowledgeDigest | `.MODULES/.KNOWLEDGE/KnowledgeDigest/` | Python | ~4800 | stdlib (+ optional LLM) |
+| swarm_ai | `.MODULES/.ORCHESTRATION/swarm_ai/` | Python | ~3000 | anthropic, requests |
 | Rinnsal | `.AI/.OS/rinnsal/` | Python | ~2000 | stdlib |
 | Gardener | `.AI/.MODULES/.MEMORY/GARDENER/` (Zwischenstation `.AI/.MEMORY`, vorher `.AI/.OS/gardener/`) | Python | ~500 | stdlib |
-| ApiProber | `.MODULES/ApiProber/` | Python | ~1500 | stdlib |
-| ellmos-tests | `.MODULES/ellmos-tests/` | Python | ~1850 | stdlib |
-| llmauto | `.MODULES/llmauto/` | Python | ~1200 | stdlib (+ Claude CLI) |
-| connectors | BACH `connectors/` | Python | ~500 (geplant) | stdlib |
+| ApiProber | `.MODULES/.TOOLS/ApiProber/` | Python | ~1500 | stdlib |
+| ellmos-tests | `.MODULES/.QUALITY/ellmos-tests/` | Python | ~1850 | stdlib |
+| llmauto | `.MODULES/.ORCHESTRATION/llmauto/` | Python | ~1200 | stdlib (+ Claude CLI) |
+| connectors | `.MODULES/.CONNECTORS/connectors/` | Python | ~500 | stdlib |
 | plugin_system | BACH | Python | TBD | stdlib |
 
 ## Phasen
