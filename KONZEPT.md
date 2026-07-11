@@ -232,14 +232,14 @@ mode = "bundled"          # Default für einen nackten Checkout/Install (Zero-De
 # Pro-Modul-Override (gewinnt gegenüber [engines].mode):
 [engines.garden]
 mode = "canonical"
-# path = "~/OneDrive/.TOPICS/.AI/.OS/gardener"   # optional; sonst Default-Kandidaten/ENV
+# path = "~/OneDrive/.TOPICS/.AI/.MODULES/.MEMORY/GARDENER"   # optional; sonst Katalog/Default-Kandidaten/ENV
 
 [engines.state]
 mode = "canonical"
 ```
 
 Auflösereihenfolge pro Engine: `HOMEBASE_ENGINE_<NAME>_PATH` (ENV) → `[engines.<name>].path`
-(Config) → eingebaute Default-Kandidaten (`.AI/.OS/gardener`, `.AI/.OS/rinnsal` unter
+(Config) → Modulkatalog (`GARDENER`) → eingebaute Default-Kandidaten (`.AI/.MODULES/.MEMORY/GARDENER` mit Fallbacks `.AI/.MEMORY/GARDENER` und `.AI/.OS/gardener` — Umzüge 2026-07-11 —, `.AI/.OS/rinnsal` unter
 `~/OneDrive/.TOPICS/...` bzw. `~/.TOPICS/...`). Auf **diesem System** ist `canonical` der sinnvolle
 Default (echte Engines liegen lokal vor); für Dritt-Installs/Sovereign-Distribution bleibt
 `bundled` der Code-Default, solange keine `homebase.toml` etwas anderes sagt.
@@ -306,12 +306,12 @@ test_root = "~/.homebase/tests/"
 
 | Modul | Quellpfad | Sprache | LoC | Dependencies |
 |---|---|---|---|---|
-| USMC | `.MODULES/USMC/` | Python | ~800 | stdlib |
+| USMC | `.MEMORY/USMC/` (vorher `.MODULES/USMC/`) | Python | ~800 | stdlib |
 | clutch | `.MODULES/clutch/` | Python | ~2000 | anthropic, google-genai, requests |
 | KnowledgeDigest | `.MODULES/KnowledgeDigest/` | Python | ~4800 | stdlib (+ optional LLM) |
 | swarm_ai | `.MODULES/swarm_ai/` | Python | ~3000 | anthropic, requests |
 | Rinnsal | `.AI/.OS/rinnsal/` | Python | ~2000 | stdlib |
-| Gardener | `.AI/.OS/gardener/` | Python | ~500 | stdlib |
+| Gardener | `.AI/.MODULES/.MEMORY/GARDENER/` (Zwischenstation `.AI/.MEMORY`, vorher `.AI/.OS/gardener/`) | Python | ~500 | stdlib |
 | ApiProber | `.MODULES/ApiProber/` | Python | ~1500 | stdlib |
 | ellmos-tests | `.MODULES/ellmos-tests/` | Python | ~1850 | stdlib |
 | llmauto | `.MODULES/llmauto/` | Python | ~1200 | stdlib (+ Claude CLI) |

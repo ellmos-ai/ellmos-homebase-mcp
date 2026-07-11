@@ -18,6 +18,7 @@ This module only knows how to *locate and import* an engine. Each module
 from __future__ import annotations
 
 import importlib
+import json
 import logging
 import os
 import sys
@@ -33,11 +34,17 @@ logger = logging.getLogger("homebase.engines")
 SEAM_IMPLEMENTED = {"garden", "state"}
 
 # Default candidate directories per engine, checked when no explicit `path`
-# is configured. These match this ecosystem's `.AI/.OS/` layout but are only
-# a convenience default -- any system can override via `[engines.<name>].path`
+# is configured. These match this ecosystem's `.AI/.MEMORY/` / `.AI/.OS/`
+# layout (gardener moved to `.MEMORY/GARDENER` 2026-07-11; old `.OS` path kept
+# as fallback for systems that have not migrated yet) but are only a
+# convenience default -- any system can override via `[engines.<name>].path`
 # or the `HOMEBASE_ENGINE_<NAME>_PATH` environment variable.
 _DEFAULT_CANDIDATES: dict[str, list[str]] = {
     "garden": [
+        "~/OneDrive/.TOPICS/.AI/.MODULES/.MEMORY/GARDENER",
+        "~/.TOPICS/.AI/.MODULES/.MEMORY/GARDENER",
+        "~/OneDrive/.TOPICS/.AI/.MEMORY/GARDENER",
+        "~/.TOPICS/.AI/.MEMORY/GARDENER",
         "~/OneDrive/.TOPICS/.AI/.OS/gardener",
         "~/.TOPICS/.AI/.OS/gardener",
     ],
@@ -46,6 +53,53 @@ _DEFAULT_CANDIDATES: dict[str, list[str]] = {
         "~/.TOPICS/.AI/.OS/rinnsal",
     ],
 }
+
+_CATALOG_MODULE_IDS = {
+    "garden": "GARDENER",
+}
+
+
+def _module_catalog_candidates() -> list[Path]:
+    """Return configured and conventional module catalog locations in priority order."""
+    candidates: list[Path] = []
+    configured = os.environ.get("ELLMOS_MODULES_CATALOG")
+    if configured:
+        candidates.append(Path(configured).expanduser())
+    one_drive = os.environ.get("OneDrive") or os.environ.get("ONEDRIVE")
+    if one_drive:
+        candidates.append(Path(one_drive) / ".TOPICS" / ".AI" / ".MODULES" / "modules.catalog.json")
+    candidates.extend([
+        Path("~/OneDrive/.TOPICS/.AI/.MODULES/modules.catalog.json").expanduser(),
+        Path("~/.TOPICS/.AI/.MODULES/modules.catalog.json").expanduser(),
+    ])
+    result: list[Path] = []
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved not in result:
+            result.append(resolved)
+    return result
+
+
+def resolve_catalog_module_path(module_id: str) -> Path | None:
+    """Resolve a module ID from the v2 catalog without importing the catalog tooling."""
+    for catalog_path in _module_catalog_candidates():
+        try:
+            catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if catalog.get("schema") != "ellmos.modules-catalog.v1":
+            continue
+        for module in catalog.get("modules", []):
+            if not isinstance(module, dict) or module.get("id") != module_id:
+                continue
+            resolved_source = module.get("resolved_source")
+            if not isinstance(resolved_source, str) or not resolved_source:
+                break
+            module_path = (catalog_path.parent / resolved_source).resolve()
+            if module_path.is_dir():
+                return module_path
+            break
+    return None
 
 
 def resolve_engine_path(name: str, configured_path: str | None) -> Path | None:
@@ -56,6 +110,11 @@ def resolve_engine_path(name: str, configured_path: str | None) -> Path | None:
         candidates.append(env_override)
     if configured_path:
         candidates.append(configured_path)
+    module_id = _CATALOG_MODULE_IDS.get(name)
+    if module_id:
+        catalog_path = resolve_catalog_module_path(module_id)
+        if catalog_path is not None:
+            candidates.append(str(catalog_path))
     candidates.extend(_DEFAULT_CANDIDATES.get(name, []))
 
     for candidate in candidates:

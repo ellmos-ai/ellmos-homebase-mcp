@@ -9,13 +9,19 @@ closely enough to validate the seam wiring, not to be a full reimplementation.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
 
 from homebase import engines as engine_seams
 from homebase.config import HomebaseConfig
-from homebase.engines import engine_summary, import_from_path, resolve_engine_path
+from homebase.engines import (
+    engine_summary,
+    import_from_path,
+    resolve_catalog_module_path,
+    resolve_engine_path,
+)
 from homebase.registry import ModuleRegistry
 
 
@@ -261,8 +267,47 @@ def test_resolve_engine_path_uses_configured_path_when_no_env(tmp_path, monkeypa
     assert resolved == configured
 
 
+def test_resolve_engine_path_uses_v2_module_catalog_before_legacy_defaults(tmp_path, monkeypatch):
+    monkeypatch.delenv("HOMEBASE_ENGINE_GARDEN_PATH", raising=False)
+    module_dir = tmp_path / ".MODULES" / ".MEMORY" / "GARDENER"
+    module_dir.mkdir(parents=True)
+    catalog_path = tmp_path / ".MODULES" / "modules.catalog.json"
+    catalog_path.write_text(
+        json.dumps({
+            "schema": "ellmos.modules-catalog.v1",
+            "modules": [{"id": "GARDENER", "resolved_source": ".MEMORY/GARDENER"}],
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("ELLMOS_MODULES_CATALOG", str(catalog_path))
+
+    assert resolve_catalog_module_path("GARDENER") == module_dir
+    assert resolve_engine_path("garden", None) == module_dir
+
+
+def test_configured_engine_path_wins_over_catalog(tmp_path, monkeypatch):
+    monkeypatch.delenv("HOMEBASE_ENGINE_GARDEN_PATH", raising=False)
+    configured = tmp_path / "configured"
+    configured.mkdir()
+    catalog_module = tmp_path / ".MODULES" / "GARDENER"
+    catalog_module.mkdir(parents=True)
+    catalog_path = tmp_path / ".MODULES" / "modules.catalog.json"
+    catalog_path.write_text(
+        json.dumps({
+            "schema": "ellmos.modules-catalog.v1",
+            "modules": [{"id": "GARDENER", "resolved_source": "GARDENER"}],
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("ELLMOS_MODULES_CATALOG", str(catalog_path))
+
+    assert resolve_engine_path("garden", str(configured)) == configured
+
+
 def test_resolve_engine_path_returns_none_when_nothing_exists(monkeypatch):
     monkeypatch.delenv("HOMEBASE_ENGINE_GARDEN_PATH", raising=False)
+    monkeypatch.setattr(engine_seams, "_module_catalog_candidates", lambda: [])
+    monkeypatch.setitem(engine_seams._DEFAULT_CANDIDATES, "garden", [])
 
     resolved = resolve_engine_path("garden", "/definitely/does/not/exist-xyz")
 
@@ -323,7 +368,10 @@ async def test_garden_canonical_seam_roundtrip(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_garden_falls_back_to_bundled_when_canonical_engine_missing(tmp_path):
+async def test_garden_falls_back_to_bundled_when_canonical_engine_missing(tmp_path, monkeypatch):
+    monkeypatch.delenv("HOMEBASE_ENGINE_GARDEN_PATH", raising=False)
+    monkeypatch.setattr(engine_seams, "_module_catalog_candidates", lambda: [])
+    monkeypatch.setitem(engine_seams._DEFAULT_CANDIDATES, "garden", [])
     config = HomebaseConfig(
         enabled_modules=["garden"],
         engine_mode="canonical",
