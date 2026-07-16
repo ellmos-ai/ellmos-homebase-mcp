@@ -477,6 +477,24 @@ async def test_testing_module_runs_builtin_battery(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_testing_module_rejects_unknown_single_test(tmp_path):
+    registry = _registry(tmp_path, ["test"])
+
+    run = await registry.call_tool("hb_test_run", {"battery": "smoke", "test": "does_not_exist"})
+    summary = await registry.call_tool("hb_test_results", {})
+
+    assert run == {
+        "status": "not_found",
+        "battery": "smoke",
+        "test": "does_not_exist",
+        "results": [],
+    }
+    assert summary["status"] == "not_found"
+    assert summary["passed"] == 0
+    assert summary["failed"] == 0
+
+
+@pytest.mark.asyncio
 async def test_connectors_registry_queues_local_messages(tmp_path):
     registry = _registry(tmp_path, ["conn"])
 

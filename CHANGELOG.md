@@ -4,6 +4,11 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## Unreleased
 
+### Fixed
+
+- Return `not_found` instead of a misleading successful empty run when `hb_test_run`
+  receives an unknown single test name for an otherwise valid battery.
+
 ### Added
 
 - Add metadata regression tests that keep npm, Python, MCP registry, and runtime versions

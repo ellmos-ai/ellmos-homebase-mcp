@@ -75,6 +75,14 @@ class TestingModule(ModuleBase):
         selected = BATTERIES[battery]
         if test_name:
             selected = [test for test in selected if test["name"] == test_name]
+            if not selected:
+                self._last_results = {
+                    "status": "not_found",
+                    "battery": battery,
+                    "test": str(test_name),
+                    "results": [],
+                }
+                return self._last_results
         results = [_run_builtin_test(test["name"], self.config) for test in selected]
         passed = sum(1 for result in results if result["passed"])
         self._last_results = {
