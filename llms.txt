@@ -62,4 +62,4 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-06-18
+## Last-checked: 2026-07-22

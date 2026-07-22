@@ -18,6 +18,7 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 ### Changed
 
 - Mark the completed Homebase concept-boundary and release-metadata TODOs as done.
+- Maintenance update: refresh llms.txt Last-checked timestamp for 2026-07-22 and verify test suite & metadata sync.
 
 ## 0.1.0-alpha.14 - 2026-07-04
 
