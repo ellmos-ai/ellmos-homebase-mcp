@@ -21,8 +21,8 @@ enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "con
 # and legacy .AI/.MEMORY/* and .AI/.OS/*
 # locations). Set ELLMOS_MODULES_CATALOG to override the catalog location.
 # Falls back to bundled (logged) if no canonical engine can be found.
-# Only hb_garden_* and hb_state_task_* have a canonical seam implemented so far;
-# hb_mem_*/hb_kb_*/hb_route_* stay bundled-only even if canonical is requested here.
+# hb_garden_* (Gardener), hb_state_task_* (Rinnsal) and hb_mem_* (USMC) have a
+# canonical seam; hb_kb_*/hb_route_* stay bundled-only even if canonical is requested.
 [engines]
 mode = "bundled"
 
@@ -34,9 +34,17 @@ mode = "bundled"
 # mode = "canonical"
 # path = "~/OneDrive/.TOPICS/.AI/.OS/rinnsal"
 
+# [engines.mem]
+# mode = "canonical"   # hb_mem_store/query/context delegate to the real USMC store
+# path = "~/OneDrive/.TOPICS/.AI/.MODULES/.MEMORY/USMC"
+# Notes on canonical mem: USMC has no free-text search (query filters facts
+# client-side), homebase's category is kept in the fact key, and hb_mem_merge/
+# hb_mem_consolidate are bundled-only (report not_supported under canonical).
+
 # --- Memory ---
 [mem]
-db_path = "~/.homebase/memory.db"
+db_path = "~/.homebase/memory.db"                 # bundled store (ignored when [engines.mem].mode = "canonical")
+# usmc_db = "~/.usmc/usmc_memory.db"              # optional canonical USMC DB path; default = USMC's own store
 # Optional default writer identity. Per-call `agent_id` wins; otherwise HOMEBASE_AGENT_ID/AGENT_ID wins.
 # agent_id = "codex"
 

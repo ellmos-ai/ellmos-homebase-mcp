@@ -31,7 +31,7 @@ logger = logging.getLogger("homebase.engines")
 # explicit map so `engine_summary()` can tell "canonical requested and wired"
 # apart from "canonical requested but this module has no seam yet" (mem/kb/
 # route currently fall in the latter bucket -- see KONZEPT.md).
-SEAM_IMPLEMENTED = {"garden", "state"}
+SEAM_IMPLEMENTED = {"garden", "state", "mem"}
 
 # Default candidate directories per engine, checked when no explicit `path`
 # is configured. These match this ecosystem's `.AI/.MEMORY/` / `.AI/.OS/`
@@ -52,10 +52,15 @@ _DEFAULT_CANDIDATES: dict[str, list[str]] = {
         "~/OneDrive/.TOPICS/.AI/.OS/rinnsal",
         "~/.TOPICS/.AI/.OS/rinnsal",
     ],
+    "mem": [
+        "~/OneDrive/.TOPICS/.AI/.MODULES/.MEMORY/USMC",
+        "~/.TOPICS/.AI/.MODULES/.MEMORY/USMC",
+    ],
 }
 
 _CATALOG_MODULE_IDS = {
     "garden": "GARDENER",
+    "mem": "USMC",
 }
 
 
@@ -174,6 +179,24 @@ def load_rinnsal_task_client_class(configured_path: str | None = None):
     if module is None or not hasattr(module, "TaskClient"):
         return None
     return module.TaskClient
+
+
+def load_usmc_client_class(configured_path: str | None = None):
+    """Return the real ``usmc.USMCClient`` class, or None if unavailable.
+
+    Returns the class (not an instance) because USMC is multi-agent by design:
+    ``memory.py`` constructs one client per call with the resolved ``agent_id``
+    so per-call provenance is preserved. Never raises -- a missing/broken USMC
+    checkout degrades the memory module to its bundled SQLite store.
+    """
+    path = resolve_engine_path("mem", configured_path)
+    if path is None:
+        logger.info("Canonical USMC engine not found (checked %s and defaults)", configured_path)
+        return None
+    module = import_from_path("usmc", path)
+    if module is None or not hasattr(module, "USMCClient"):
+        return None
+    return module.USMCClient
 
 
 def engine_summary(config) -> list[str]:

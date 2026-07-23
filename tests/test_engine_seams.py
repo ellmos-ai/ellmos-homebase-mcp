@@ -328,7 +328,7 @@ def test_engine_summary_flags_unimplemented_seams_as_bundled_only():
 
     assert "garden=canonical" in summary
     assert "state=canonical" in summary
-    assert "mem=bundled-only (canonical requested, no seam implemented yet)" in summary
+    assert "mem=canonical" in summary  # USMC seam implemented
     assert "kb=bundled-only (canonical requested, no seam implemented yet)" in summary
     assert "route=bundled-only (canonical requested, no seam implemented yet)" in summary
 
@@ -383,6 +383,158 @@ async def test_garden_falls_back_to_bundled_when_canonical_engine_missing(tmp_pa
 
     stored = await registry.call_tool("hb_garden_put", {"key": "k", "value": "v"})
 
+    assert stored["engine"] == "bundled"
+
+
+def _write_fixture_usmc(tmp_path: Path) -> Path:
+    """Write a minimal USMC checkout (facts store) mirroring the real public API.
+
+    Structure mirrors the real .MODULES/.MEMORY/USMC/usmc package so the seam's
+    ``import_from_path("usmc", <root>)`` resolves it. SQLite-backed so it persists
+    across the per-call USMC clients memory.py constructs.
+    """
+    engine_dir = tmp_path / "engines" / "usmc-checkout"
+    pkg = engine_dir / "usmc"
+    pkg.mkdir(parents=True)
+    (pkg / "__init__.py").write_text(
+        "from .client import USMCClient\n__all__ = ['USMCClient']\n", encoding="utf-8"
+    )
+    (pkg / "client.py").write_text(
+        '''
+"""Minimal fixture double for the real USMC facts store."""
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+
+
+class USMCClient:
+    VALID_CATEGORIES = ("user", "project", "system", "domain")
+
+    def __init__(self, db_path=None, agent_id="default"):
+        self.db_path = Path(db_path) if db_path else Path.home() / ".usmc-fixture" / "usmc.db"
+        self.agent_id = agent_id
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(str(self.db_path))
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS usmc_facts (
+                agent_id TEXT, category TEXT, key TEXT, value TEXT,
+                confidence REAL, source TEXT, created_at TEXT, updated_at TEXT,
+                PRIMARY KEY (agent_id, category, key)
+            )
+            """
+        )
+        conn.commit()
+        conn.close()
+
+    def add_fact(self, category, key, value, confidence=1.0):
+        if category not in self.VALID_CATEGORIES:
+            raise ValueError("bad category")
+        now = datetime.now().isoformat()
+        conn = sqlite3.connect(str(self.db_path))
+        conn.execute(
+            """
+            INSERT INTO usmc_facts
+                (agent_id, category, key, value, confidence, source, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(agent_id, category, key) DO UPDATE SET
+                value = excluded.value, confidence = excluded.confidence,
+                updated_at = excluded.updated_at
+            """,
+            (self.agent_id, category, key, value, confidence, "fixture", now, now),
+        )
+        conn.commit()
+        conn.close()
+        return {"category": category, "key": key, "value": value, "confidence": confidence, "merged": True}
+
+    def get_facts(self, category=None, min_confidence=0.0, agent_id=None):
+        conn = sqlite3.connect(str(self.db_path))
+        conditions = ["confidence >= ?"]
+        params = [min_confidence]
+        if category:
+            conditions.append("category = ?")
+            params.append(category)
+        if agent_id:
+            conditions.append("agent_id = ?")
+            params.append(agent_id)
+        where = " AND ".join(conditions)
+        rows = conn.execute(
+            "SELECT category, key, value, confidence, source, agent_id, updated_at "
+            "FROM usmc_facts WHERE " + where + " ORDER BY confidence DESC, key",
+            params,
+        ).fetchall()
+        conn.close()
+        return [
+            {"category": r[0], "key": r[1], "value": r[2], "confidence": r[3],
+             "source": r[4], "agent_id": r[5], "updated_at": r[6]}
+            for r in rows
+        ]
+''',
+        encoding="utf-8",
+    )
+    return engine_dir
+
+
+@pytest.mark.asyncio
+async def test_mem_usmc_canonical_seam_roundtrip(tmp_path, monkeypatch):
+    monkeypatch.delenv("HOMEBASE_ENGINE_MEM_PATH", raising=False)
+    engine_dir = _write_fixture_usmc(tmp_path)
+
+    config = HomebaseConfig(
+        enabled_modules=["mem"],
+        engine_mode="canonical",
+        engine_configs={"mem": {"path": str(engine_dir)}},
+        module_configs={"mem": {"usmc_db": str(tmp_path / "usmc_test.db")}},
+    )
+    registry = ModuleRegistry(config)
+    loaded, skipped = registry.discover_and_load()
+    assert loaded == ["mem"]
+    assert skipped == []
+
+    stored = await registry.call_tool(
+        "hb_mem_store",
+        {"content": "USMC seam works", "category": "fact", "confidence": 0.9, "agent_id": "opus"},
+    )
+    assert stored["engine"] == "canonical"
+    await registry.call_tool(
+        "hb_mem_store", {"content": "unrelated lesson entry", "category": "lesson", "agent_id": "opus"}
+    )
+
+    found = await registry.call_tool("hb_mem_query", {"query": "seam", "category": "all"})
+    assert found["engine"] == "canonical"
+    assert found["mode"] == "client_filter"
+    assert found["count"] == 1
+    assert found["results"][0]["content"] == "USMC seam works"
+    assert found["results"][0]["category"] == "fact"
+    assert found["results"][0]["agent_id"] == "opus"
+
+    lessons = await registry.call_tool("hb_mem_query", {"query": "", "category": "lesson"})
+    assert {row["category"] for row in lessons["results"]} == {"lesson"}
+
+    context = await registry.call_tool("hb_mem_context", {"focus": "USMC"})
+    assert context["engine"] == "canonical"
+    assert "USMC seam works" in context["context"]
+
+    merge = await registry.call_tool("hb_mem_merge", {"dry_run": True})
+    assert merge["status"] == "not_supported"
+    assert merge["engine"] == "canonical"
+
+
+@pytest.mark.asyncio
+async def test_mem_falls_back_to_bundled_when_usmc_missing(tmp_path, monkeypatch):
+    monkeypatch.delenv("HOMEBASE_ENGINE_MEM_PATH", raising=False)
+    monkeypatch.setattr(engine_seams, "_module_catalog_candidates", lambda: [])
+    monkeypatch.setitem(engine_seams._DEFAULT_CANDIDATES, "mem", [])
+    config = HomebaseConfig(
+        enabled_modules=["mem"],
+        engine_mode="canonical",
+        engine_configs={"mem": {"path": str(tmp_path / "nowhere")}},
+        module_configs={"mem": {"db_path": str(tmp_path / "memory.db")}},
+    )
+    registry = ModuleRegistry(config)
+    registry.discover_and_load()
+
+    stored = await registry.call_tool("hb_mem_store", {"content": "x", "category": "fact"})
     assert stored["engine"] == "bundled"
 
 
