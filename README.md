@@ -46,7 +46,7 @@ German README: [README_de.md](README_de.md)
   [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
 - Team-memory basics: `agent_id` provenance and filters for memory, knowledge, state memory, and tasks; SQLite uses WAL plus a busy timeout for safer concurrent agents
 - Credential-free alpha adapters: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
-- i18n: localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` with English fallback
+- i18n: fully localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` (English fallback for any unset key)
 - Roadmap: optional real LLM/API integrations and explicit execution backends
 
 ## Install

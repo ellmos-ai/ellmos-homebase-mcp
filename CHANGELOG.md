@@ -11,6 +11,11 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ### Added
 
+- Complete i18n tool-description coverage. `es`, `zh`, `ja`, and `ru` gained the 37 `hb_*`
+  tool descriptions that previously fell back to English (only 7 were localized per language
+  before). `hb_mem_consolidate`, which had been English-only in every locale including German,
+  is now translated in all six. German and the input-schema field descriptions were already
+  complete, so every locale now covers all 46 tool descriptions.
 - Add metadata regression tests that keep npm, Python, MCP registry, and runtime versions
   synchronized and guard the documented non-module boundaries for `ellmos-chat`, `ellmos-core`,
   `ellmos-stack`, and `open-compute`.

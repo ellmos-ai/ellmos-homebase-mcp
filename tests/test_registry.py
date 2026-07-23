@@ -619,16 +619,24 @@ def test_tool_input_schema_descriptions_gain_english_defaults(tmp_path):
     assert properties["limit"]["description"] == "Maximum number of results to return."
 
 
-def test_tool_descriptions_fallback_to_default_for_partial_locale(tmp_path):
+def test_tool_descriptions_localized_for_covered_locale(tmp_path):
     registry = _registry(tmp_path, ["mem"])
     registry.config.language = "es"
     registry.i18n = I18n("es")
 
     tools = {tool.name: tool for tool in registry.list_tools()}
 
+    # All memory tool descriptions are fully localized in Spanish (no English fallback).
     assert tools["hb_mem_store"].description.startswith("Guarda")
-    # hb_mem_merge has no Spanish override → falls back to the default (English) description.
-    assert tools["hb_mem_merge"].description.startswith("Confidence-based")
+    assert tools["hb_mem_merge"].description.startswith("Fusiona")
+    assert tools["hb_mem_consolidate"].description.startswith("Reduce")
+
+
+def test_tool_description_falls_back_to_default_for_unmapped_key():
+    # The localization layer returns the English default for any key that has no
+    # override in the active locale (e.g. a newly added tool not yet translated).
+    i18n = I18n("es")
+    assert i18n.t("tool.hb_not_yet_translated", "English default text") == "English default text"
 
 
 def test_locale_normalization():
