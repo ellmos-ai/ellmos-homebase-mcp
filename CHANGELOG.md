@@ -2,7 +2,7 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
-## Unreleased
+## 0.1.0-alpha.15 - 2026-07-23
 
 ### Fixed
 
@@ -11,7 +11,9 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ### Added
 
-- USMC engine seam for `hb_mem_*`. With `[engines.mem].mode = "canonical"` (or global canonical) and a USMC checkout present, `hb_mem_store`/`hb_mem_query`/`hb_mem_context` delegate to the real cross-agent USMC store instead of a second disconnected copy; responses carry an `"engine"` field. Because USMC's model differs (typed key/value facts, no free-text search), the seam reconciles it: homebase's category is kept in the fact key, keyword query filters client-side (`mode: "client_filter"`), and per-call `agent_id` provenance is preserved via one USMC client per call. `hb_mem_merge`/`hb_mem_consolidate` remain bundled-only bulk-hygiene ops and report `not_supported` under canonical (deferred, TODO #72). A missing/broken USMC checkout degrades to the bundled store and never fails startup. Verified with a SQLite fixture double (store→query→context roundtrip, bundled fallback) plus a real-import smoke check.
+- USMC engine seam for `hb_mem_*`. With `[engines.mem].mode = "canonical"` (or global canonical) and a USMC checkout present, `hb_mem_store`/`hb_mem_query`/`hb_mem_context` delegate to the real cross-agent USMC store instead of a second disconnected copy; responses carry an `"engine"` field. Because USMC's model differs (typed key/value facts, no free-text search), the seam reconciles it: homebase's category is kept in the fact key, keyword query filters client-side (`mode: "client_filter"`), and per-call `agent_id` provenance is preserved via one USMC client per call. `hb_mem_merge`/`hb_mem_consolidate` remain bundled-only bulk-hygiene ops and report `not_supported` under canonical (deferred, TODO #72). A missing/broken USMC checkout degrades to the bundled store and never fails startup. Verified with a SQLite fixture double (store→query→context roundtrip, bundled fallback), a real-import smoke check, and a live roundtrip against the real USMC client. Known canonical-mode differences: `hb_mem_store` returns the USMC fact `key` instead of the bundled numeric `id`, and query/context read the full fact set per call (USMC's API has no limit parameter; truncation happens post-fetch).
+- i18n regression guard (`tests/test_i18n_completeness.py`): locale key-set parity for `TRANSLATIONS`/`SCHEMA_TRANSLATIONS` plus a full-registry check that every registered tool has a `tool.<name>` entry — the silent-stub-locale bug class can no longer ship unnoticed.
+- i18n polish: full-width CJK punctuation（），for the zh/ja tool descriptions (matching the ServerCommander precedent), Spanish participle fix (`basándose en la confianza`), Russian word-order fix (`dry-run плагина`).
 - Complete i18n tool-description coverage. `es`, `zh`, `ja`, and `ru` gained the 37 `hb_*`
   tool descriptions that previously fell back to English (only 7 were localized per language
   before). `hb_mem_consolidate`, which had been English-only in every locale including German,
