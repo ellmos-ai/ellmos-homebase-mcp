@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ellmos-ai/ellmos-homebase-mcp",
-  "version": "0.1.0-alpha.15",
+  "version": "0.1.0-alpha.16",
   "title": "ellmos Homebase",
   "description": "Alpha MCP stdio server for local-first LLM orchestration across SQLite memory, knowledge entries, persistent state, routing, swarm planning, passive API discovery, tests, automation planning, connector queues, and plugin discovery.",
   "websiteUrl": "https://github.com/ellmos-ai/ellmos-homebase-mcp",
@@ -14,8 +14,10 @@
     {
       "registryType": "npm",
       "identifier": "ellmos-homebase-mcp",
-      "version": "0.1.0-alpha.15",
-      "transport": { "type": "stdio" },
+      "version": "0.1.0-alpha.16",
+      "transport": {
+        "type": "stdio"
+      },
       "runtimeHint": "npx"
     }
   ]

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "name": "ellmos-homebase-mcp",
+  "version": "0.1.0-alpha.16",
+  "description": "Local-first MCP server for LLM orchestration: SQLite memory, knowledge base, state and tasks, model routing, swarm planning, API discovery, automation chains, and plugins.",
+  "maintainers": [
+    "lukisch"
+  ],
+  "author": "Lukas Geiger",
+  "homepage": "https://github.com/ellmos-ai/ellmos-homebase-mcp",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "llm-orchestration",
+    "memory",
+    "knowledge-base",
+    "sqlite",
+    "routing",
+    "swarm",
+    "local-first",
+    "ollama",
+    "mcp-server"
+  ],
+  "tools": {
+    "count": 45
+  },
+  "features": [
+    "SQLite-backed memory",
+    "Knowledge base with FTS5 search",
+    "Persistent state and tasks",
+    "Model routing recommendations",
+    "Swarm planning patterns",
+    "API discovery",
+    "Automation chains",
+    "Plugin discovery"
+  ]
+}

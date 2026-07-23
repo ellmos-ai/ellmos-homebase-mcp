@@ -2,6 +2,14 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.16 - 2026-07-24
+
+### Changed
+- Unified the ellmos-ai ecosystem section in README.md and README_de.md: full 9-server MCP family table with refreshed tool counts, AI infrastructure, and desktop software links.
+- Added `glama.json` for the Glama MCP directory listing.
+- Synced `server.json` version metadata.
+- Added the `mcpName` registry field to package.json (io.github.ellmos-ai/ellmos-homebase-mcp).
+
 ## 0.1.0-alpha.15 - 2026-07-23
 
 ### Fixed
