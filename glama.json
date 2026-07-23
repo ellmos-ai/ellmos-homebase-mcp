@@ -1,7 +1,7 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "ellmos-homebase-mcp",
-  "version": "0.1.0-alpha.16",
+  "version": "0.1.0-alpha.17",
   "description": "Local-first MCP server for LLM orchestration: SQLite memory, knowledge base, state and tasks, model routing, swarm planning, API discovery, automation chains, and plugins.",
   "maintainers": [
     "lukisch"

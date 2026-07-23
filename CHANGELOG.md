@@ -2,6 +2,12 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.17 - 2026-07-24
+
+### Fixed
+- Correct FileCommander (46) and CodeCommander (22) tool counts in the ecosystem family table; counts now verified against the live MCP `tools/list` surface.
+- Align `pyproject.toml` and `homebase.__version__` with the npm package version (were stuck at 0.1.0a15).
+
 ## 0.1.0-alpha.16 - 2026-07-24
 
 ### Changed
