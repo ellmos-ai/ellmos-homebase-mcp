@@ -53,3 +53,6 @@ venv/
 # Node/npm artifacts
 node_modules/
 *.tgz
+
+# mcp-publisher login artifacts (credentials, never commit)
+.mcpregistry_*
