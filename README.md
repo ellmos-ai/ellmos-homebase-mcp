@@ -22,6 +22,53 @@ German README: [README_de.md](README_de.md)
 
 **Discoverability:** Published on [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) as `ellmos-homebase-mcp` and maintained in the [`ellmos-ai`](https://github.com/ellmos-ai) organization.
 
+> [!NOTE]
+> **For AI Assistants & LLM Agents:** Machine-readable architecture summary, index, and tool capabilities are published in [llms.txt](llms.txt). MCP registry metadata is available in [server.json](server.json).
+
+## System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Clients ["MCP Clients (Local / Remote)"]
+        Ollama["Local LLMs (Ollama, Qwen, Llama)"]
+        Claude["Claude Code / Desktop"]
+        Codex["Codex / Antigravity"]
+    end
+
+    subgraph Transport ["Transport Layer"]
+        Stdio["stdio (Python MCP SDK)"]
+    end
+
+    subgraph Core ["ellmos-homebase-mcp Core Engine"]
+        Server["homebase.server"]
+        Config["homebase.config"]
+    end
+
+    subgraph ToolGroups ["45 MCP Tools across 11 Functional Modules"]
+        Mem["hb_mem_* (SQLite Memory)"]
+        KB["hb_kb_* (Knowledge Digest)"]
+        State["hb_state_* (State & Tasks)"]
+        Route["hb_route_* (Model Router)"]
+        Swarm["hb_swarm_* (Swarm Patterns)"]
+        Api["hb_api_* (API Probing)"]
+        Conn["hb_conn_* (Connectors Queue)"]
+        Auto["hb_auto_* (Automation Chains)"]
+        Plug["hb_plug_* (Plugin Discovery)"]
+        Garden["hb_garden_* (Garden Store)"]
+        Test["hb_test_* (Self Tests)"]
+    end
+
+    subgraph Storage ["Local Storage (Offline-First)"]
+        DB[(SQLite Storage ~/.homebase/)]
+    end
+
+    Clients --> Stdio
+    Stdio --> Server
+    Server --> Config
+    Server --> ToolGroups
+    ToolGroups --> DB
+```
+
 ## Start Here
 
 | Need | Entry point |

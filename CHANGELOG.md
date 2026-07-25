@@ -4,10 +4,18 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## 0.1.0-alpha.18 - 2026-07-25
 
+### Added
+- GFM LLM note callout box (`> [!NOTE]`) added to `README.md` and `README_de.md` for AI assistant/agent discoverability.
+- Mermaid System Architecture diagrams added to `README.md` and `README_de.md` showcasing client transport, core engine, 11 functional tool modules, and local SQLite storage.
+
 ### Maintenance & Security
 - Add standard `.gitignore` entry for `-WORKSTATION-LG.gitignore`.
 - Synchronize version 0.1.0-alpha.18 / 0.1.0a18 across `package.json`, `package-lock.json`, `pyproject.toml`, `src/homebase/__init__.py`, `server.json`, and `glama.json`.
 - Verify Pytest test suite (117 tests passing).
+
+### Changed
+- Updated `llms.txt` header to `Last-checked: 2026-07-25`.
+
 
 ## 0.1.0-alpha.17 - 2026-07-24
 

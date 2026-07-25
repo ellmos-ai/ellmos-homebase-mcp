@@ -22,6 +22,53 @@ Englische Standard-README: [README.md](README.md)
 
 **Auffindbarkeit:** Veröffentlicht auf [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) als `ellmos-homebase-mcp` und gepflegt in der Organisation [`ellmos-ai`](https://github.com/ellmos-ai).
 
+> [!NOTE]
+> **Für KI-Assistenten & LLM-Agenten:** Die maschinenlesbare Architekturzusammenfassung, der Index und die Tool-Fähigkeiten sind in [llms.txt](llms.txt) veröffentlicht. MCP-Registry-Metadaten sind in [server.json](server.json) verfügbar.
+
+## Systemarchitektur
+
+```mermaid
+flowchart TD
+    subgraph Clients ["MCP-Clients (Lokal / Remote)"]
+        Ollama["Lokale LLMs (Ollama, Qwen, Llama)"]
+        Claude["Claude Code / Desktop"]
+        Codex["Codex / Antigravity"]
+    end
+
+    subgraph Transport ["Transportschicht"]
+        Stdio["stdio (Python MCP SDK)"]
+    end
+
+    subgraph Core ["ellmos-homebase-mcp Core Engine"]
+        Server["homebase.server"]
+        Config["homebase.config"]
+    end
+
+    subgraph ToolGroups ["45 MCP-Tools über 11 funktionale Module"]
+        Mem["hb_mem_* (SQLite-Memory)"]
+        KB["hb_kb_* (Knowledge Digest)"]
+        State["hb_state_* (State & Tasks)"]
+        Route["hb_route_* (Model Router)"]
+        Swarm["hb_swarm_* (Schwarm-Muster)"]
+        Api["hb_api_* (API Probing)"]
+        Conn["hb_conn_* (Connectors Queue)"]
+        Auto["hb_auto_* (Automatisierungs-Ketten)"]
+        Plug["hb_plug_* (Plugin-Discovery)"]
+        Garden["hb_garden_* (Garden Store)"]
+        Test["hb_test_* (Selbst-Tests)"]
+    end
+
+    subgraph Storage ["Lokaler Speicher (Offline-First)"]
+        DB[(SQLite Speicher ~/.homebase/)]
+    end
+
+    Clients --> Stdio
+    Stdio --> Server
+    Server --> Config
+    Server --> ToolGroups
+    ToolGroups --> DB
+```
+
 ## Einstieg
 
 | Bedarf | Einstieg |
