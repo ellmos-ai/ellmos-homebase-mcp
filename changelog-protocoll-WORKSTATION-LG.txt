@@ -1,0 +1,2 @@
+2026-07-16T20:49:26+02:00 | a221599 | Fix: hb_test_run reports not_found for an unknown single test in a valid battery; added regression coverage; full suite 58 passed.
+2026-07-25T20:45:40+02:00 | v0.1.0-alpha.18 | Security audit, .gitignore update, version alignment (0.1.0a18), 64 pytest tests passing
