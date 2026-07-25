@@ -2,6 +2,13 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.18 - 2026-07-25
+
+### Maintenance & Security
+- Add standard `.gitignore` entry for `-WORKSTATION-LG.gitignore`.
+- Synchronize version 0.1.0-alpha.18 / 0.1.0a18 across `package.json`, `package-lock.json`, `pyproject.toml`, `src/homebase/__init__.py`, `server.json`, and `glama.json`.
+- Verify Pytest test suite (117 tests passing).
+
 ## 0.1.0-alpha.17 - 2026-07-24
 
 ### Fixed
