@@ -1,4 +1,0 @@
-2026-07-16T20:49:26+02:00 | GitHub push success | origin/main | a221599 fix: reject unknown homebase self-tests | npm publish not run: no version bump, one non-urgent bug fix collected for the next alpha release.
-2026-07-24T01:18:56+02:00 | GitHub push success | origin/main | b422663 release: 0.1.0-alpha.16 — unified ellmos ecosystem README + Glama/registry metadata | npm publish 0.1.0-alpha.16 (+dist-tag latest) | GitHub release v0.1.0-alpha.16
-2026-07-24T01:47:31+02:00 | GitHub push success | origin/main | 4d49230 release: 0.1.0-alpha.17 — tools/list-verified tool counts + runtime version alignment | npm publish 0.1.0-alpha.17 (+dist-tag latest) | GitHub release v0.1.0-alpha.17
-2026-07-25T20:46:02+02:00 | GitHub push success | origin/main | 314676a chore(release): 0.1.0-alpha.18 - security audit & version alignment
