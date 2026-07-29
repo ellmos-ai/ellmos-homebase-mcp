@@ -589,7 +589,7 @@ def test_tool_input_schema_descriptions_are_localized(tmp_path):
     registry.i18n = I18n("de")
 
     tools = {tool.name: tool for tool in registry.list_tools()}
-    properties = tools["hb_mem_store"].inputSchema["properties"]
+    properties = tools["hb_mem_store"].model_dump(by_alias=True)["inputSchema"]["properties"]
 
     assert properties["content"]["description"] == "Inhaltstext."
     assert properties["confidence"]["description"] == "Konfidenzwert von 0 bis 1."
@@ -601,8 +601,8 @@ def test_routing_and_swarm_schema_descriptions_are_localized(tmp_path):
     registry.i18n = I18n("de")
 
     tools = {tool.name: tool for tool in registry.list_tools()}
-    route_properties = tools["hb_route_select"].inputSchema["properties"]
-    swarm_properties = tools["hb_swarm_parallel"].inputSchema["properties"]
+    route_properties = tools["hb_route_select"].model_dump(by_alias=True)["inputSchema"]["properties"]
+    swarm_properties = tools["hb_swarm_parallel"].model_dump(by_alias=True)["inputSchema"]["properties"]
 
     assert route_properties["prompt"]["description"] == "Prompt-Text, der analysiert oder geroutet werden soll."
     assert route_properties["constraints"]["description"].startswith("Optionale Routing-Vorgaben")
@@ -614,7 +614,7 @@ def test_tool_input_schema_descriptions_gain_english_defaults(tmp_path):
     registry = _registry(tmp_path, ["mem"])
 
     tools = {tool.name: tool for tool in registry.list_tools()}
-    properties = tools["hb_mem_query"].inputSchema["properties"]
+    properties = tools["hb_mem_query"].model_dump(by_alias=True)["inputSchema"]["properties"]
 
     assert properties["limit"]["description"] == "Maximum number of results to return."
 

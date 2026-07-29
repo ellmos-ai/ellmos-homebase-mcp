@@ -9,6 +9,9 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 - Include `glama.json` and `smithery.yaml` in npm package contents so registry metadata ships with the installable package.
 - Refresh the machine-readable `llms.txt` registry index and verification date.
 
+### Fixed
+- Make registry-schema localization assertions use the serialized MCP protocol form, preserving CI coverage across SDK versions that expose different Python attribute aliases.
+
 ## 0.1.0-alpha.18 - 2026-07-25
 
 ### Added
