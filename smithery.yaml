@@ -1,8 +1,7 @@
 startCommand:
   type: stdio
   config:
-    command: uvx
+    command: npx
     args:
-      - "--from"
+      - "-y"
       - "ellmos-homebase-mcp"
-      - "ellmos-homebase"

@@ -28,6 +28,8 @@
     "LICENSE",
     "llms.txt",
     "server.json",
+    "glama.json",
+    "smithery.yaml",
     "pyproject.toml"
   ],
   "keywords": [

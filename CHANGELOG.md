@@ -2,6 +2,13 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## Unreleased
+
+### Discoverability
+- Correct the Smithery start command to use the published npm package via `npx -y ellmos-homebase-mcp` instead of the Python-only `uvx` launcher.
+- Include `glama.json` and `smithery.yaml` in npm package contents so registry metadata ships with the installable package.
+- Refresh the machine-readable `llms.txt` registry index and verification date.
+
 ## 0.1.0-alpha.18 - 2026-07-25
 
 ### Added

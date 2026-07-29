@@ -14,6 +14,8 @@ Important files:
 - `KONZEPT.md`: German concept and module roadmap.
 - `config/homebase.example.toml`: Example configuration.
 - `server.json`: MCP Registry metadata.
+- `glama.json`: Glama-compatible MCP directory metadata.
+- `smithery.yaml`: Smithery stdio launch metadata for the npm package.
 - `src/homebase/server.py`: MCP stdio server entry point.
 - `src/homebase/registry.py`: Module discovery and tool dispatch.
 - `src/homebase/modules/`: Homebase tool modules.
@@ -62,5 +64,5 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-07-25
+## Last-checked: 2026-07-29
 
