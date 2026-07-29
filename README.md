@@ -267,3 +267,17 @@ npm pack --dry-run --json
 ```
 
 Next useful step: add optional execution backends behind explicit configuration.
+
+## Bundles and partners
+
+Homebase MCP remains a standalone local-first MCP server. In the V4
+composition it is an optional **MCP access surface** of the
+`ellmos-memory-human-context-bundle`: a configured system may use it to reach
+memory and human-context capabilities. This access role does not make Homebase
+the canonical owner of every memory, knowledge, state, routing or automation
+function; the selected host and system manifests retain those bindings.
+
+Canonical or bundled engines are integration partners selected by explicit
+configuration, not implicit replacements for this server. Authoritative
+bundle membership, versions, profiles and private composition recipes remain
+in the corresponding bundle manifests. This public section is discovery-only.
