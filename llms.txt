@@ -15,7 +15,6 @@ Important files:
 - `config/homebase.example.toml`: Example configuration.
 - `server.json`: MCP Registry metadata.
 - `glama.json`: Glama-compatible MCP directory metadata.
-- `smithery.yaml`: Smithery stdio launch metadata for the npm package.
 - `src/homebase/server.py`: MCP stdio server entry point.
 - `src/homebase/registry.py`: Module discovery and tool dispatch.
 - `src/homebase/modules/`: Homebase tool modules.

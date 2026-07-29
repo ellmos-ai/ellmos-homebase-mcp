@@ -5,9 +5,9 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 ## Unreleased
 
 ### Discoverability
-- Correct the Smithery start command to use the published npm package via `npx -y ellmos-homebase-mcp` instead of the Python-only `uvx` launcher.
-- Include `glama.json` and `smithery.yaml` in npm package contents so registry metadata ships with the installable package.
+- Include `glama.json` in npm package contents so validated registry metadata ships with the installable package.
 - Refresh the machine-readable `llms.txt` registry index and verification date.
+- Remove the unverified legacy `smithery.yaml`; current Smithery publication for local stdio servers requires a validated MCPB bundle.
 
 ### Fixed
 - Make registry-schema localization assertions use the serialized MCP protocol form, preserving CI coverage across SDK versions that expose different Python attribute aliases.
