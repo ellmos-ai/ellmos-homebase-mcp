@@ -1,7 +1,7 @@
 # ellmos-homebase-mcp
 
 <p align="center">
-  <img src="assets/homebase-logo.jpg" alt="ellmos Homebase MCP Logo" width="640">
+  <img src="https://raw.githubusercontent.com/ellmos-ai/.github/master/profile/ellmos-logo.jpg" alt="ellmos emblem" width="300">
 </p>
 
 Alpha-MCP-Server für **local-first LLM-Orchestrierung**: Memory, Knowledge, Routing, Schwarmmuster, API-Probing, persistenter Zustand, Tests, Automatisierungsplanung und Plugin-Discovery in einem stdio-Server.

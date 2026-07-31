@@ -17,7 +17,6 @@
     "ellmos-homebase": "bin/ellmos-homebase.js"
   },
   "files": [
-    "assets/",
     "bin/",
     "config/homebase.example.toml",
     "src/**/*.py",
