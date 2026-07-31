@@ -352,3 +352,33 @@ eigenem Namen (Manifest §4, Prinzip 1: keine parallelen Standards).
 *Erstellt: 2026-07-31 für Ticket T-20260731-11. Referenzen: KONZEPT.md (Engine Seams),
 SYSTEM-MANIFEST.md §3.1/§3.3/§4/§5, BACH INSTALL_KONZEPT.md, HQ7_NEUINSTALLATION_KONZEPT.md,
 BACH-Help install/setup/db_sync/identity/modes/mount/user_sync.*
+
+
+---
+
+## Addendum 2026-07-31: Code-Forensik BACH (T-20260731-14)
+
+Verifikation auf Code-Ebene (statt Doku-Tiefe), read-only. Ergebnis — das
+Heim-/Multi-System-Konzept ist in BACH IMPLEMENTIERT, aber anders als in
+den ENT-28-Dokumenten gesucht:
+
+| Konzept-Teil | Stand (Beleg) |
+|---|---|
+| ProSync (Pull bei Start/Push bei Exit, LWW, Heartbeat, Secrets-Exklusion) | IMPLEMENTIERT: `system/bach.py:935-960` (atexit), `system/hub/db_sync.py:260-301,312,469,603-622,408-413` |
+| Lokale Heim-DB `~/.bach` + OneDrive-Transit | IMPLEMENTIERT: `system/hub/bach_paths.py:188-234,141-152` |
+| Single/Multi-Wahl im Installer | IMPLEMENTIERT als ProSync-Flag: `system/hub/setup.py:679-726` |
+| mount (externe Ordner, Junctions) | IMPLEMENTIERT: `system/hub/mount.py:18-232` + GUI-Endpunkte (kein Auto-Restore beim Startup) |
+| identity (Instanz-ID + Kernel-Siegel) | IMPLEMENTIERT: `setup.py:310-333`, `hub/seal.py:129-151` |
+| Startup-Modi (gui/text/dual/silent) | IMPLEMENTIERT: `hub/startup.py:111-128` |
+| Installations-Modi single/multi/server als echte Szenarien | TEILWEISE (nur ProSync-Flag; Detektor `bach_paths.py:561-588` ungenutzt) |
+| `hub/user_sync.py` | TEILWEISE: implementiert, aber ohne Caller (Docstring-Verdrahtung startup/shutdown ist veraltet) |
+| USB-Stick/Portable-Installation | NUR DOKU: `tools/agents/portable_base.py` ist Agenten-Standalone-Fähigkeit (Config aus DB oder JSON), KEIN Stick-Pfad; `portable-bach.md` existiert nirgends |
+| HQ7-Varianten (Fresh Start/New Home/Selective Migrate) | NUR DOKU: null Code-Treffer |
+| Interaktiver Wizard mit Preview+Bestätigung | NUR DOKU: kein input()/confirm in beiden Installern |
+| OneDrive-Erkennung im Installer | NUR DOKU (nur Laufzeit-Detektor vorhanden) |
+
+Konsequenz für dieses Konzept: Die Kapitel 4–6 (Modi, Koexistenz-Flows,
+Import/Export-Semantik) können auf REALEN BACH-Mechanismen aufsetzen
+(ProSync-Semantik, Instanz-Identitaet, mount, Wizard-freie Defaults) —
+nur das USB-Stick-/LANDED-/PORTABLE-Szenario ist auch in BACH tatsaechlich
+Neuland; dort bleibt homebase die erste Umsetzung.
