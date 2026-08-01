@@ -1,4 +1,3 @@
-<img src="assets/banner.png" width="100%" alt="ELLMOS HomeBase MCP Banner">
 
 # ellmos-homebase-mcp
 
