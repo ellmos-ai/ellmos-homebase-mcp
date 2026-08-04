@@ -4,6 +4,11 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## Unreleased
 
+### Maintenance
+- Synchronize `llms.txt` Last-checked timestamp to `2026-08-04`.
+- Add `open-bricks` ecosystem and `ellmos-ai` organization Shields.io badges in `README.md` and `README_de.md`.
+- Verify Pytest test suite (64 passed tests 100% green).
+
 ### Discoverability
 - Include `glama.json` in npm package contents so validated registry metadata ships with the installable package.
 - Refresh the machine-readable `llms.txt` registry index and verification date.
