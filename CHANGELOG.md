@@ -5,7 +5,7 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 ## Unreleased
 
 ### Maintenance
-- Synchronize `llms.txt` Last-checked timestamp to `2026-08-04`.
+- Synchronize `llms.txt` Last-checked timestamp to `2026-08-10`.
 - Add `open-bricks` ecosystem and `ellmos-ai` organization Shields.io badges in `README.md` and `README_de.md`.
 - Verify Pytest test suite (64 passed tests 100% green).
 
