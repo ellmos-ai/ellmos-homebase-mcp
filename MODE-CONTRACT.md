@@ -4,7 +4,7 @@
 > („Engine Seams") um die **Regel**, während KONZEPT.md den **Mechanismus**
 > beschreibt. Bei Widerspruch gilt dieses Dokument.
 >
-> Stand: 2026-08-13 · gültig ab 0.1.0-alpha.21
+> Stand: 2026-08-14 · gültig ab 0.1.0-alpha.21 (Ziel-DB des Task-Seams: alpha.22)
 
 ## 1. Die beiden Modi
 
@@ -57,7 +57,7 @@ Ziel (Pfad und geprüfte Fundorte) und die zwei Auswege (Pfad korrigieren oder
 | Namensraum | Kanonisches Ziel | Seam | Verhalten bei `canonical` + unerreichbar |
 |---|---|---|---|
 | `hb_garden_*` | GARDENER | **implementiert** | Fail-closed (alle 4 Tools) |
-| `hb_state_task_*` | task-master / Rinnsal `TaskClient` | **implementiert** | Fail-closed (3 Tools) |
+| `hb_state_task_*` | TASKPLAN (`taskplan.client.TaskClient` über die stabile Fassade `rinnsal.tasks.client`), Tabelle `rinnsal_tasks` in `~/.taskplan/taskplan.db` | **implementiert** | Fail-closed (3 Tools) |
 | `hb_mem_*` | USMC | **implementiert** | Fail-closed (alle 5 Tools) |
 | `hb_kb_*` | KnowledgeDigest | **offen** | Kein Seam — bleibt bundled, siehe unten |
 | `hb_route_*` | clutch | **offen** | Kein Seam — bleibt bundled, siehe unten |
@@ -67,6 +67,25 @@ Ziel (Pfad und geprüfte Fundorte) und die zwei Auswege (Pfad korrigieren oder
 **Gating je Tool-Familie, nicht je Modul.** `state` trägt zwei Familien: nur
 `hb_state_task_*` ist gegated; `hb_state_mem_*` und `hb_state_dispatch` hatten
 nie ein kanonisches Gegenstück und bleiben in jedem Modus nutzbar.
+
+**Ziel-DB von `hb_state_task_*`.** Der Tabellenname `rinnsal_tasks` blieb bei der
+Extraktion von TASKPLAN aus Rinnsal (2026-07-11) absichtlich stehen; die
+**Datenbank** ist seither `~/.taskplan/taskplan.db`. Auflösung, spezifischstes
+zuerst: `[state].task_db_path` → `$TASKPLAN_DB` → `$SCANNER_TASKS_DB` (Legacy,
+benannte die stillgelegte `_tasks`-Scanner-Queue unter `~/.rinnsal/`) →
+`~/.taskplan/taskplan.db`. `$TASKPLAN_DB` steht **vor** dem Legacy-Namen, weil es
+die Auflösungs-Eingabe der kanonischen Engine selbst ist — wer damit die Task-DB
+verlegt, darf nicht dazu führen, dass ausgerechnet Homebase in einen Speicher
+schreibt, den kein anderer taskplan-Konsument liest.
+
+**Fail-closed gilt auch für eine unerreichbare Ziel-DB.** Bis 0.1.0-alpha.21 war
+nur die *Engine* gegated: Ließ sie sich importieren, zeigte der Zielpfad aber ins
+Leere, kam ein nacktes `sqlite3.OperationalError: unable to open database file`
+zurück — ohne Tool-Familie, ohne Ziel, ohne Ausweg. Seit 0.1.0-alpha.22 wirft die
+Familie in diesem Fall `CanonicalEngineUnavailable` mit denselben drei Angaben.
+Das Verzeichnis wird bewusst **nicht** angelegt: eine frische leere
+`taskplan.db` wäre genau der zweite, unverbundene Speicher, den dieser Vertrag
+verhindert.
 
 **`hb_mem_merge` / `hb_mem_consolidate`** sind bundled-only *Fähigkeiten* (USMC
 kennt keine Bulk-Hygiene) und melden unter erreichbarem `canonical`
