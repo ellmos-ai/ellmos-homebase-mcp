@@ -56,6 +56,7 @@ class MemoryModule(ModuleBase):
 
         self.engine_mode = "bundled"
         self._usmc_cls = None
+        self._unavailable: str | None = None
         # Optional explicit USMC DB path; None lets USMC use its own default store.
         self._usmc_db = config.get("usmc_db") or None
         if str(config.get("_engine_mode", "bundled")) == "canonical":
@@ -63,13 +64,29 @@ class MemoryModule(ModuleBase):
             if self._usmc_cls is not None:
                 self.engine_mode = "canonical"
             else:
-                logger.warning(
-                    "hb_mem_*: canonical mode requested but the real USMC engine was not "
-                    "found/importable; falling back to the bundled memory store."
+                self._unavailable = engine_seams.unavailable_message(
+                    tool_family="hb_mem_*",
+                    engine="USMC",
+                    module="mem",
+                    configured_path=config.get("_engine_path"),
                 )
+                logger.error(self._unavailable)
 
-        if self.engine_mode == "bundled":
+        # Only create the bundled store when bundled is the *chosen* mode. An
+        # unreachable USMC must not leave a second memory.db behind.
+        if self.engine_mode == "bundled" and self._unavailable is None:
             self._init_db()
+
+    def _require_engine(self) -> None:
+        """Fail closed when canonical was requested but is unreachable.
+
+        Covers the bulk-hygiene ops too: `hb_mem_merge`/`hb_mem_consolidate` are
+        bundled-only *capabilities*, but running them against the bundled store
+        while canonical was requested would be the same silent misroute as a
+        write -- and would delete rows in the wrong database.
+        """
+        if self._unavailable is not None:
+            raise engine_seams.CanonicalEngineUnavailable(self._unavailable)
 
     def _usmc(self, agent_id: str):
         """Construct a USMC client bound to ``agent_id`` for write provenance."""
@@ -178,6 +195,7 @@ class MemoryModule(ModuleBase):
         ]
 
     async def _store(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         content = str(kwargs["content"])
         category = str(kwargs["category"])
         confidence = min(1.0, max(0.0, float(kwargs.get("confidence", 1.0))))
@@ -215,6 +233,7 @@ class MemoryModule(ModuleBase):
         }
 
     async def _query(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         query = str(kwargs["query"])
         category = str(kwargs.get("category", "all"))
         limit = int(kwargs.get("limit", 10))
@@ -280,6 +299,7 @@ class MemoryModule(ModuleBase):
         }
 
     async def _context(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         max_tokens = int(kwargs.get("max_tokens", 500))
         focus = kwargs.get("focus")
         agent_id = kwargs.get("agent_id")
@@ -388,6 +408,7 @@ class MemoryModule(ModuleBase):
         }
 
     async def _merge(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         if self.engine_mode == "canonical":
             return _canonical_bulk_unsupported("merge")
 
@@ -456,6 +477,7 @@ class MemoryModule(ModuleBase):
         }
 
     async def _consolidate(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         if self.engine_mode == "canonical":
             return _canonical_bulk_unsupported("consolidate")
 

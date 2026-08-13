@@ -2,7 +2,32 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
-## Unreleased
+## 0.1.0-alpha.21 - 2026-08-13
+
+### Changed (BREAKING)
+- **No silent fallback from `canonical` to `bundled`.** When `[engines].mode` (or
+  `[engines.<name>].mode`) is `"canonical"` and the canonical engine cannot be found or
+  imported, the affected tool family now raises `CanonicalEngineUnavailable` instead of
+  quietly serving the bundled SQLite store. Previously such calls returned
+  `"engine": "bundled"` with a success status while writing into a second, disconnected
+  database. Affects `hb_garden_*`, `hb_state_task_*` and `hb_mem_*`.
+- The bundled store is no longer created at all in that state, so no shadow DB is left behind.
+- **Migration:** `[engines].mode` applies to `garden`, `state` and `mem` together. On hosts
+  that have only some canonical engines, set `mode = "bundled"` per namespace instead of
+  relying on the global setting. See `MODE-CONTRACT.md` §4.
+
+### Added
+- `MODE-CONTRACT.md` — binding definition of the `canonical` and `bundled` stack modes, the
+  per-namespace seam status, the start-vs-call boundary, and the migration path. Cross-linked
+  from KONZEPT.md and shipped in the npm package.
+- Error messages name the affected tool family, the unreachable target and both remedies.
+
+### Unchanged (documented, not invented)
+- The server still starts and still lists all tools when a canonical engine is missing — the
+  rule applies at call time, not at startup.
+- `hb_state_mem_*`, `hb_state_dispatch` and `hb_kb_*`/`hb_route_*` have no canonical seam and
+  keep working in every mode. A `canonical` request for `kb`/`route` remains a no-op that is
+  visible only in the startup summary.
 
 ### Discoverability
 - Include `glama.json` in npm package contents so validated registry metadata ships with the installable package.

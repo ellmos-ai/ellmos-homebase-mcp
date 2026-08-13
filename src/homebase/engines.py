@@ -7,9 +7,16 @@ works with no third-party engine present ("bundled" mode). On systems where
 the canonical ellmos engines (Gardener, Rinnsal, clutch, ...) already exist
 on disk, `[engines].mode = "canonical"` in homebase.toml makes the affected
 modules import and delegate to the *real* engine/DB instead of maintaining a
-second, disconnected copy. If the canonical engine cannot be found or fails
-to import, modules fall back to "bundled" and log why -- the server must
-never fail to start because a canonical engine is missing.
+second, disconnected copy.
+
+If the canonical engine cannot be found or fails to import, the affected tool
+family becomes **fail-closed**: the server still starts and still lists its
+tools, but each call in that family raises `CanonicalEngineUnavailable`
+instead of quietly serving the bundled store. Writing into a second,
+disconnected DB behind the operator's back is exactly what the canonical mode
+exists to prevent, so a silent downgrade is not an acceptable degradation.
+"bundled" remains a fully supported mode -- but only when it is *chosen*.
+See MODE-CONTRACT.md for the binding rule.
 
 This module only knows how to *locate and import* an engine. Each module
 (garden.py, state.py, ...) decides what to do with the imported object.
@@ -26,6 +33,42 @@ from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger("homebase.engines")
+
+
+class CanonicalEngineUnavailable(RuntimeError):
+    """`mode = "canonical"` was requested but the canonical engine is unreachable.
+
+    Raised at *call* time, not at import/startup time: the server must still
+    start and list its tools (see module docstring), but a tool whose canonical
+    target is missing must fail loudly rather than write into the bundled
+    store. Callers see an MCP tool error naming the mode and the target.
+    """
+
+
+def unavailable_message(
+    *,
+    tool_family: str,
+    engine: str,
+    module: str,
+    configured_path: str | None,
+) -> str:
+    """Build the operator-facing message for an unreachable canonical engine.
+
+    Names all three things an operator needs to act: which tools are affected,
+    what was looked for and where, and the two ways out (fix the path, or
+    choose bundled explicitly for this one namespace).
+    """
+    target = configured_path or "no explicit path configured"
+    return (
+        f"{tool_family}: engine mode 'canonical' is configured, but the canonical "
+        f"{engine} engine could not be found or imported (target: {target}; also checked "
+        f"HOMEBASE_ENGINE_{module.upper()}_PATH, the module catalog, and the built-in "
+        f"default locations). Refusing to fall back to the bundled store, because that "
+        f"would silently write into a second, disconnected database. "
+        f"Fix the engine path, or choose the bundled store explicitly with "
+        f"[engines.{module}] mode = \"bundled\" in homebase.toml."
+    )
+
 
 # Modules with a real canonical seam implemented today. Kept as a small,
 # explicit map so `engine_summary()` can tell "canonical requested and wired"

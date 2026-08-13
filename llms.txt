@@ -12,6 +12,10 @@ Important files:
 - `README.md`: English installation and usage guide.
 - `README_de.md`: German installation and usage guide.
 - `KONZEPT.md`: German concept and module roadmap.
+- `MODE-CONTRACT.md`: binding contract for the `canonical` and `bundled` engine modes (German).
+  Defines both stack modes, the per-namespace seam status, and the rule that a requested
+  `canonical` engine which is unreachable causes a tool error instead of a silent fallback to
+  the bundled database.
 - `config/homebase.example.toml`: Example configuration.
 - `server.json`: MCP Registry metadata.
 - `glama.json`: Glama-compatible MCP directory metadata.
@@ -63,5 +67,5 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-07-29
+## Last-checked: 2026-08-13
 

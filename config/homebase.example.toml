@@ -20,9 +20,16 @@ enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "con
 # module catalog first, then the ecosystem's current .AI/.MODULES/.MEMORY/*
 # and legacy .AI/.MEMORY/* and .AI/.OS/*
 # locations). Set ELLMOS_MODULES_CATALOG to override the catalog location.
-# Falls back to bundled (logged) if no canonical engine can be found.
 # hb_garden_* (Gardener), hb_state_task_* (Rinnsal) and hb_mem_* (USMC) have a
 # canonical seam; hb_kb_*/hb_route_* stay bundled-only even if canonical is requested.
+#
+# NO SILENT FALLBACK (see MODE-CONTRACT.md): if you request "canonical" and the
+# canonical engine cannot be found, those tools return an ERROR -- they do not
+# quietly use the bundled DB, because that would write into a second,
+# disconnected store. The server still starts and still lists its tools.
+# Note that [engines].mode applies to garden, state AND mem at once. If only
+# some canonical engines exist on this host, choose per namespace below
+# (mode = "bundled") instead of relying on a global setting.
 [engines]
 mode = "bundled"
 

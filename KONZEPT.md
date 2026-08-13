@@ -219,9 +219,14 @@ Meilenstein**, keine Vorbedingung — sie blockiert den Bau nicht. PyPI ist dami
 Vorstufe zu obigem Zielmodell, bereits umgesetzt (ohne Git-URL-Dependencies — die Seam sucht die
 Engine **lokal auf der Platte**, kein Install-Zeit-Fetch): `homebase.engines` löst pro Modul einen
 Engine-Modus auf (`canonical` = echte Engine importieren, `bundled` = eingebaute
-Zero-Dependency-Implementierung) und importiert die reale Engine nur bei Bedarf, mit
-Graceful-Fallback auf bundled (geloggt), falls sie fehlt oder der Import fehlschlägt — der Server
-startet in jedem Fall.
+Zero-Dependency-Implementierung) und importiert die reale Engine nur bei Bedarf.
+
+> **Verbindliche Modus-Regel — siehe [MODE-CONTRACT.md](MODE-CONTRACT.md).** Seit
+> 0.1.0-alpha.21 gibt es **keinen stillen Fallback** mehr: Ist bei `mode = "canonical"` die
+> kanonische Engine unerreichbar, wirft die betroffene Tool-Familie einen Fehler, statt still
+> die bundled-DB zu bedienen (das legte einen zweiten, unverbundenen Speicher an). Der Server
+> **startet weiterhin in jedem Fall** und listet seine Tools — die Regel greift auf Aufruf-,
+> nicht auf Startebene. `bundled` bleibt ein vollwertiger Modus, wenn er *gewählt* wird.
 
 **Konfiguration** (`homebase.toml`):
 

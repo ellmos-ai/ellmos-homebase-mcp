@@ -28,6 +28,7 @@ class StateModule(ModuleBase):
         self.task_engine_mode = "bundled"
         self._task_client_cls = None
         self._task_db_path: str | None = None
+        self._tasks_unavailable: str | None = None
         requested_mode = str(config.get("_engine_mode", "bundled"))
         if requested_mode == "canonical":
             self._task_client_cls = engine_seams.load_rinnsal_task_client_class(config.get("_engine_path"))
@@ -39,14 +40,24 @@ class StateModule(ModuleBase):
                     or (Path.home() / ".rinnsal" / "scanner_tasks.db")
                 )
             else:
-                logger.warning(
-                    "hb_state_task_*: canonical mode requested but the real Rinnsal TaskClient "
-                    "was not found/importable; falling back to the bundled task store."
+                self._tasks_unavailable = engine_seams.unavailable_message(
+                    tool_family="hb_state_task_*",
+                    engine="Rinnsal TaskClient",
+                    module="state",
+                    configured_path=config.get("_engine_path"),
                 )
+                logger.error(self._tasks_unavailable)
 
+        # State memory (hb_state_mem_*) and hb_state_dispatch have no seam and
+        # stay available in every mode -- only the task family is gated.
         self._init_state_memory()
-        if self.task_engine_mode == "bundled":
+        if self.task_engine_mode == "bundled" and self._tasks_unavailable is None:
             self._init_bundled_tasks()
+
+    def _require_task_engine(self) -> None:
+        """Fail closed for hb_state_task_* when canonical is requested but unreachable."""
+        if self._tasks_unavailable is not None:
+            raise engine_seams.CanonicalEngineUnavailable(self._tasks_unavailable)
 
     def _init_state_memory(self) -> None:
         with connect_db(self.db_path) as connection:
@@ -207,6 +218,7 @@ class StateModule(ModuleBase):
         return {"status": "stored", "key": key, "type": memory_type, "agent_id": agent_id}
 
     async def _task_list(self, **kwargs) -> dict[str, Any]:
+        self._require_task_engine()
         status = str(kwargs.get("status", "open"))
         agent_id = kwargs.get("agent_id")
 
@@ -234,6 +246,7 @@ class StateModule(ModuleBase):
         return {"status": "ok", "engine": "bundled", "count": len(rows), "tasks": [dict(row) for row in rows]}
 
     async def _task_create(self, **kwargs) -> dict[str, Any]:
+        self._require_task_engine()
         agent_id = resolve_agent_id(self.config, kwargs.get("agent_id"))
 
         if self.task_engine_mode == "canonical":
@@ -265,6 +278,7 @@ class StateModule(ModuleBase):
         return {"status": "created", "engine": "bundled", "task_id": task_id, "agent_id": agent_id}
 
     async def _task_update(self, **kwargs) -> dict[str, Any]:
+        self._require_task_engine()
         task_id = int(kwargs["task_id"])
         agent_id = kwargs.get("agent_id")
 
