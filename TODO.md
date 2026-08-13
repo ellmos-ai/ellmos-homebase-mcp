@@ -115,9 +115,9 @@
 
 ## Qualitäts-Schulden (aus Audit 2026-06-17)
 
-- [ ] Modul-Unit-Tests: `test_registry.py` deckt inzwischen die wichtigsten Modulpfade ab,
-      inklusive `agent_id`-Provenance für mem/kb/state; separate Modul-Unit-Tests und
-      Migrations-Smokes für alle Module fehlen noch.
+- [x] Modul-Unit-Tests: `tests/test_module_contracts.py` deckt den Factory-/Tool-Vertrag
+      aller elf Module ab und enthält wiederholbare Start-Smokes sowie Legacy-
+      Migrations-Smokes für alle persistenten Module (2026-08-13).
 - [x] Doku-Korrektheit: KONZEPT.md trennt Code-Realität und Zielbild wieder explizit:
       FTS5 und `hb_mem_merge` sind umgesetzt, semantische/Embedding-Suche bleibt Stretch-Goal
       und die Engine-Seams nennen bundled-only-Folgearbeit statt fertige Canonical-Seams.
@@ -206,10 +206,12 @@
       Architektur-Nuance identisch zu P2: homebase hostet die **Auswahl-/Vorhersagelogik**
       (`hb_mind_predict`, liest aus `hb_mem_`), das **Einschieben** macht ein clientseitiger Hook.
       Gemeinsam mit dem `hb_inject_`-Modul (P2) entwerfen — selbe Schicht.
-- [ ] **`ticket-master` → nur Scoring-/Routing-Logik in `hb_state_task_` prüfen (NIEDRIG-MITTEL).**
-      ticket-master ist ein *prompt-getriebener Workflow* (kein importierbares Engine-Paket), daher
-      NICHT als Modul übernehmen. Aber Intake→Score→Provider-Match-Logik bewerten, ob sie
-      `hb_state_task_create/update` um Priorisierung/Provider-Empfehlung anreichern kann.
+- [x] **`ticket-master` → nur Scoring-/Routing-Logik in `hb_state_task_` prüfen (NIEDRIG-MITTEL).**
+      Audit 2026-08-13: ticket-master ist ein *prompt-getriebener Workflow* (kein
+      importierbares Engine-Paket). `priority` deckt nur grobe Priorisierung ab;
+      `hb_route_select` kann Empfehlungen liefern, aber `hb_state_task_*` persistiert
+      keinen Score oder Provider-Match. Keine inkompatible Anreicherung vorgenommen;
+      Details: `docs/TICKET-MASTER-ROUTING-AUDIT.md`.
 
 ### C — Bewusst NICHT integrieren (Konsumenten/Deploy/Fremddomäne — Entscheidung, kein offener Task)
 
