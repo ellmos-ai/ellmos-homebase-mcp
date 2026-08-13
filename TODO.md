@@ -150,6 +150,19 @@
       voraussetzt (deutlich mehr Vorarbeit als die anderen beiden Seams). Bleibt bundled-only,
       Server loggt das explizit bei `[engines].mode=canonical`. Folgearbeit, kein neues Ticket
       nötig — hier weiterführen.
+      **Nachtrag 2026-08-13 (hb-mode, Phase 6 P3):** Seit 0.1.0-alpha.21 gilt der Modus-Vertrag
+      (`MODE-CONTRACT.md`) — bei `mode=canonical` und unerreichbarer Engine wirft die betroffene
+      Tool-Familie einen Fehler statt still die bundled-DB zu bedienen. `hb_route_*` und
+      `hb_kb_*` sind davon **nicht** erfasst, weil sie `_engine_mode` gar nicht lesen: Ein
+      `canonical`-Wunsch für sie ist ein No-op, sichtbar nur im Startlog. Sie sind damit die
+      letzten beiden offenen Seams; wer sie baut, hängt sie an denselben Fail-closed-Guard
+      (`_require_engine()`-Muster in `garden.py`/`memory.py`/`state.py`).
+
+- [ ] **`engine_summary()` den aufgelösten Zustand melden lassen, nicht die Konfiguration.**
+      Liest heute nur `config.engine_settings()` und loggt daher `garden=canonical`, auch wenn
+      die Engine unerreichbar ist und alle Aufrufe fehlschlagen; die Wahrheit steht nur in der
+      danebenstehenden `ERROR`-Zeile. Bekannte Kante, dokumentiert in `MODE-CONTRACT.md` §5.
+      Bewusst nicht mit dem Modus-Vertrag zusammen geändert (hätte den Startbericht umgebaut).
 - [ ] **`hb_swarm_` auf `.MODULES/.ORCHESTRATION/swarm_ai` umstellen.** Reale Schwarm-Patterns
       (parallel/consensus/hierarchy/stigmergy) statt Alpha-Stub; Backend konfigurierbar (Ollama-default).
 - [ ] **`hb_api_` auf `.MODULES/.TOOLS/ApiProber` umstellen.** Reale Probe-/Discovery-Engine (OpenAPI,
