@@ -20,6 +20,8 @@ German README: [README_de.md](README_de.md)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet.svg)](https://modelcontextprotocol.io/)
 [![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Tests](https://img.shields.io/badge/tests-96%20passed-brightgreen.svg)](tests/)
+[![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
 
 **Discoverability:** Published on [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) as `ellmos-homebase-mcp` and maintained in the [`ellmos-ai`](https://github.com/ellmos-ai) organization.
@@ -89,10 +91,13 @@ flowchart TD
 - Test gate: GitHub Actions covers Python 3.10/3.11/3.12 plus Node.js 20/22/24 smoke and npm package checks
 - Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks, local planning/probing/queue/dry-run adapters
 - Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Engine seams: `hb_garden_*` and `hb_state_task_*` can delegate to the real canonical
-  Gardener/Rinnsal engines instead of the bundled SQLite copies via `[engines].mode = "canonical"`
-  (default remains `"bundled"` for a zero-dependency install). See
-  [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
+- Engine seams: `hb_garden_*`, `hb_state_task_*` and `hb_mem_*` can delegate to the real
+  canonical Gardener/Rinnsal/USMC engines instead of the bundled SQLite copies via
+  `[engines].mode = "canonical"` (default remains `"bundled"` for a zero-dependency install).
+  **No silent fallback:** if you request `canonical` and the engine is unreachable, those tools
+  return an error rather than quietly using the bundled DB — the server still starts and lists
+  its tools. Binding rule and migration notes: **[MODE-CONTRACT.md](MODE-CONTRACT.md)**;
+  mechanism: [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
 - Team-memory basics: `agent_id` provenance and filters for memory, knowledge, state memory, and tasks; SQLite uses WAL plus a busy timeout for safer concurrent agents
 - Credential-free alpha adapters: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
 - i18n: fully localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` (English fallback for any unset key)

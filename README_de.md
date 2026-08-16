@@ -21,6 +21,8 @@ Englische Standard-README: [README.md](README.md)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet.svg)](https://modelcontextprotocol.io/)
 [![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Tests](https://img.shields.io/badge/tests-96%20passed-brightgreen.svg)](tests/)
+[![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
 
 **Auffindbarkeit:** Veröffentlicht auf [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) als `ellmos-homebase-mcp` und gepflegt in der Organisation [`ellmos-ai`](https://github.com/ellmos-ai).
@@ -90,9 +92,13 @@ flowchart TD
 - Test-Gate: GitHub Actions prüft Python 3.10/3.11/3.12 sowie Node.js 20/22/24 mit Smoke- und npm-Paketchecks
 - Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs-, Probing-, Queue- und Dry-run-Adapter
 - Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Engine-Seams: `hb_garden_*` und `hb_state_task_*` können über `[engines].mode = "canonical"`
-  an die echten Gardener-/Rinnsal-Engines delegieren statt an die eingebauten SQLite-Kopien
-  (Default bleibt `"bundled"` für eine Zero-Dependency-Installation). Siehe
+- Engine-Seams: `hb_garden_*`, `hb_state_task_*` und `hb_mem_*` können über
+  `[engines].mode = "canonical"` an die echten Gardener-/Rinnsal-/USMC-Engines delegieren statt
+  an die eingebauten SQLite-Kopien (Default bleibt `"bundled"` für eine
+  Zero-Dependency-Installation). **Kein stiller Fallback:** Ist bei `canonical` die Engine
+  unerreichbar, liefern diese Tools einen Fehler, statt still die bundled-DB zu benutzen — der
+  Server startet weiterhin und listet seine Tools. Verbindliche Regel und Migration:
+  **[MODE-CONTRACT.md](MODE-CONTRACT.md)**; Mechanismus:
   [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
 - Team-Memory-Grundlagen: `agent_id`-Herkunft und Filter für Memory, Knowledge, State-Memory und Tasks; SQLite nutzt WAL plus Busy-Timeout für sicherere parallele Agenten
 - Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`

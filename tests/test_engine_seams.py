@@ -368,22 +368,43 @@ async def test_garden_canonical_seam_roundtrip(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_garden_falls_back_to_bundled_when_canonical_engine_missing(tmp_path, monkeypatch):
+async def test_garden_fails_closed_when_canonical_engine_missing(tmp_path, monkeypatch):
+    """canonical requested + Gardener unreachable => tool error, never a silent bundled write.
+
+    Inverts the pre-0.1.0a21 contract, which returned engine="bundled" here and
+    wrote into a second, disconnected garden.db. See MODE-CONTRACT.md.
+    """
     monkeypatch.delenv("HOMEBASE_ENGINE_GARDEN_PATH", raising=False)
     monkeypatch.setattr(engine_seams, "_module_catalog_candidates", lambda: [])
     monkeypatch.setitem(engine_seams._DEFAULT_CANDIDATES, "garden", [])
+    bundled_db = tmp_path / "garden.db"
     config = HomebaseConfig(
         enabled_modules=["garden"],
         engine_mode="canonical",
         engine_configs={"garden": {"path": str(tmp_path / "nowhere")}},
-        module_configs={"garden": {"db_path": str(tmp_path / "garden.db")}},
+        module_configs={"garden": {"db_path": str(bundled_db)}},
     )
     registry = ModuleRegistry(config)
-    registry.discover_and_load()
+    loaded, skipped = registry.discover_and_load()
 
-    stored = await registry.call_tool("hb_garden_put", {"key": "k", "value": "v"})
+    # The server still starts and still offers the tools -- only calling fails.
+    assert loaded == ["garden"]
+    assert skipped == []
+    assert "hb_garden_put" in {tool.name for tool in registry.list_tools()}
 
-    assert stored["engine"] == "bundled"
+    with pytest.raises(engine_seams.CanonicalEngineUnavailable) as excinfo:
+        await registry.call_tool("hb_garden_put", {"key": "k", "value": "v"})
+
+    message = str(excinfo.value)
+    assert "canonical" in message
+    assert "nowhere" in message  # names the unreachable target
+    assert 'mode = "bundled"' in message  # names the way out
+    assert not bundled_db.exists(), "no shadow bundled store may be created"
+
+    # Reads fail closed too, so a caller cannot mistake an empty bundled store
+    # for "the canonical engine has nothing".
+    with pytest.raises(engine_seams.CanonicalEngineUnavailable):
+        await registry.call_tool("hb_garden_find", {"query": "k"})
 
 
 def _write_fixture_usmc(tmp_path: Path) -> Path:
@@ -521,21 +542,39 @@ async def test_mem_usmc_canonical_seam_roundtrip(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_mem_falls_back_to_bundled_when_usmc_missing(tmp_path, monkeypatch):
+async def test_mem_fails_closed_when_usmc_missing(tmp_path, monkeypatch):
+    """canonical requested + USMC unreachable => tool error for the whole hb_mem_* family.
+
+    The bulk-hygiene ops are gated too: running merge/consolidate against the
+    bundled store here would delete rows in the wrong database.
+    """
     monkeypatch.delenv("HOMEBASE_ENGINE_MEM_PATH", raising=False)
     monkeypatch.setattr(engine_seams, "_module_catalog_candidates", lambda: [])
     monkeypatch.setitem(engine_seams._DEFAULT_CANDIDATES, "mem", [])
+    bundled_db = tmp_path / "memory.db"
     config = HomebaseConfig(
         enabled_modules=["mem"],
         engine_mode="canonical",
         engine_configs={"mem": {"path": str(tmp_path / "nowhere")}},
-        module_configs={"mem": {"db_path": str(tmp_path / "memory.db")}},
+        module_configs={"mem": {"db_path": str(bundled_db)}},
     )
     registry = ModuleRegistry(config)
     registry.discover_and_load()
 
-    stored = await registry.call_tool("hb_mem_store", {"content": "x", "category": "fact"})
-    assert stored["engine"] == "bundled"
+    with pytest.raises(engine_seams.CanonicalEngineUnavailable) as excinfo:
+        await registry.call_tool("hb_mem_store", {"content": "x", "category": "fact"})
+    assert "USMC" in str(excinfo.value)
+
+    for tool, args in (
+        ("hb_mem_query", {"query": "x"}),
+        ("hb_mem_context", {}),
+        ("hb_mem_merge", {"dry_run": True}),
+        ("hb_mem_consolidate", {"dry_run": True}),
+    ):
+        with pytest.raises(engine_seams.CanonicalEngineUnavailable):
+            await registry.call_tool(tool, args)
+
+    assert not bundled_db.exists(), "no shadow bundled store may be created"
 
 
 @pytest.mark.asyncio
@@ -572,7 +611,12 @@ async def test_state_task_canonical_seam_roundtrip_and_status_mapping(tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_state_falls_back_to_bundled_when_canonical_engine_missing(tmp_path):
+async def test_state_tasks_fail_closed_but_unseamed_families_keep_working(tmp_path):
+    """Only hb_state_task_* is gated; hb_state_mem_* and hb_state_dispatch have no seam.
+
+    Gating the whole StateModule would break tool families that never had a
+    canonical counterpart and are bundled by definition, not by fallback.
+    """
     config = HomebaseConfig(
         enabled_modules=["state"],
         engine_mode="canonical",
@@ -582,6 +626,14 @@ async def test_state_falls_back_to_bundled_when_canonical_engine_missing(tmp_pat
     registry = ModuleRegistry(config)
     registry.discover_and_load()
 
-    created = await registry.call_tool("hb_state_task_create", {"title": "Bundled fallback"})
+    with pytest.raises(engine_seams.CanonicalEngineUnavailable) as excinfo:
+        await registry.call_tool("hb_state_task_create", {"title": "Bundled fallback"})
+    assert "hb_state_task_*" in str(excinfo.value)
 
-    assert created["engine"] == "bundled"
+    with pytest.raises(engine_seams.CanonicalEngineUnavailable):
+        await registry.call_tool("hb_state_task_list", {})
+
+    stored = await registry.call_tool("hb_state_mem_set", {"key": "k", "value": "v"})
+    assert stored["status"] == "stored"
+    fetched = await registry.call_tool("hb_state_mem_get", {"query": "k"})
+    assert fetched["count"] == 1

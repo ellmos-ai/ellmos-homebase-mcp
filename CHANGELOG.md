@@ -2,7 +2,46 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
-## Unreleased
+## 0.1.0-alpha.22 - 2026-08-16
+
+### Security
+- **Standardized `SECURITY.md`**: Added explicit security policy establishing local-first SQLite persistence, credential-free model routing and API discovery, bounded offline queue execution, fail-closed canonical engine seams, and strict secret ignore rules.
+
+### Discoverability & Documentation
+- **Badges & Metadata**: Updated `README.md` and `README_de.md` with verified test suite status (96 passed, 100% green) and `llms.txt` LLMs-Ready badge.
+- **Machine-Readable LLM Index**: Synchronized `llms.txt` Last-checked timestamp to `2026-08-16`.
+- **Packaging Parity**: Included `SECURITY.md` in `package.json` package files list.
+
+### Tests & Quality Assurance
+- **Automated Metadata & Discoverability Tests**: Extended `tests/test_metadata.py` with test cases verifying `SECURITY.md` existence/contents, package file inclusions, `llms.txt` discoverability markers, and ecosystem cross-references.
+- **Test Suite Verification**: All 96 unit, engine-seam, i18n, registry, and repository hygiene tests pass 100% green.
+
+## 0.1.0-alpha.21 - 2026-08-13
+
+### Changed (BREAKING)
+- **No silent fallback from `canonical` to `bundled`.** When `[engines].mode` (or
+  `[engines.<name>].mode`) is `"canonical"` and the canonical engine cannot be found or
+  imported, the affected tool family now raises `CanonicalEngineUnavailable` instead of
+  quietly serving the bundled SQLite store. Previously such calls returned
+  `"engine": "bundled"` with a success status while writing into a second, disconnected
+  database. Affects `hb_garden_*`, `hb_state_task_*` and `hb_mem_*`.
+- The bundled store is no longer created at all in that state, so no shadow DB is left behind.
+- **Migration:** `[engines].mode` applies to `garden`, `state` and `mem` together. On hosts
+  that have only some canonical engines, set `mode = "bundled"` per namespace instead of
+  relying on the global setting. See `MODE-CONTRACT.md` §4.
+
+### Added
+- `MODE-CONTRACT.md` — binding definition of the `canonical` and `bundled` stack modes, the
+  per-namespace seam status, the start-vs-call boundary, and the migration path. Cross-linked
+  from KONZEPT.md and shipped in the npm package.
+- Error messages name the affected tool family, the unreachable target and both remedies.
+
+### Unchanged (documented, not invented)
+- The server still starts and still lists all tools when a canonical engine is missing — the
+  rule applies at call time, not at startup.
+- `hb_state_mem_*`, `hb_state_dispatch` and `hb_kb_*`/`hb_route_*` have no canonical seam and
+  keep working in every mode. A `canonical` request for `kb`/`route` remains a no-op that is
+  visible only in the startup summary.
 
 ### Maintenance
 - Synchronize `llms.txt` Last-checked timestamp to `2026-08-10`.

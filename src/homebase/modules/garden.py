@@ -20,19 +20,30 @@ class GardenModule(ModuleBase):
 
         self.engine_mode = "bundled"
         self._gardener = None
+        self._unavailable: str | None = None
         requested_mode = str(config.get("_engine_mode", "bundled"))
         if requested_mode == "canonical":
             self._gardener = engine_seams.load_gardener(config.get("_engine_path"))
             if self._gardener is not None:
                 self.engine_mode = "canonical"
             else:
-                logger.warning(
-                    "hb_garden_*: canonical mode requested but the real Gardener engine "
-                    "was not found/importable; falling back to the bundled garden store."
+                self._unavailable = engine_seams.unavailable_message(
+                    tool_family="hb_garden_*",
+                    engine="Gardener",
+                    module="garden",
+                    configured_path=config.get("_engine_path"),
                 )
+                logger.error(self._unavailable)
 
-        if self.engine_mode == "bundled":
+        # Only create the bundled store when bundled is the *chosen* mode. An
+        # unreachable canonical engine must not leave a second garden.db behind.
+        if self.engine_mode == "bundled" and self._unavailable is None:
             self._init_db()
+
+    def _require_engine(self) -> None:
+        """Fail closed when canonical was requested but is unreachable."""
+        if self._unavailable is not None:
+            raise engine_seams.CanonicalEngineUnavailable(self._unavailable)
 
     def _init_db(self) -> None:
         with connect_db(self.db_path) as connection:
@@ -83,6 +94,7 @@ class GardenModule(ModuleBase):
         ]
 
     async def _find(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         query = str(kwargs["query"])
         limit = int(kwargs.get("limit", 10))
 
@@ -109,6 +121,7 @@ class GardenModule(ModuleBase):
         return {"status": "ok", "engine": "bundled", "count": len(rows), "results": [dict(row) for row in rows]}
 
     async def _get(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         key = str(kwargs["key"])
 
         if self.engine_mode == "canonical":
@@ -127,6 +140,7 @@ class GardenModule(ModuleBase):
         return {"status": "ok", "engine": "bundled", "entry": dict(row)}
 
     async def _put(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         key = str(kwargs["key"])
         value = str(kwargs["value"])
 
@@ -148,6 +162,7 @@ class GardenModule(ModuleBase):
         return {"status": "stored", "engine": "bundled", "key": key}
 
     async def _run(self, **kwargs) -> dict[str, Any]:
+        self._require_engine()
         key = str(kwargs["key"])
         if not self.allow_run:
             return {

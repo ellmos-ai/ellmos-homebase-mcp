@@ -54,3 +54,31 @@ def test_homebase_concept_keeps_non_module_boundaries_documented():
     assert "Konsument" in section
     assert "Deployment" in section
     assert "andere Domäne" in section
+
+
+def test_security_policy_and_manifest_hygiene():
+    security_file = REPO_ROOT / "SECURITY.md"
+    assert security_file.is_file(), "SECURITY.md must exist in repository root"
+    content = security_file.read_text(encoding="utf-8")
+    assert "Security Policy" in content
+    assert "Local-First" in content or "local-first" in content
+    assert "Reporting a Vulnerability" in content
+
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+    assert "SECURITY.md" in package.get("files", []), "SECURITY.md must be included in package.json files"
+
+
+def test_llms_txt_and_discoverability_parity():
+    llms_file = REPO_ROOT / "llms.txt"
+    assert llms_file.is_file(), "llms.txt must exist in repository root"
+    llms_text = llms_file.read_text(encoding="utf-8")
+    assert "ellmos-homebase-mcp" in llms_text
+    assert "Canonical repository:" in llms_text
+    assert "Last-checked:" in llms_text
+
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+
+    assert "open-bricks" in readme_en and "open-bricks" in readme_de
+    assert "ellmos-ai" in readme_en and "ellmos-ai" in readme_de
+    assert "llms.txt" in readme_en and "llms.txt" in readme_de
