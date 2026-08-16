@@ -10,6 +10,7 @@ closely enough to validate the seam wiring, not to be a full reimplementation.
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -608,6 +609,117 @@ async def test_state_task_canonical_seam_roundtrip_and_status_mapping(tmp_path):
     assert done["status"] == "updated"
     done_list = await registry.call_tool("hb_state_task_list", {"status": "done"})
     assert done_list["count"] == 1
+
+
+def _fake_home(tmp_path: Path, monkeypatch) -> Path:
+    """Point ``Path.home()`` at tmp_path on both POSIX and Windows.
+
+    ``ntpath.expanduser`` reads USERPROFILE and ignores HOME, so setting only
+    HOME would silently let these tests resolve against the real user profile.
+    """
+    home = tmp_path / "home"
+    home.mkdir(exist_ok=True)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("USERPROFILE", str(home))
+    return home
+
+
+def _state_config(engine_dir: Path, tmp_path: Path, **state_overrides) -> HomebaseConfig:
+    return HomebaseConfig(
+        enabled_modules=["state"],
+        engine_mode="canonical",
+        engine_configs={"state": {"path": str(engine_dir)}},
+        module_configs={"state": {"db_path": str(tmp_path / "rinnsal.db"), **state_overrides}},
+    )
+
+
+@pytest.mark.asyncio
+async def test_state_task_canonical_default_targets_taskplan_db(tmp_path, monkeypatch):
+    """The unconfigured canonical default is taskplan's store, not the retired rinnsal queue.
+
+    Regression guard for T-20260814-01: the default pointed at
+    ``~/.rinnsal/scanner_tasks.db`` after that directory had been removed, so
+    every hb_state_task_* call failed with "unable to open database file".
+    """
+    monkeypatch.delenv("TASKPLAN_DB", raising=False)
+    monkeypatch.delenv("SCANNER_TASKS_DB", raising=False)
+    engine_dir = _write_fixture_rinnsal(tmp_path)
+    home = _fake_home(tmp_path, monkeypatch)
+    (home / ".taskplan").mkdir()
+
+    registry = ModuleRegistry(_state_config(engine_dir, tmp_path))
+    registry.discover_and_load()
+
+    created = await registry.call_tool("hb_state_task_create", {"title": "Default path"})
+    assert created["engine"] == "canonical"
+    listed = await registry.call_tool("hb_state_task_list", {"status": "all"})
+    assert listed["count"] == 1
+
+    assert (home / ".taskplan" / "taskplan.db").exists()
+    assert not (home / ".rinnsal").exists(), "the retired rinnsal queue must not be recreated"
+
+
+@pytest.mark.asyncio
+async def test_taskplan_db_env_outranks_legacy_scanner_tasks_db(tmp_path, monkeypatch):
+    """TASKPLAN_DB wins over SCANNER_TASKS_DB: the canonical engine's own env must not be overruled.
+
+    Otherwise relocating the task DB with TASKPLAN_DB would leave homebase
+    writing into a store no other taskplan consumer reads -- the disconnected
+    second store MODE-CONTRACT.md forbids.
+    """
+    engine_dir = _write_fixture_rinnsal(tmp_path)
+    _fake_home(tmp_path, monkeypatch)
+    canonical_db = tmp_path / "canonical" / "taskplan.db"
+    legacy_db = tmp_path / "legacy" / "scanner_tasks.db"
+    canonical_db.parent.mkdir()
+    legacy_db.parent.mkdir()
+    monkeypatch.setenv("TASKPLAN_DB", str(canonical_db))
+    monkeypatch.setenv("SCANNER_TASKS_DB", str(legacy_db))
+
+    registry = ModuleRegistry(_state_config(engine_dir, tmp_path))
+    registry.discover_and_load()
+    await registry.call_tool("hb_state_task_create", {"title": "Follows TASKPLAN_DB"})
+
+    assert canonical_db.exists()
+    assert not legacy_db.exists()
+
+
+@pytest.mark.asyncio
+async def test_state_tasks_fail_closed_when_task_db_directory_is_missing(tmp_path, monkeypatch):
+    """Engine importable but its DB directory gone => named error, never a freshly created store.
+
+    This is the shape the ticket actually hit. Without the check the engine
+    loads, the seam reports canonical, and the caller gets a bare
+    ``sqlite3.OperationalError`` that names neither the target nor a way out.
+    """
+    monkeypatch.delenv("TASKPLAN_DB", raising=False)
+    monkeypatch.delenv("SCANNER_TASKS_DB", raising=False)
+    engine_dir = _write_fixture_rinnsal(tmp_path)
+    home = _fake_home(tmp_path, monkeypatch)  # deliberately without ~/.taskplan
+
+    registry = ModuleRegistry(_state_config(engine_dir, tmp_path))
+    registry.discover_and_load()
+
+    with pytest.raises(engine_seams.CanonicalEngineUnavailable) as excinfo:
+        await registry.call_tool("hb_state_task_list", {"status": "all"})
+    message = str(excinfo.value)
+    assert "hb_state_task_*" in message
+    assert "taskplan.db" in message  # names the unreachable target
+    assert 'mode = "bundled"' in message  # names the way out
+
+    with pytest.raises(engine_seams.CanonicalEngineUnavailable):
+        await registry.call_tool("hb_state_task_create", {"title": "no store"})
+
+    assert not (home / ".taskplan").exists(), "the missing store directory must not be created"
+
+    # hb_state_mem_* has no seam and stays usable even in this state -- so the
+    # state DB legitimately exists here. What must NOT exist in it is a bundled
+    # `tasks` table, which would be the shadow task store.
+    stored = await registry.call_tool("hb_state_mem_set", {"key": "k", "value": "v"})
+    assert stored["status"] == "stored"
+    with sqlite3.connect(str(tmp_path / "rinnsal.db")) as connection:
+        tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    assert "tasks" not in tables, "no shadow bundled task store may be created"
 
 
 @pytest.mark.asyncio

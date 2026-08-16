@@ -20,6 +20,58 @@ _TO_RINNSAL_STATUS = {"in_progress": "active"}
 _TO_HOMEBASE_STATUS = {"active": "in_progress"}
 
 
+def _resolve_task_db_path(config: dict[str, Any]) -> Path:
+    """Resolve the canonical task DB, most specific source first.
+
+    The table is still called ``rinnsal_tasks``, but the engine that owns it is
+    taskplan (extracted from rinnsal 2026-07-11); its store lives at
+    ``~/.taskplan/taskplan.db``. ``~/.rinnsal/`` no longer exists.
+
+    ``TASKPLAN_DB`` ranks above the legacy ``SCANNER_TASKS_DB`` on purpose:
+    ``TASKPLAN_DB`` is the canonical engine's own resolution input, so an
+    operator who relocates the task DB with it must not end up with homebase
+    writing to a store no other taskplan consumer reads -- exactly the second,
+    disconnected store MODE-CONTRACT.md forbids. ``SCANNER_TASKS_DB`` named the
+    retired ``_tasks``-scanner queue and stays honoured only for hosts that
+    still set it.
+
+    Passing ``db_path=None`` to the engine instead of resolving here would
+    reintroduce the bug through the other door: the rinnsal shim intercepts
+    ``None`` and injects its own ``~/.rinnsal/rinnsal.db`` default.
+    """
+    return Path(
+        str(
+            config.get("task_db_path")
+            or os.environ.get("TASKPLAN_DB")
+            or os.environ.get("SCANNER_TASKS_DB")
+            or (Path.home() / ".taskplan" / "taskplan.db")
+        )
+    ).expanduser()
+
+
+def _task_db_unavailable_message(db_path: Path) -> str:
+    """Operator-facing message for a canonical task DB whose directory is gone.
+
+    Distinct from ``engines.unavailable_message()``: there the *engine* could
+    not be imported, here the engine is fine and its *database* is unreachable.
+    Both fail closed, and both name the same three things (tool family, target,
+    the two ways out) as MODE-CONTRACT.md promises for this namespace.
+
+    The directory is deliberately not created: an empty ``taskplan.db`` next to
+    a missing store is the silent second database the canonical mode exists to
+    prevent.
+    """
+    return (
+        f"hb_state_task_*: engine mode 'canonical' is configured and the taskplan "
+        f"TaskClient imported fine, but its database directory does not exist "
+        f"(target: {db_path}; set via [state].task_db_path, TASKPLAN_DB or the legacy "
+        f"SCANNER_TASKS_DB, default ~/.taskplan/taskplan.db). Refusing to create it, "
+        f"because an empty database there would silently become a second, "
+        f"disconnected task store. Point at the real taskplan DB, or choose the "
+        f"bundled store explicitly with [engines.state] mode = \"bundled\" in homebase.toml."
+    )
+
+
 class StateModule(ModuleBase):
     def __init__(self, config: dict[str, Any]):
         super().__init__(config)
@@ -34,11 +86,13 @@ class StateModule(ModuleBase):
             self._task_client_cls = engine_seams.load_rinnsal_task_client_class(config.get("_engine_path"))
             if self._task_client_cls is not None:
                 self.task_engine_mode = "canonical"
-                self._task_db_path = str(
-                    config.get("task_db_path")
-                    or os.environ.get("SCANNER_TASKS_DB")
-                    or (Path.home() / ".rinnsal" / "scanner_tasks.db")
-                )
+                task_db_path = _resolve_task_db_path(config)
+                self._task_db_path = str(task_db_path)
+                # Parent, not the file: the DB itself is created on first use,
+                # but its directory must already belong to the real taskplan store.
+                if not task_db_path.parent.is_dir():
+                    self._tasks_unavailable = _task_db_unavailable_message(task_db_path)
+                    logger.error(self._tasks_unavailable)
             else:
                 self._tasks_unavailable = engine_seams.unavailable_message(
                     tool_family="hb_state_task_*",

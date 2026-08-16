@@ -1,6 +1,6 @@
 {
   "name": "ellmos-homebase-mcp",
-  "version": "0.1.0-alpha.21",
+  "version": "0.1.0-alpha.23",
   "description": "Alpha MCP server for local LLM memory, knowledge, state, routing, testing, and orchestration.",
   "type": "commonjs",
   "license": "MIT",
@@ -31,6 +31,7 @@
     "llms.txt",
     "server.json",
     "glama.json",
+    "smithery.yaml",
     "pyproject.toml"
   ],
   "keywords": [

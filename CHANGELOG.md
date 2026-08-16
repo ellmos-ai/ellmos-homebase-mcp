@@ -2,7 +2,7 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
-## 0.1.0-alpha.22 - 2026-08-16
+## 0.1.0-alpha.23 - 2026-08-16
 
 ### Security
 - **Standardized `SECURITY.md`**: Added explicit security policy establishing local-first SQLite persistence, credential-free model routing and API discovery, bounded offline queue execution, fail-closed canonical engine seams, and strict secret ignore rules.
@@ -14,7 +14,44 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ### Tests & Quality Assurance
 - **Automated Metadata & Discoverability Tests**: Extended `tests/test_metadata.py` with test cases verifying `SECURITY.md` existence/contents, package file inclusions, `llms.txt` discoverability markers, and ecosystem cross-references.
-- **Test Suite Verification**: All 96 unit, engine-seam, i18n, registry, and repository hygiene tests pass 100% green.
+- **Test Suite Verification**: All 99 unit, engine-seam, i18n, registry, and repository hygiene tests pass 100% green.
+
+## 0.1.0-alpha.22 - 2026-08-14
+
+### Fixed
+- **`hb_state_task_*` (canonical) pointed at a deleted directory.** The default task DB was
+  `~/.rinnsal/scanner_tasks.db`, but the task engine was extracted from rinnsal into TASKPLAN
+  on 2026-07-11 and its store is `~/.taskplan/taskplan.db`; `~/.rinnsal/` no longer exists.
+  Every canonical `hb_state_task_*` call therefore failed with
+  `unable to open database file`. The table name `rinnsal_tasks` is unchanged — only the
+  database location moved. Reported as T-20260814-01.
+- Resolution order is now, most specific first: `[state].task_db_path` → `$TASKPLAN_DB` →
+  `$SCANNER_TASKS_DB` (legacy, still honoured) → `~/.taskplan/taskplan.db`. `$TASKPLAN_DB`
+  outranks the legacy name because it is the canonical engine's own resolution input:
+  relocating the task DB with it must not leave homebase writing into a store no other
+  taskplan consumer reads.
+
+### Changed
+- **Fail-closed now also covers an unreachable target database, not just an unreachable engine.**
+  Previously, if the engine imported but its DB directory was gone, callers got a bare
+  `sqlite3.OperationalError` naming neither the tool family, the target, nor a way out —
+  the exact gap this bug exposed. `hb_state_task_*` now raises `CanonicalEngineUnavailable`
+  with all three. The directory is deliberately not created: an empty `taskplan.db` beside a
+  missing store is the second, disconnected database `MODE-CONTRACT.md` exists to prevent.
+
+### Documentation
+- `MODE-CONTRACT.md` §3 names the real canonical target (TASKPLAN, `rinnsal_tasks` in
+  `~/.taskplan/taskplan.db`), the resolution order and the new unreachable-DB case.
+- `config/homebase.example.toml` and `KONZEPT.md` "Engine Seams" corrected accordingly.
+- `TODO.md`: filed the remaining divergence — taskplan's own resolution additionally consults
+  its config file, which this seam does not read.
+
+### Maintenance
+- Synchronize 0.1.0-alpha.22 / 0.1.0a22 across `package.json`, `package-lock.json`
+  (was stuck at 0.1.0-alpha.20), `pyproject.toml`, `src/homebase/__init__.py`, `server.json`
+  and `glama.json`.
+- Test suite: 67 passed (3 new — default target, env precedence, missing-directory fail-closed).
+
 
 ## 0.1.0-alpha.21 - 2026-08-13
 

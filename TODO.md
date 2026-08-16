@@ -163,6 +163,17 @@
       die Engine unerreichbar ist und alle Aufrufe fehlschlagen; die Wahrheit steht nur in der
       danebenstehenden `ERROR`-Zeile. Bekannte Kante, dokumentiert in `MODE-CONTRACT.md` §5.
       Bewusst nicht mit dem Modus-Vertrag zusammen geändert (hätte den Startbericht umgebaut).
+- [ ] **Task-DB-Auflösung an taskplans Konfigurationsdatei angleichen.**
+      Seit 0.1.0-alpha.22 löst der Seam `[state].task_db_path` > `$TASKPLAN_DB` >
+      `$SCANNER_TASKS_DB` (Legacy) > `~/.taskplan/taskplan.db` auf. taskplan selbst
+      (`taskplan.client.get_default_db_path()`) fragt dazwischen noch seine **eigene
+      Konfigurationsdatei** (`configured_db_path()`). Auf einem Host, dessen taskplan-Config
+      auf eine andere DB zeigt, laufen beide Auflösungen also wieder auseinander — genau die
+      Klasse Fehler, gegen die `MODE-CONTRACT.md` gebaut ist. Sauber wäre, taskplans Auflösung
+      zu **übernehmen** statt sie nachzubauen (z. B. `get_default_db_path()` aufrufen, wenn
+      weder Config-Wert noch ENV gesetzt sind) — bewusst nicht Teil des Pfad-Fixes
+      T-20260814-01, weil das den Seam von einer weiteren taskplan-Internen abhängig macht.
+
 - [ ] **`hb_swarm_` auf `.MODULES/.ORCHESTRATION/swarm_ai` umstellen.** Reale Schwarm-Patterns
       (parallel/consensus/hierarchy/stigmergy) statt Alpha-Stub; Backend konfigurierbar (Ollama-default).
 - [ ] **`hb_api_` auf `.MODULES/.TOOLS/ApiProber` umstellen.** Reale Probe-/Discovery-Engine (OpenAPI,

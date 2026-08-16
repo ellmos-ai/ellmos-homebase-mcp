@@ -79,9 +79,16 @@ max_workers = 3
 [state]
 db_path = "~/.homebase/rinnsal.db"              # used by hb_state_mem_* (always bundled)
 # agent_id = "codex"
-# task_db_path override for canonical hb_state_task_* (default: ~/.rinnsal/scanner_tasks.db,
-# or $SCANNER_TASKS_DB if set). Only used when [engines.state].mode = "canonical".
-# task_db_path = "~/.rinnsal/scanner_tasks.db"
+# task_db_path override for canonical hb_state_task_*. Only used when
+# [engines.state].mode = "canonical". Resolution order, most specific first:
+#   task_db_path  >  $TASKPLAN_DB  >  $SCANNER_TASKS_DB (legacy)  >  ~/.taskplan/taskplan.db
+# The table is still named `rinnsal_tasks`, but the engine that owns it is taskplan
+# (extracted from rinnsal 2026-07-11), whose store is ~/.taskplan/taskplan.db.
+# $TASKPLAN_DB is taskplan's own env var and therefore outranks the legacy
+# $SCANNER_TASKS_DB, which named the retired _tasks-scanner queue under ~/.rinnsal/.
+# If the target's directory is missing, hb_state_task_* fails closed instead of
+# creating a second, disconnected store (see MODE-CONTRACT.md).
+# task_db_path = "~/.taskplan/taskplan.db"
 
 # --- Garden ---
 [garden]
