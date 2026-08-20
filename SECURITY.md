@@ -1,4 +1,4 @@
-# Security Policy
+# Security Policy / Sicherheitsrichtlinie
 
 ## Execution Safety and Local-First Guarantees
 
@@ -19,4 +19,27 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security issue, unintended network exposure, credential leak, or isolation bypass within `ellmos-homebase-mcp`, please report it privately to the maintainers rather than opening a public issue.
+If you discover a security issue, unintended network exposure, credential leak, or isolation bypass within `ellmos-homebase-mcp`, please report it privately:
+
+- **Email**: `security@ellmos.ai`
+- **GitHub Advisory**: Use GitHub's private vulnerability reporting feature on the repository.
+
+Please do not disclose security issues publicly before a coordinated fix is available.
+
+---
+
+## Sicherheitsrichtlinie (Deutsch)
+
+### Ausführungssicherheit und Local-First Garantien
+
+`ellmos-homebase-mcp` ist von Grund auf als **lokal betriebener, offline-fähiger** MCP-Stdio-Server mit strikter Isolation und ohne unerwartete Seiteneffekte konzipiert:
+
+1. **Local-First & Offline-Speicherung**: Alle Speicher-, Wissens-, Zustandseinträge, Wissensgarten-, Routingstatistiken, Konnektoren-Warteschlangen, Automationspläne und Plugin-Registereinträge verbleiben ausschließlich in lokalen SQLite-Datenbanken (Standard: `.homebase/`). Es werden keine externen Cloud-Speicher, Telemetrie- oder Tracking-Endpunkte kontaktiert.
+2. **Schlüsselfreies Routing & passive Discovery**: Modell-Routing-Empfehlungen (`hb_route_*`), passive API-Erkundung (`hb_api_*`) und Plugin-Discovery (`hb_plug_*`) arbeiten ohne Erfordernis oder Weitergabe von API-Schlüsseln, Token oder Cloud-Zugangsdaten.
+3. **Keine autonome Netzwerkausführung**: Konnektor-Warteschlangen (`hb_conn_*`) und Automationsketten (`hb_auto_*`) agieren im reinen Plan- und Warteschlangenmodus. Sie initiieren keine unaufgeforderten Netzwerkanfragen und führen keinen fremden Code unkontrolliert aus.
+4. **Fail-Closed Engine-Schnittstellen**: In Stack-Umgebungen mit kanonischen Backends führt eine nicht erreichbare Engine zu einem klaren Diagnosefehler (Fail-Closed), anstatt stillschweigend auf unisolierte Speicher auszuweichen.
+5. **Datenschutz & Geheimnis-Hygiene**: Konfigurationsbeispiele enthalten neutrale Platzhalter. Produktive Konfigurationsdateien, SQLite-Datenbanken und Schlüsseldateien sind über `.gitignore` und `.npmignore` vollständig von der Distribution ausgeschlossen.
+
+### Melden von Schwachstellen
+
+Sollten Sie eine Sicherheitslücke oder einen Isolationsfehler entdecken, melden Sie diesen bitte vertraulich an `security@ellmos.ai` oder über die private GitHub-Schwachstellenmeldung.

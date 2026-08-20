@@ -7,10 +7,14 @@ from homebase import server
 
 
 class _FakeRegistry:
+    def list_tools(self) -> list:
+        return []
+
     async def call_tool(self, name: str, arguments: dict) -> dict:
         assert name == "hb_mem_query"
         assert arguments == {"query": "Umlaut"}
         return {"status": "ok", "results": [{"content": "Grün"}]}
+
 
 
 @pytest.mark.asyncio

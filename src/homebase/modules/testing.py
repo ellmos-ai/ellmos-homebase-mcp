@@ -6,7 +6,6 @@ from typing import Any
 
 from homebase.modules import ModuleBase, ToolDefinition
 
-
 BATTERIES = {
     "smoke": [
         {"name": "tool_registry", "description": "Tool registry can list enabled tools."},

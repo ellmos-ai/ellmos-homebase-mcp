@@ -11,7 +11,6 @@ from urllib.request import Request, urlopen
 from homebase.modules import ModuleBase, ToolDefinition
 from homebase.storage import connect_db, utc_now
 
-
 OPENAPI_PATHS = ("openapi.json", "swagger.json", "api/openapi.json", "api/swagger.json")
 WORDLIST_PATHS = ("health", "api", "version", "status")
 

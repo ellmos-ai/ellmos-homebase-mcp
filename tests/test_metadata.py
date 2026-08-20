@@ -61,7 +61,9 @@ def test_security_policy_and_manifest_hygiene():
     assert security_file.is_file(), "SECURITY.md must exist in repository root"
     content = security_file.read_text(encoding="utf-8")
     assert "Security Policy" in content
+    assert "Sicherheitsrichtlinie" in content
     assert "Local-First" in content or "local-first" in content
+    assert "security@ellmos.ai" in content
     assert "Reporting a Vulnerability" in content
 
     package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
@@ -74,7 +76,7 @@ def test_llms_txt_and_discoverability_parity():
     llms_text = llms_file.read_text(encoding="utf-8")
     assert "ellmos-homebase-mcp" in llms_text
     assert "Canonical repository:" in llms_text
-    assert "Last-checked:" in llms_text
+    assert "Last-checked: 2026-08-21" in llms_text
 
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
@@ -82,3 +84,29 @@ def test_llms_txt_and_discoverability_parity():
     assert "open-bricks" in readme_en and "open-bricks" in readme_de
     assert "ellmos-ai" in readme_en and "ellmos-ai" in readme_de
     assert "llms.txt" in readme_en and "llms.txt" in readme_de
+
+
+def test_github_actions_workflow_ci_matrix_and_lint():
+    ci_file = REPO_ROOT / ".github" / "workflows" / "tests.yml"
+    assert ci_file.is_file(), "CI workflow tests.yml must exist"
+    ci_text = ci_file.read_text(encoding="utf-8")
+
+    assert "3.10" in ci_text
+    assert "3.11" in ci_text
+    assert "3.12" in ci_text
+    assert "3.13" in ci_text
+    assert "ruff check ." in ci_text
+    assert "compileall" in ci_text
+    assert "npm run smoke" in ci_text
+
+
+def test_ruff_config_in_pyproject():
+    pyproject_file = REPO_ROOT / "pyproject.toml"
+    assert pyproject_file.is_file(), "pyproject.toml must exist"
+    pyproject = tomllib.loads(pyproject_file.read_text(encoding="utf-8"))
+
+    assert "tool" in pyproject
+    assert "ruff" in pyproject["tool"]
+    assert pyproject["tool"]["ruff"]["line-length"] == 120
+    assert "lint" in pyproject["tool"]["ruff"]
+

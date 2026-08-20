@@ -17,7 +17,6 @@ from homebase.modules import ModuleBase
 from homebase.registry import MODULE_MAP
 from homebase.storage import connect_db
 
-
 _PREFIXES = {
     "mem": "mem",
     "route": "route",
