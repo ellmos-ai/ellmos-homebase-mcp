@@ -5,6 +5,7 @@ Modules with missing dependencies are skipped gracefully.
 """
 
 import asyncio
+import json
 import logging
 import sys
 
@@ -37,8 +38,9 @@ async def list_tools() -> list[types.Tool]:
 
 
 @app.call_tool()
-async def call_tool(name: str, arguments: dict) -> dict:
-    return await get_registry().call_tool(name, arguments)
+async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
+    result = await get_registry().call_tool(name, arguments)
+    return [types.TextContent(type="text", text=json.dumps(result, ensure_ascii=False))]
 
 
 async def serve():
