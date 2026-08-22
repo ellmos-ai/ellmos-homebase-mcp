@@ -110,3 +110,13 @@ def test_ruff_config_in_pyproject():
     assert pyproject["tool"]["ruff"]["line-length"] == 120
     assert "lint" in pyproject["tool"]["ruff"]
 
+
+def test_mcp_sdk_v1_runtime_contract_is_consistent():
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    requirement = "mcp>=1.0.0,<2"
+
+    assert requirement in pyproject["project"]["dependencies"]
+    assert requirement in (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    assert requirement in (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+    assert requirement in (REPO_ROOT / "bin" / "ellmos-homebase.js").read_text(encoding="utf-8")
+

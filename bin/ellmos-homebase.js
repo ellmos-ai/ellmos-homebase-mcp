@@ -28,7 +28,7 @@ const child = spawn(python, ["-m", "homebase.server"], {
 
 child.on("error", (error) => {
   console.error(`Failed to start Python runtime '${python}': ${error.message}`);
-  console.error("Install Python 3.10+ and the Python dependency 'mcp>=1.0.0'.");
+  console.error("Install Python 3.10+ and the Python dependency 'mcp>=1.0.0,<2'.");
   process.exit(1);
 });
 

@@ -4,6 +4,9 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## 0.1.0-alpha.23 (Hygiene Audit) - 2026-08-21
 
+### Compatibility
+- **Keep the runtime on MCP Python SDK v1 until the v2 migration is implemented.** The dependency is now bounded to `mcp>=1.0.0,<2`; MCP SDK 2 removed the low-level `Server.list_tools()` decorator used by Homebase and made the unbounded CI/runtime install fail during import. The Node wrapper and both READMEs expose the same requirement.
+
 ### CI & Tooling
 - **GitHub Actions CI Matrix Hardening**: Updated `.github/workflows/tests.yml` to include Python 3.13 matrix builds alongside Python 3.10, 3.11, and 3.12.
 - **Automated Ruff Linting in CI**: Integrated `ruff check .` step directly into the CI pipeline.
@@ -13,9 +16,9 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 - **Bilingual Security Policy**: Expanded `SECURITY.md` with German translation (`Sicherheitsrichtlinie`), explicit Local-First / Zero-Egress SQLite guarantees, and direct reporting channels (`security@ellmos.ai` and GitHub private advisories).
 
 ### Tests & Quality Assurance
-- **Expanded Metadata & CI Parity Tests**: Added `test_github_actions_workflow_ci_matrix_and_lint` and `test_ruff_config_in_pyproject` to `tests/test_metadata.py` (102/102 passed, 100% green).
+- **Expanded Metadata & CI Parity Tests**: Added CI/tooling and MCP dependency-contract coverage in `tests/test_metadata.py` (103/103 passed, 100% green).
 - **Import Hygiene**: Standardized and sorted module imports across `src/` and `tests/`.
-- **Documentation Parity**: Updated `llms.txt` Last-checked timestamp to `2026-08-21` and test count badge in `README.md` and `README_de.md` to 102 passed.
+- **Documentation Parity**: Updated `llms.txt` Last-checked timestamp to `2026-08-21` and test count badge in `README.md` and `README_de.md` to 103 passed.
 
 ## 0.1.0-alpha.23 - 2026-08-16
 
