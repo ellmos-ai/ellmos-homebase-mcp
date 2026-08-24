@@ -21,8 +21,10 @@
 
 If you discover a security issue, unintended network exposure, credential leak, or isolation bypass within `ellmos-homebase-mcp`, please report it privately:
 
-- **Email**: `security@ellmos.ai`
-- **GitHub Advisory**: Use GitHub's private vulnerability reporting feature on the repository.
+- **Security Email**: `security@ellmos.ai`
+- **Secondary Contact**: `support@lukasgeiger.com` / `lukas@open-bricks.org`
+- **GitHub Advisory**: Use GitHub's private vulnerability reporting feature on the repository via [Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
+- **Response SLA**: Initial triage and acknowledgment within **48 hours**. Coordinated security patches are prioritized and released promptly.
 
 Please do not disclose security issues publicly before a coordinated fix is available.
 
@@ -40,6 +42,20 @@ Please do not disclose security issues publicly before a coordinated fix is avai
 4. **Fail-Closed Engine-Schnittstellen**: In Stack-Umgebungen mit kanonischen Backends führt eine nicht erreichbare Engine zu einem klaren Diagnosefehler (Fail-Closed), anstatt stillschweigend auf unisolierte Speicher auszuweichen.
 5. **Datenschutz & Geheimnis-Hygiene**: Konfigurationsbeispiele enthalten neutrale Platzhalter. Produktive Konfigurationsdateien, SQLite-Datenbanken und Schlüsseldateien sind über `.gitignore` und `.npmignore` vollständig von der Distribution ausgeschlossen.
 
+### Unterstützte Versionen
+
+| Version | Unterstützt | Anmerkungen |
+|---|---|---|
+| `0.1.0-alpha.x` | :white_check_mark: | Aktiver Entwicklungs- und Releasezweig |
+| `< 0.1.0-alpha.1` | :x: | Frühere Vorschau-Prototypen |
+
 ### Melden von Schwachstellen
 
-Sollten Sie eine Sicherheitslücke oder einen Isolationsfehler entdecken, melden Sie diesen bitte vertraulich an `security@ellmos.ai` oder über die private GitHub-Schwachstellenmeldung.
+Sollten Sie eine Sicherheitslücke, unerwartete Datenübertragung oder einen Isolationsfehler entdecken, melden Sie diesen bitte vertraulich:
+
+- **Sicherheits-E-Mail**: `security@ellmos.ai`
+- **Sekundärkontakt**: `support@lukasgeiger.com` / `lukas@open-bricks.org`
+- **GitHub Advisory**: Über die private Schwachstellenmeldung unter [Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
+- **Reaktions-SLA**: Erstbewertung und Rückmeldung innerhalb von **48 Stunden**. Sicherheitsrelevante Patches werden prioritär bereitgestellt.
+
+Bitte veröffentlichen Sie Sicherheitsmeldungen nicht vor der Bereitstellung eines abgestimmten Fixes.

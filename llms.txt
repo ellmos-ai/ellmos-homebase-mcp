@@ -9,8 +9,9 @@ ellmos Homebase is a local-first MCP stdio server for LLM orchestration. It comb
 
 Important files:
 
-- `README.md`: English installation and usage guide.
-- `README_de.md`: German installation and usage guide.
+- `README.md`: English installation and usage guide with quick navigation and Mermaid sequence diagram.
+- `README_de.md`: German installation and usage guide with quick navigation and Mermaid sequence diagram.
+- `SECURITY.md`: Bilingual security policy with local-first guarantees, 48h SLA, and invariant matrix.
 - `KONZEPT.md`: German concept and module roadmap.
 - `MODE-CONTRACT.md`: binding contract for the `canonical` and `bundled` engine modes (German).
   Defines both stack modes, the per-namespace seam status, and the rule that a requested
@@ -22,7 +23,7 @@ Important files:
 - `src/homebase/server.py`: MCP stdio server entry point.
 - `src/homebase/registry.py`: Module discovery and tool dispatch.
 - `src/homebase/modules/`: Homebase tool modules.
-- `tests/`: Pytest coverage for config, registry, modules, and localization.
+- `tests/`: Pytest coverage for config, registry, modules, contract tests, and localization.
 
 Tool namespace groups:
 
@@ -67,5 +68,5 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-08-21
+## Last-checked: 2026-08-24
 

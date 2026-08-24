@@ -17,11 +17,14 @@ Englische Standard-README: [README.md](README.md)
 [![Organization: ellmos-ai](https://img.shields.io/badge/Organization-ellmos--ai-blue.svg)](https://github.com/ellmos-ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![npm version](https://img.shields.io/npm/v/ellmos-homebase-mcp.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue.svg)](https://www.python.org/)
+[![Python Matrix](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
+[![Plattformen](https://img.shields.io/badge/plattformen-Linux%20%7C%20Windows%20%7C%20macOS-informational.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp)
+[![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Local--First%20%7C%20Zero--Egress-success.svg)](SECURITY.md)
+[![Speicher](https://img.shields.io/badge/speicher-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet.svg)](https://modelcontextprotocol.io/)
 [![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Tests](https://img.shields.io/badge/tests-102%20passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-108%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
 
@@ -29,6 +32,23 @@ Englische Standard-README: [README.md](README.md)
 
 > [!NOTE]
 > **Für KI-Assistenten & LLM-Agenten:** Die maschinenlesbare Architekturzusammenfassung, der Index und die Tool-Fähigkeiten sind in [llms.txt](llms.txt) veröffentlicht. MCP-Registry-Metadaten sind in [server.json](server.json) verfügbar.
+
+## Schnellnavigation / Quick Navigation
+
+- [Systemarchitektur](#systemarchitektur)
+- [Sequenzablauf & Lebenszyklus](#sequenzablauf--lebenszyklus)
+- [Kernfähigkeiten & Sicherheitsinvarianten](#kernf%C3%A4higkeiten--sicherheitsinvarianten)
+- [Einstieg](#einstieg)
+- [Status](#status)
+- [Installation](#installation)
+- [MCP-Client-Konfiguration](#mcp-client-konfiguration)
+- [Server-Konfiguration](#server-konfiguration)
+- [Tools](#tools)
+- [Discovery-Kontext](#discovery-kontext)
+- [ellmos-ai-Ökosystem](#ellmos-ai-%C3%B6kosystem)
+- [Sicherheit & Schwachstellenmeldung](#sicherheit--schwachstellenmeldung)
+- [Entwicklung](#entwicklung)
+- [Englische Version (README.md)](README.md)
 
 ## Systemarchitektur
 
@@ -73,6 +93,50 @@ flowchart TD
     Server --> ToolGroups
     ToolGroups --> DB
 ```
+
+## Sequenzablauf & Lebenszyklus
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as MCP-Client (Lokales LLM / Claude / Codex)
+    participant Stdio as Transportschicht (stdio)
+    participant Server as Server & Registry (homebase)
+    participant Module as Funktionales Modul (hb_mem / hb_state / hb_route)
+    participant Engine as Engine-Schnittstelle (Bundled vs. Canonical)
+    participant DB as SQLite-Speicher (~/.homebase/)
+
+    Client->>Stdio: JSON-RPC 2.0 Request (tools/call: hb_mem_store, agent_id="agent-01")
+    Stdio->>Server: Dekodiere & leite Tool-Aufruf weiter
+    Server->>Module: Validiere Argumente & injiziere Agenten-Provenienz
+    alt Bundled Engine Modus (Standard)
+        Module->>DB: Führe SQLite-Abfrage aus (WAL-Modus, Busy-Timeout)
+        DB-->>Module: Liefere strukturierte Datensätze / Mutationsstatus
+    else Canonical Engine Modus ([engines].mode = "canonical")
+        Module->>Engine: Schnittstellen-Prüfung (Gardener / TASKPLAN / USMC)
+        alt Engine Verfügbar
+            Engine-->>Module: Delegiere an kanonisches Subsystem
+        else Engine Nicht Erreichbar
+            Engine-->>Module: Werfe CanonicalEngineUnavailable (Fail-Closed)
+        end
+    end
+    Module-->>Server: Formatiere Antwort in gewählter Sprache (i18n: en/de/es/zh/ja/ru)
+    Server-->>Stdio: Enkodiere JSON-RPC 2.0 Response
+    Stdio-->>Client: Ergebnisdaten (Zero Cloud-Egress, 100% lokal)
+```
+
+## Kernfähigkeiten & Sicherheitsinvarianten
+
+| Fähigkeit / Invariante | Garantie | Technische Umsetzung |
+|---|---|---|
+| **100% Local-First & Zero-Egress** | Vollständige Privatsphäre und Offline-Fähigkeit; keine ungefragte Cloud-Kommunikation oder Telemetrie. | Alle Memory-, Knowledge- und Zustandsdaten verbleiben in lokalem SQLite (`~/.homebase/`). |
+| **Strikte Engine-Seams & Fail-Closed** | Kein stillschweigender Fallback auf getrennte Datenbanken bei Anforderung kanonischer Systeme. | [`MODE-CONTRACT.md`](MODE-CONTRACT.md)-Durchsetzung: wirft `CanonicalEngineUnavailable` bei Nichterreichbarkeit. |
+| **Team-Memory Provenienz (`agent_id`)** | Deterministische Nachvollziehbarkeit und filterbare Zuordnung für Multi-Agenten-Workflows. | Native `agent_id`-Verfolgung über Memory-Fakten, Knowledge-Einträge und Task-Zustände. |
+| **Schlüsselfreie Discovery & Planung** | Null Geheimnis-Exposition bei lokalen Modell-Empfehlungen und API-Erkundungen. | `hb_route_*`, `hb_swarm_*` und `hb_api_*` laufen ohne Übertragung von API-Keys oder Token. |
+| **Sichere Plan-and-Queue Adapter** | Gefahrloses Queueing und Ketten-Staging ohne unkontrollierte Remote-Code-Ausführung. | `hb_conn_*` und `hb_auto_*` führen plan-only Warteschlangen und Offline-Staging-Datensätze. |
+| **Vollständige native i18n-Lokalisierung** | Nahtlose mehrsprachige Entwickler- und Agenteninteraktion. | Lokalisierte Tool-Beschreibungen und JSON-Schemas für `en`, `de`, `es`, `zh`, `ja`, `ru`. |
+| **Non-Elevation & Geheimnis-Hygiene** | Unprivilegierte Ausführung und strikter Ausschluss sensibler Daten aus der Distribution. | Kompatibel mit unprivilegierten Benutzern; Live-Konfigurationen/Secrets in `.gitignore` & `.npmignore`. |
+| **Multi-OS CI Smoke-Integrität** | Verifizierte plattformübergreifende Zuverlässigkeit auf allen Hauptbetriebssystemen. | Multi-Versionen CI-Matrix für Python 3.10–3.13 und Node.js 20–24 unter Linux/Windows/macOS. |
 
 ## Einstieg
 
@@ -260,9 +324,29 @@ Dieser MCP-Server ist Teil des **[ellmos-ai](https://github.com/ellmos-ai)**-Ök
 | [gardener](https://github.com/ellmos-ai/gardener) | Minimalistischer datenbankgetriebener LLM-OS-Prototyp (4 Funktionen, 1 Tabelle) |
 | [ellmos-tests](https://github.com/ellmos-ai/ellmos-tests) | Testframework für LLM-Betriebssysteme (7 Dimensionen) |
 
-### Desktop-Software
+### Desktop-Software & Geschwister-Ökosystem
 
-Unsere Partnerorganisation **[open-bricks](https://github.com/open-bricks)** bündelt KI-native Desktop-Anwendungen: eine moderne Open-Source-Softwaresuite für Datei-, Dokumenten- und Entwicklerwerkzeuge.
+Unsere Partner-Dachorganisation **[open-bricks](https://github.com/open-bricks)** und Schwesterorganisationen pflegen datenschutzkonforme, lokale Desktop-Software und Entwicklerwerkzeuge:
+
+| Anwendung / Werkzeug | Organisation | Fokus & Integration |
+|---|---|---|
+| [ProFiler](https://github.com/file-bricks/ProFiler) | `file-bricks` | Lokaler Desktop-Datei-Organizer mit PII-sicherem Workspace-Exchange |
+| [DokuZen](https://github.com/doc-bricks/DokuZen) | `doc-bricks` | Ablenkungsfreie Markdown- & PDF-Dokumentenverwaltung |
+| [PDFtoPDFocr](https://github.com/doc-bricks/PDFtoPDFocr) | `doc-bricks` | Local-First PDF-OCR und Textebenen-Einbettung |
+| [KnowledgeDigest](https://github.com/doc-bricks/KnowledgeDigest) | `doc-bricks` | Offline Dokumenten-Zusammenfassung und Embedding-Engine |
+| [DevCenter](https://github.com/dev-bricks/DevCenter) | `dev-bricks` | Entwickler-Arbeitsplatz und Multi-Repository-Verwaltung |
+| [CodeBox](https://github.com/dev-bricks/CodeBox) | `dev-bricks` | Isolierter Sandbox-Runner und lokaler Code-Ausführungsassistent |
+| [MemoryHooker](https://github.com/ellmos-ai/memoryhooker-provenance) | `ellmos-ai` | Hook-basierte LLM-Gedächtnis-Provenienz und Sitzungsinjektion |
+| [sqlite-transit-sync](https://github.com/ellmos-ai/sqlite-transit-sync) | `ellmos-ai` | Abhängigkeitsfreie SQLite-Schemamigration & Replikationsschicht |
+
+## Sicherheit & Schwachstellenmeldung
+
+`ellmos-homebase-mcp` folgt strikten Sicherheitsprinzipien für Offline-Betrieb, Zero-Egress und unprivilegierte Ausführung. Vollständige Richtlinien, SLAs und Kontaktwege sind in [SECURITY.md](SECURITY.md) dokumentiert:
+
+- **Unterstützte Versionen**: `0.1.0-alpha.x`
+- **Reaktions-SLA**: Erstbewertung und Rückmeldung innerhalb von **48 Stunden**.
+- **Sicherheitskontakte**: `security@ellmos.ai` und `support@lukasgeiger.com`.
+- **Private Advisory**: [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
 
 ## Entwicklung
 

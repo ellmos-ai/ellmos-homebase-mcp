@@ -16,8 +16,24 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Operating System",
+    "Operating System :: OS Independent",
 ]
+
+[project.urls]
+Homepage = "https://github.com/ellmos-ai/ellmos-homebase-mcp"
+Documentation = "https://github.com/ellmos-ai/ellmos-homebase-mcp#readme"
+Repository = "https://github.com/ellmos-ai/ellmos-homebase-mcp.git"
+Issues = "https://github.com/ellmos-ai/ellmos-homebase-mcp/issues"
+Changelog = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/CHANGELOG.md"
+"Parent Organization" = "https://github.com/ellmos-ai"
+"Umbrella Ecosystem" = "https://github.com/open-bricks"
 dependencies = [
     "mcp>=1.0.0",
     "tomli>=2.0; python_version < '3.11'",

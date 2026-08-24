@@ -2,6 +2,24 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.23 (Discoverability & Design Audit) - 2026-08-24
+
+### Discoverability & Documentation
+- **Bilingual Schnellnavigation / Quick Navigation**: Added structured anchor links across `README.md` and `README_de.md` for fast developer and AI agent orientation.
+- **Interactive Bilingual Mermaid Sequence Diagram**: Added `sequenceDiagram` visualizing end-to-end MCP client invocation, stdio transport, argument validation, engine seam routing (bundled SQLite vs canonical), error gating, and local JSON-RPC response lifecycle.
+- **Core Capabilities & Security Invariants Matrix**: Added comprehensive English and German comparison table detailing 100% Local-First / Zero-Egress, strict fail-closed engine seams (`MODE-CONTRACT.md`), `agent_id` team-memory provenance, credential-free discovery, unprivileged operation, and multi-OS smoke coverage.
+- **Expanded Partner & Desktop Ecosystem**: Cross-linked 16 sibling and partner repositories across `open-bricks`, `file-bricks`, `doc-bricks`, `dev-bricks`, and `ellmos-ai` (FileCommander, CodeCommander, Clatcher, n8n Manager, ControlCenter, ServerCommander, Blender Use, Open Compute, ProFiler, DokuZen, PDFtoPDFocr, KnowledgeDigest, DevCenter, CodeBox, MemoryHooker, sqlite-transit-sync).
+- **Shields.io Badges**: Synchronized Python matrix (3.10–3.13), Platforms (Linux, Windows, macOS), Privacy (100% Local-First | Zero-Egress), Storage (SQLite WAL), and verified test status (108 passed | 100%).
+- **Machine-Readable LLM Context**: Synchronized `llms.txt` Last-checked timestamp to `2026-08-24` and referenced security policy and sequence lifecycle.
+
+### Security & CI Matrix
+- **Security Policy SLA & Channels**: Enhanced `SECURITY.md` with explicit 48-hour response SLA, supported version matrix (`0.1.0-alpha.x`), private advisory links, and dedicated reporting emails (`security@ellmos.ai`, `support@lukasgeiger.com`).
+- **CI Workflow Concurrency**: Added `concurrency: { group: ${{ github.workflow }}-${{ github.ref }}, cancel-in-progress: true }` to `.github/workflows/tests.yml` to prevent redundant run queues.
+- **PEP 621 Metadata Standards**: Expanded `pyproject.toml` with Python 3.10–3.13 classifiers, OS Independent status, and full `[project.urls]` mapping (`Homepage`, `Documentation`, `Repository`, `Issues`, `Changelog`, `Parent Organization`, `Umbrella Ecosystem`).
+
+### Tests & Quality Assurance
+- **Automated Metadata & Contract Tests**: Added 6 new contract tests in `tests/test_metadata.py` verifying Mermaid sequence diagrams, quick navigation anchors, core capability tables, CI concurrency, PEP 621 URLs/classifiers, security SLAs, ecosystem parity, and `package.json` links (108/108 tests passing 100% green).
+
 ## 0.1.0-alpha.23 (Hygiene Audit) - 2026-08-21
 
 ### CI & Tooling
