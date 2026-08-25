@@ -29,6 +29,9 @@ _PREFIXES = {
     "auto": "auto",
     "conn": "conn",
     "plug": "plug",
+    "policy": "policy",
+    "ticket": "ticket",
+    "lock": "lock",
 }
 
 

@@ -76,7 +76,7 @@ def test_llms_txt_and_discoverability_parity():
     llms_text = llms_file.read_text(encoding="utf-8")
     assert "ellmos-homebase-mcp" in llms_text
     assert "Canonical repository:" in llms_text
-    assert "Last-checked: 2026-08-24" in llms_text
+    assert "Last-checked: 2026-08-25" in llms_text
 
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")

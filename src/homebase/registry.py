@@ -27,6 +27,9 @@ MODULE_MAP = {
     "auto": "homebase.modules.automation",
     "conn": "homebase.modules.connectors",
     "plug": "homebase.modules.plugins",
+    "policy": "homebase.modules.policy",
+    "ticket": "homebase.modules.ticket",
+    "lock": "homebase.modules.lock",
 }
 
 

@@ -61,12 +61,64 @@ Ziel (Pfad und geprüfte Fundorte) und die zwei Auswege (Pfad korrigieren oder
 | `hb_mem_*` | USMC | **implementiert** | Fail-closed (alle 5 Tools) |
 | `hb_kb_*` | KnowledgeDigest | **offen** | Kein Seam — bleibt bundled, siehe unten |
 | `hb_route_*` | clutch | **offen** | Kein Seam — bleibt bundled, siehe unten |
+| `hb_policy_*` (read-only: `resolve`/`list`) | policy-registry (`policy_registry.PolicyRegistry`) | **implementiert, canonical-only** | Fail-closed IMMER (kein bundled-Modus existiert für diesen Namensraum) |
+| `hb_ticket_*` (read-only: `list`/`show`) | `_control-center/_TICKETS`-Baum (Presence-Check über ticket-master, Lesezugriff direkt auf die Lifecycle-Ordner) | **implementiert, canonical-only** | Fail-closed IMMER (kein bundled-Modus) |
+| `hb_lock_*` (read-only: `list`/`check`) | lock-master (`lock_scan`/`lock_status`) | **implementiert, canonical-only** | Fail-closed IMMER (kein bundled-Modus) |
 | `hb_state_mem_*`, `hb_state_dispatch` | — | kein Ziel | Immer bundled, per Definition |
 | `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_auto_*`, `hb_conn_*`, `hb_plug_*` | — | bundled by design | Immer bundled |
 
 **Gating je Tool-Familie, nicht je Modul.** `state` trägt zwei Familien: nur
 `hb_state_task_*` ist gegated; `hb_state_mem_*` und `hb_state_dispatch` hatten
 nie ein kanonisches Gegenstück und bleiben in jedem Modus nutzbar.
+
+**`hb_policy_*`/`hb_ticket_*`/`hb_lock_*` sind eine DRITTE Kategorie, weder
+"implementiert" (garden/state/mem) noch "offen/bundled" (kb/route)
+[T-20260825-196589547].** Diese drei Namensräume haben **kein bundled-Modus
+zum Herunterfallen** — es gibt keine sinnvolle "kleinere, aber ehrliche"
+lokale Kopie einer lebenden Policy-/Ticket-/Lock-Wahrheit (anders als bei
+kb/route, wo eine kleinere Ersatzimplementierung immerhin ein eigenständig
+nützliches Werkzeug ist). Eine leere/veraltete homebase-lokale Kopie sähe wie
+eine echte Antwort über den aktuellen Governance-/Koordinationsstand aus,
+wäre es aber nicht — das ist gefährlicher als ein klar fehlgeschlagener
+Aufruf. `_engine_mode` wird von diesen drei Modulen daher gar nicht gelesen
+(dieselbe "keine Umschaltung existiert"-Form wie bei kb/route, nur
+umgekehrt: kb/route ignorieren `canonical` und bleiben bundled; diese drei
+ignorieren `bundled` und bleiben canonical-only). v1-Scope ist bewusst
+read-only: kein `hb_policy_register`/`register_rule` (Registry-Schreibpfad
+existiert seit D2-R2 Stufe 1, ist hier aber ohne belegten Bedarf nicht
+exponiert), kein `hb_ticket_move`/`create`, kein `hb_lock_create` — Locks
+werden geprüft, nicht gesetzt.
+
+## 3a. Bewusste Nicht-Seams
+
+Aus der Lücken-Analyse (T-20260825-196589547) waren sechs weitere Module
+Kandidaten; drei davon wurden bewusst NICHT geseamt:
+
+- **roshambo** — überschneidet sich mit lock-master (`control.locks`) und ist
+  laut Systemaudit bereits als choice-Bundle-Alternative zu lock-master
+  legitimiert. Ein zweiter, paralleler `hb_*`-Namensraum für dieselbe Rolle
+  würde die Auswahl, welche Locking-Implementierung gilt, aus dem
+  choice-Bundle-Mechanismus heraus- und stillschweigend in Homebase
+  hineinverlagern.
+- **session-checkpoint** — `visibility: private`, `development`-Reifegrad;
+  eigene ADRs (ADR-001/002) erklären bewusste Isolation ("ein State-Owner,
+  nie in die DB einer anderen App schreiben", "keine Abhängigkeit der
+  Bequemlichkeit halber"). Ein Homebase-Seam wäre ein von Homebase
+  aufgezwungener externer Anschluss, den das Modul selbst nicht vorsieht.
+  Falls gewünscht: session-checkpoints eigener Maintainer müsste zuerst einen
+  Seam-Adapter deklarieren (Symmetrie zum policy-registry/decision-clicker-
+  Präzedenzfall in dessen `ARCHITECTURE.md`).
+- **grounding-seed** — Bootstrap-/Onboarding-Primitive
+  (`bootstrap.standalone/self-knowledge/migration`), kein wiederholt
+  abgefragter Laufzeitbestand. Passt nicht zum Stack-MCP-Zweck (Tools, die
+  ein Agent während der Arbeit wiederholt aufruft), sondern zu einer
+  einmaligen Setup-Phase davor.
+
+**source-resolver/system-explorer** waren ebenfalls Kandidaten, wurden aber
+nicht als neue `hb_*`-Namensräume behandelt, sondern als Umbau von Homebases
+eigener interner Pfadauflösung — siehe Abschnitt 2 der Analyse und die
+`_try_source_resolver_bare_import()`-Integration in `engines.py` für
+`garden`/`mem`.
 
 **Ziel-DB von `hb_state_task_*`.** Der Tabellenname `rinnsal_tasks` blieb bei der
 Extraktion von TASKPLAN aus Rinnsal (2026-07-11) absichtlich stehen; die

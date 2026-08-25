@@ -38,6 +38,9 @@ Tool namespace groups:
 - `hb_conn_*`: local connector registry and queues without network sends.
 - `hb_auto_*`: local automation chain definitions and plan-only queued runs.
 - `hb_plug_*`: plugin discovery and dry-run records without executing plugin code.
+- `hb_policy_*`: read-only, canonical-only delegation to policy-registry (resolve/list rules).
+- `hb_ticket_*`: read-only, canonical-only delegation to ticket-master (list/show tickets).
+- `hb_lock_*`: read-only, canonical-only delegation to lock-master (list/check active locks).
 
 ## Audience
 
@@ -68,5 +71,5 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-08-24
+## Last-checked: 2026-08-25
 

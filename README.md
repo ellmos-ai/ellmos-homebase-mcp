@@ -68,7 +68,7 @@ flowchart TD
         Config["homebase.config"]
     end
 
-    subgraph ToolGroups ["45 MCP Tools across 11 Functional Modules"]
+    subgraph ToolGroups ["51 MCP Tools across 14 Functional Modules"]
         Mem["hb_mem_* (SQLite Memory)"]
         KB["hb_kb_* (Knowledge Digest)"]
         State["hb_state_* (State & Tasks)"]
@@ -80,6 +80,9 @@ flowchart TD
         Plug["hb_plug_* (Plugin Discovery)"]
         Garden["hb_garden_* (Garden Store)"]
         Test["hb_test_* (Self Tests)"]
+        Policy["hb_policy_* (Policy Registry, read-only)"]
+        Ticket["hb_ticket_* (Ticket Master, read-only)"]
+        Lock["hb_lock_* (Lock Master, read-only)"]
     end
 
     subgraph Storage ["Local Storage (Offline-First)"]
@@ -162,6 +165,10 @@ sequenceDiagram
   return an error rather than quietly using the bundled DB — the server still starts and lists
   its tools. Binding rule and migration notes: **[MODE-CONTRACT.md](MODE-CONTRACT.md)**;
   mechanism: [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
+- Canonical-only seams (no bundled alternative at all): `hb_policy_*` (policy-registry),
+  `hb_ticket_*` (ticket-master), `hb_lock_*` (lock-master) — all read-only in v1. A locally
+  faked copy of live policy/ticket/lock state would mislead rather than help, so these three
+  always attempt the canonical module and fail closed unconditionally if it is unreachable.
 - Team-memory basics: `agent_id` provenance and filters for memory, knowledge, state memory, and tasks; SQLite uses WAL plus a busy timeout for safer concurrent agents
 - Credential-free alpha adapters: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
 - i18n: fully localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` (English fallback for any unset key)
@@ -277,6 +284,9 @@ Important tool groups:
 - `hb_conn_*` for a local connector registry plus SQLite-backed inbox/outbox queues without network sends
 - `hb_auto_*` for local automation chain definitions and queued plan-only runs without backend execution
 - `hb_plug_*` for local plugin discovery and dry-run records without executing plugin code
+- `hb_policy_*` (read-only, canonical-only) for resolving/listing policy-registry rules
+- `hb_ticket_*` (read-only, canonical-only) for listing/showing ticket-master tickets by lifecycle folder
+- `hb_lock_*` (read-only, canonical-only) for checking/listing active lock-master locks
 
 ## Discovery Context
 
@@ -300,12 +310,12 @@ This MCP server is part of the **[ellmos-ai](https://github.com/ellmos-ai)** eco
 
 | Server | Tools | Focus | npm |
 |--------|-------|-------|-----|
-| [FileCommander](https://github.com/ellmos-ai/ellmos-filecommander-mcp) | 46 | Filesystem, process management, interactive sessions, cloud-lock-safe operations | [`ellmos-filecommander-mcp`](https://www.npmjs.com/package/ellmos-filecommander-mcp) |
-| [CodeCommander](https://github.com/ellmos-ai/ellmos-codecommander-mcp) | 22 | Code analysis, JSON repair, imports, diffs, regex | [`ellmos-codecommander-mcp`](https://www.npmjs.com/package/ellmos-codecommander-mcp) |
+| [FileCommander](https://github.com/ellmos-ai/ellmos-filecommander-mcp) | 47 | Filesystem, process management, interactive sessions, cloud-lock-safe operations | [`ellmos-filecommander-mcp`](https://www.npmjs.com/package/ellmos-filecommander-mcp) |
+| [CodeCommander](https://github.com/ellmos-ai/ellmos-codecommander-mcp) | 23 | Code analysis, JSON repair, imports, diffs, regex | [`ellmos-codecommander-mcp`](https://www.npmjs.com/package/ellmos-codecommander-mcp) |
 | [Clatcher](https://github.com/ellmos-ai/ellmos-clatcher-mcp) | 12 | File repair, format conversion, batch operations | [`ellmos-clatcher-mcp`](https://www.npmjs.com/package/ellmos-clatcher-mcp) |
-| [n8n Manager](https://github.com/ellmos-ai/n8n-manager-mcp) | 18 | n8n workflow management via AI assistants | [`n8n-manager-mcp`](https://www.npmjs.com/package/n8n-manager-mcp) |
+| [n8n Manager](https://github.com/ellmos-ai/n8n-manager-mcp) | 19 | n8n workflow management via AI assistants | [`n8n-manager-mcp`](https://www.npmjs.com/package/n8n-manager-mcp) |
 | [ControlCenter](https://github.com/ellmos-ai/ellmos-controlcenter-mcp) | 20 | MCP stack discovery, profile management, control plane | [`ellmos-controlcenter-mcp`](https://www.npmjs.com/package/ellmos-controlcenter-mcp) |
-| **[Homebase](https://github.com/ellmos-ai/ellmos-homebase-mcp)** | **45** | **Local-first LLM memory, knowledge, state, routing, swarm orchestration** | **[`ellmos-homebase-mcp`](https://www.npmjs.com/package/ellmos-homebase-mcp)** (alpha) |
+| **[Homebase](https://github.com/ellmos-ai/ellmos-homebase-mcp)** | **51** | **Local-first LLM memory, knowledge, state, routing, swarm orchestration** | **[`ellmos-homebase-mcp`](https://www.npmjs.com/package/ellmos-homebase-mcp)** (alpha) |
 | [ServerCommander](https://github.com/ellmos-ai/ellmos-servercommander-mcp) | 8 | Server operations: health checks, log analysis, deploy dry-runs, mail diagnostics | [`ellmos-servercommander-mcp`](https://www.npmjs.com/package/ellmos-servercommander-mcp) (alpha) |
 | [Blender Use](https://github.com/ellmos-ai/ellmos-blender-use-mcp) | 3 | Headless Blender asset QA and FBX reimport verification | [`ellmos-blender-use-mcp`](https://www.npmjs.com/package/ellmos-blender-use-mcp) (alpha) |
 | [Open Compute](https://github.com/ellmos-ai/open-compute-mcp) | 10 | Model-agnostic computer use: capture, safety-gated actions, Windows UIA | [`open-compute-mcp`](https://www.npmjs.com/package/open-compute-mcp) (alpha) |

@@ -49,6 +49,76 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 - **Automated Metadata & Discoverability Tests**: Extended `tests/test_metadata.py` with test cases verifying `SECURITY.md` existence/contents, package file inclusions, `llms.txt` discoverability markers, and ecosystem cross-references.
 - **Test Suite Verification**: All 99 unit, engine-seam, i18n, registry, and repository hygiene tests pass 100% green.
 
+## 0.1.0-alpha.24 - 2026-08-25
+
+### Added
+- **Three new canonical-only tool families**: `hb_policy_*` (`resolve`, `list` — delegates to
+  `policy-registry`), `hb_ticket_*` (`list`, `show` — reads `_control-center/_TICKETS`
+  lifecycle folders via `ticket-master`), `hb_lock_*` (`list`, `check` — reads the systemwide
+  lock scan via `lock-master`). All three are read-only in v1 (no `register_rule`, no ticket
+  move/write, no lock creation) and belong to a new third category alongside the existing
+  `canonical`/`bundled` split: **canonical-only, no bundled fallback at all.** A locally faked
+  copy of live policy/ticket/lock state would be actively misleading (unlike `hb_kb_*`/`hb_route_*`,
+  which are an honest, smaller standalone reimplementation) — so these three namespaces never
+  read `_engine_mode` and fail closed unconditionally when the target module or its data
+  location cannot be resolved. Requested via T-20260825-196589547 (HB1=wie-empfohlen).
+- `engines.py`: `resolve_tickets_root()`, `load_ticket_master()`, `load_lock_master()`,
+  `load_policy_registry()` — same `resolve → import → CanonicalEngineUnavailable-at-call-time`
+  shape as the existing seams. `CANONICAL_ONLY` set and an `engine_summary()` branch that
+  reports these three as `canonical-only (no bundled alternative for this namespace)` instead
+  of a mode string.
+
+### Changed
+- **`load_gardener()`/`load_usmc_client_class()` now try `source-resolver` first** (only when no
+  explicit `configured_path` is given) before falling back to the existing
+  `resolve_engine_path` + `import_from_path` candidate chain. `source-resolver` v0.1.1 confirms
+  presence for the `memory.organic` (GARDENER) / `memory.curated` (USMC) roles via a bare
+  `shutil.which()` check and returns the CLI path, not a package directory — so the integration
+  is a **bare `importlib.import_module()`** on a `RESOLVED` status, not a `sys.path` insert.
+  Standalone operation (source-resolver absent or the import fails) falls through unchanged to
+  the pre-existing candidate chain — the fail-closed promise for both seams is unaffected.
+  `policy.registry` was deliberately **not** wired the same way: that role requires a `scope`
+  and its adapter returns resolved *policy content*, not a filesystem location — using it to
+  find "where is the package installed" would be a category error.
+
+### Fixed
+- **`_DEFAULT_CANDIDATES` for the new `policy`/`ticket`/`lock` engines initially pointed at their
+  OneDrive Plan-D projection folders**, mirroring the existing `garden`/`state` pattern. That is
+  wrong for these three: `policy-registry`/`ticket-master`/`lock-master` are Plan-D "Klasse B"
+  modules whose OneDrive folder holds only `ellmos-module.v2.json` + `README.md` (manifest +
+  pointer) — never the real package (verified empirically: `ls` on the OneDrive
+  `policy-registry` folder shows exactly those two files, no source). GARDENER/USMC deploy real
+  importable code into their OneDrive path (confirmed via a present `__pycache__`); the new
+  three do not follow that model. Fixed by pointing `_DEFAULT_CANDIDATES` at the local clone
+  (`C:/_Local_DEV/repos/<name>[/src]`) and deliberately **excluding** `policy`/`ticket`/`lock`
+  from `_CATALOG_MODULE_IDS` (the module-catalog's `resolved_source` field also points at the
+  wrong OneDrive location and takes precedence in `resolve_engine_path`'s candidate order).
+- **`~/.policy-registry/registry.json` had 6 entries with `"summary"` stored as a 1-element
+  JSON array instead of a string** (root cause: a trailing comma — `(f"...",)` — in an earlier
+  session's `register_evidence.py`), which raised `TypeError` inside
+  `PolicyRegistry.search()` and was only found because the new `hb_policy_list` end-to-end
+  smoke test against the live registry surfaced it. Fixed directly in the live registry file;
+  not part of this ticket's original scope, but blocking real verification of the new seam.
+
+### Documentation
+- `MODE-CONTRACT.md` §3: three new rows for `hb_policy_*`/`hb_ticket_*`/`hb_lock_*`, all marked
+  "Fail-closed IMMER (kein bundled-Modus)", plus a new paragraph naming the third category.
+  New §3a "Bewusste Nicht-Seams" documents why `roshambo` (overlaps lock-master, subsumed by the
+  choice-bundle mechanism), `session-checkpoint` (private module with its own ADR-001/002
+  explaining deliberate isolation — would need its own maintainer to declare a seam adapter
+  first) and `grounding-seed` (bootstrap-only, wrong layer) were deliberately not seamed.
+- `.AI/.MCP/MCP-STACK-MAP.md`: tool count `~45` → `51`, version bump, 3 new namespace rows in
+  the detailed table.
+
+### Maintenance
+- Synchronize 0.1.0-alpha.24 / 0.1.0a24 across `package.json`, `package-lock.json`,
+  `pyproject.toml`, `src/homebase/__init__.py`, `server.json`, `glama.json`.
+- Test suite: 87 passed (20 new — `test_new_seams.py`), `ruff check .` clean. Verified end-to-end
+  against the live system, not just mocks: `hb_policy_list` returned 8 real registry entries,
+  `hb_ticket_show` resolved a real ticket by ID, `hb_lock_list` returned 20 real active locks
+  (a full recursive scan across all configured project roots — takes roughly 2 minutes on this
+  machine, a known characteristic of OneDrive-tree scans in this ecosystem, not a bug).
+
 ## 0.1.0-alpha.22 - 2026-08-14
 
 ### Fixed

@@ -20,6 +20,7 @@ DEFAULT_CONFIG_PATHS = [
 
 DEFAULT_ENABLED_MODULES = [
     "mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug",
+    "policy", "ticket", "lock",
 ]
 
 # Zero-dependency default: a source checkout or npm/pip install with no

@@ -339,7 +339,12 @@ def test_engine_summary_reports_bundled_when_not_requested():
 
     summary = engine_summary(config)
 
-    assert summary == ["garden=bundled", "state=bundled", "mem=bundled", "kb=bundled", "route=bundled"]
+    assert summary == [
+        "garden=bundled", "state=bundled", "mem=bundled", "kb=bundled", "route=bundled",
+        "policy=canonical-only (no bundled alternative for this namespace)",
+        "ticket=canonical-only (no bundled alternative for this namespace)",
+        "lock=canonical-only (no bundled alternative for this namespace)",
+    ]
 
 
 @pytest.mark.asyncio
