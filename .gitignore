@@ -56,3 +56,26 @@ node_modules/
 
 # mcp-publisher login artifacts (credentials, never commit)
 .mcpregistry_*
+
+# Multi-Host synchronization conflicts
+*.sync-conflict-*
+*.conflict
+*-CONFLIT-*
+*-conflict-*
+*.sync-temp-*
+
+# Multi-Agent and lock artifacts
+LOCK.*
+*.lock
+LOCK*.txt
+!package-lock.json
+
+# Wheel packaging and smoke test caches
+.wheel-smoke/
+wheelhouse/
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.swp
+*~

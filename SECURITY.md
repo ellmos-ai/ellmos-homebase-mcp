@@ -22,9 +22,9 @@
 If you discover a security issue, unintended network exposure, credential leak, or isolation bypass within `ellmos-homebase-mcp`, please report it privately:
 
 - **Security Email**: `security@ellmos.ai`
-- **Secondary Contact**: `support@lukasgeiger.com` / `lukas@open-bricks.org`
+- **Secondary Contact**: `security@open-bricks.org` / `support@lukasgeiger.com` / `lukas@open-bricks.org`
 - **GitHub Advisory**: Use GitHub's private vulnerability reporting feature on the repository via [Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
-- **Response SLA**: Initial triage and acknowledgment within **48 hours**. Coordinated security patches are prioritized and released promptly.
+- **Response SLA**: Initial triage and acknowledgment within **48 hours**. Detailed triage and remediation plan within 5 business days. Coordinated security patches are prioritized and released promptly.
 
 Please do not disclose security issues publicly before a coordinated fix is available.
 
@@ -54,8 +54,8 @@ Please do not disclose security issues publicly before a coordinated fix is avai
 Sollten Sie eine Sicherheitslücke, unerwartete Datenübertragung oder einen Isolationsfehler entdecken, melden Sie diesen bitte vertraulich:
 
 - **Sicherheits-E-Mail**: `security@ellmos.ai`
-- **Sekundärkontakt**: `support@lukasgeiger.com` / `lukas@open-bricks.org`
+- **Sekundärkontakt**: `security@open-bricks.org` / `support@lukasgeiger.com` / `lukas@open-bricks.org`
 - **GitHub Advisory**: Über die private Schwachstellenmeldung unter [Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
-- **Reaktions-SLA**: Erstbewertung und Rückmeldung innerhalb von **48 Stunden**. Sicherheitsrelevante Patches werden prioritär bereitgestellt.
+- **Reaktions-SLA**: Erstbewertung und Bestätigung innerhalb von **48 Stunden**. Detaillierte Einstufung und Behebungszeitplan innerhalb von 5 Werktagen. Sicherheitsrelevante Patches werden prioritär bereitgestellt.
 
 Bitte veröffentlichen Sie Sicherheitsmeldungen nicht vor der Bereitstellung eines abgestimmten Fixes.

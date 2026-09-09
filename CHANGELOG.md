@@ -2,6 +2,18 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.24 (Hygiene & Modernization) - 2026-09-09
+
+### Repository Hygiene & Security
+- **.gitignore Hardening**: Added protections against multi-host synchronization conflict artifacts (`*.sync-conflict-*`, `*.conflict`, `*-CONFLIT-*`, `*-conflict-*`, `*.sync-temp-*`), multi-agent locks (`LOCK.*`, `*.lock`, `LOCK*.txt` with explicit `!package-lock.json` exemption), build/smoke caches (`.wheel-smoke/`, `wheelhouse/`), and editor temp files (`*.tmp`, `*.bak`, `*.swp`, `*~`).
+- **Bilingual Security Policy SLAs**: Reinforced `SECURITY.md` with umbrella ecosystem security contact `security@open-bricks.org` alongside `security@ellmos.ai` and `support@lukasgeiger.com`, with formal 48-hour response SLA and 5-business-day triage commitment.
+- **PEP 621 Standard Metadata**: Added `Security` URL in `pyproject.toml` and standardized `[tool.pytest.ini_options]` with `testpaths`, `pythonpath`, and `-v` addopts.
+- **CI Workflow Hardening**: Modernized official GitHub Actions references (`actions/checkout@v4`, `actions/setup-python@v5`, `actions/setup-node@v4`) while maintaining concurrency controls (`cancel-in-progress: true`), multi-version Python 3.10–3.13 matrix, and byte-code compilation gates.
+- **Discoverability & Badges**: Synchronized test badge (137 passed | 100%), Security SLA badge, and Code Style Ruff badge across `README.md` and `README_de.md`; updated `llms.txt` `Last-checked: 2026-09-09`.
+
+### Tests & Quality Assurance
+- **Automated Contract Tests**: Expanded `tests/test_metadata.py` with contract tests verifying `.gitignore` conflict/lock protections, pytest configuration standards, umbrella security contacts, and up-to-date documentation parity (137/137 tests passing 100% green).
+
 ## 0.1.0-alpha.23 (Discoverability & Design Audit) - 2026-08-24
 
 ### Discoverability & Documentation

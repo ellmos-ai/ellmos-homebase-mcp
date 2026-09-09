@@ -32,6 +32,7 @@ Documentation = "https://github.com/ellmos-ai/ellmos-homebase-mcp#readme"
 Repository = "https://github.com/ellmos-ai/ellmos-homebase-mcp.git"
 Issues = "https://github.com/ellmos-ai/ellmos-homebase-mcp/issues"
 Changelog = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/CHANGELOG.md"
+Security = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/SECURITY.md"
 "Parent Organization" = "https://github.com/ellmos-ai"
 "Umbrella Ecosystem" = "https://github.com/open-bricks"
 dependencies = [
@@ -59,7 +60,9 @@ ellmos-homebase = "homebase.server:main"
 packages = ["src/homebase"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-v"
 
 [tool.ruff]
 line-length = 120

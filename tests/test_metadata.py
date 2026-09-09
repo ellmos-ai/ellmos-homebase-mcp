@@ -76,7 +76,7 @@ def test_llms_txt_and_discoverability_parity():
     llms_text = llms_file.read_text(encoding="utf-8")
     assert "ellmos-homebase-mcp" in llms_text
     assert "Canonical repository:" in llms_text
-    assert "Last-checked: 2026-08-25" in llms_text
+    assert "Last-checked: 2026-09-09" in llms_text
 
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
@@ -217,3 +217,51 @@ def test_package_json_repository_and_homepage_urls():
     assert "homepage" in package
     assert "ellmos-ai/ellmos-homebase-mcp" in str(package["homepage"])
 
+
+def test_gitignore_hygiene():
+    gitignore_path = REPO_ROOT / ".gitignore"
+    assert gitignore_path.is_file(), ".gitignore must exist"
+    content = gitignore_path.read_text(encoding="utf-8")
+
+    patterns = (
+        "*.sync-conflict-*",
+        "*.conflict",
+        "*-CONFLIT-*",
+        "*-conflict-*",
+        "*.sync-temp-*",
+        "LOCK.*",
+        "*.lock",
+        "LOCK*.txt",
+        "!package-lock.json",
+        ".wheel-smoke/",
+        "wheelhouse/",
+        "*.tmp",
+        "*.bak",
+    )
+    for pattern in patterns:
+        assert pattern in content, f"Missing pattern {pattern} in .gitignore"
+
+
+def test_pyproject_pytest_configuration():
+    pyproject_file = REPO_ROOT / "pyproject.toml"
+    assert pyproject_file.is_file(), "pyproject.toml must exist"
+    pyproject = tomllib.loads(pyproject_file.read_text(encoding="utf-8"))
+
+    pytest_cfg = pyproject.get("tool", {}).get("pytest", {}).get("ini_options", {})
+    assert "testpaths" in pytest_cfg
+    assert "tests" in pytest_cfg["testpaths"]
+    assert "-v" in pytest_cfg.get("addopts", "")
+
+    urls = pyproject.get("project", {}).get("urls", {})
+    assert "Security" in urls
+    assert "SECURITY.md" in urls["Security"]
+
+
+def test_security_policy_umbrella_contact_and_triage():
+    security_file = REPO_ROOT / "SECURITY.md"
+    assert security_file.is_file(), "SECURITY.md must exist"
+    content = security_file.read_text(encoding="utf-8")
+
+    assert "security@open-bricks.org" in content
+    assert "5 business days" in content
+    assert "5 Werktagen" in content
