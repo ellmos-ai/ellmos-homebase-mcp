@@ -76,7 +76,7 @@ def test_llms_txt_and_discoverability_parity():
     llms_text = llms_file.read_text(encoding="utf-8")
     assert "ellmos-homebase-mcp" in llms_text
     assert "Canonical repository:" in llms_text
-    assert "Last-checked: 2026-09-09" in llms_text
+    assert "Last-checked: 2026-09-10" in llms_text
 
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
@@ -155,6 +155,8 @@ def test_pyproject_pep621_classifiers_and_project_urls():
     assert "Repository" in urls
     assert "Issues" in urls
     assert "Changelog" in urls
+    assert "Third-Party Licenses" in urls
+    assert "Marketing Log" in urls
     assert "Parent Organization" in urls
     assert "Umbrella Ecosystem" in urls
 
@@ -265,3 +267,66 @@ def test_security_policy_umbrella_contact_and_triage():
     assert "security@open-bricks.org" in content
     assert "5 business days" in content
     assert "5 Werktagen" in content
+
+
+def test_third_party_licenses_inventory_and_manifest_entry():
+    licenses_file = REPO_ROOT / "THIRD_PARTY_LICENSES.md"
+    assert licenses_file.is_file(), "THIRD_PARTY_LICENSES.md must exist in repository root"
+    content = licenses_file.read_text(encoding="utf-8")
+    assert "Third-Party License Review" in content
+    assert "update-notifier" in content
+    assert "mcp" in content
+    assert "tomli" in content
+    assert "pytest" in content
+    assert "PSFL" in content or "Python Software Foundation" in content
+
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+    assert "THIRD_PARTY_LICENSES.md" in package.get("files", []), "THIRD_PARTY_LICENSES.md must be in package.json files"
+
+
+def test_marketing_log_and_manifest_entry():
+    marketing_file = REPO_ROOT / "MARKETING-LOG.txt"
+    assert marketing_file.is_file(), "MARKETING-LOG.txt must exist in repository root"
+    content = marketing_file.read_text(encoding="utf-8")
+    assert "DISCOVERABILITY & MARKETING LOG" in content
+    assert "Persona 1" in content
+    assert "Persona 2" in content
+    assert "Persona 3" in content
+    assert "Persona 4" in content
+    assert "INV-LOCAL-01" in content
+    assert "INV-SLA-10" in content
+
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+    assert "MARKETING-LOG.txt" in package.get("files", []), "MARKETING-LOG.txt must be in package.json files"
+
+
+def test_ten_governance_invariants_parity_in_readmes():
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+
+    assert "## Governance & Runtime Invariants" in readme_en
+    assert "## Governance & Laufzeit-Invarianten" in readme_de
+
+    invariants = [
+        "INV-LOCAL-01",
+        "INV-ENGINE-02",
+        "INV-SEAM-03",
+        "INV-PROV-04",
+        "INV-CRED-05",
+        "INV-STAGE-06",
+        "INV-I18N-07",
+        "INV-PERM-08",
+        "INV-SYNC-09",
+        "INV-SLA-10",
+    ]
+    for inv in invariants:
+        assert inv in readme_en, f"Missing {inv} in README.md"
+        assert inv in readme_de, f"Missing {inv} in README_de.md"
+
+
+def test_glama_metadata_parity():
+    glama_file = REPO_ROOT / "glama.json"
+    assert glama_file.is_file(), "glama.json must exist"
+    data = json.loads(glama_file.read_text(encoding="utf-8"))
+    assert data["version"] == "0.1.0-alpha.25"
+    assert data["tools"]["count"] == 51

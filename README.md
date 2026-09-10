@@ -21,10 +21,10 @@ German README: [README_de.md](README_de.md)
 [![Platforms](https://img.shields.io/badge/platforms-Linux%20%7C%20Windows%20%7C%20macOS-informational.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp)
 [![Privacy](https://img.shields.io/badge/privacy-100%25%20Local--First%20%7C%20Zero--Egress-success.svg)](SECURITY.md)
 [![Storage](https://img.shields.io/badge/storage-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
-[![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet.svg)](https://modelcontextprotocol.io/)
-[![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Tests](https://img.shields.io/badge/tests-137%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
-[![Security SLA](https://img.shields.io/badge/security-48h%20SLA-blue.svg)](SECURITY.md)
+[![MCP](https://img.shields.io/badge/MCP-stdio%20(51%20Tools)-blueviolet.svg)](https://modelcontextprotocol.io/)
+[![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.25-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Tests](https://img.shields.io/badge/tests-141%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
+[![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%205d%20Triage-blue.svg)](SECURITY.md)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -39,6 +39,7 @@ German README: [README_de.md](README_de.md)
 - [System Architecture](#system-architecture)
 - [Sequence Flow & Lifecycle](#sequence-flow--lifecycle)
 - [Core Capabilities & Security Invariants](#core-capabilities--security-invariants)
+- [Governance & Runtime Invariants](#governance--runtime-invariants)
 - [Start Here](#start-here)
 - [Status](#status)
 - [Install](#install)
@@ -47,8 +48,11 @@ German README: [README_de.md](README_de.md)
 - [Tools](#tools)
 - [Discovery Context](#discovery-context)
 - [ellmos-ai Ecosystem](#ellmos-ai-ecosystem)
+- [Third-Party Licenses (THIRD_PARTY_LICENSES.md)](THIRD_PARTY_LICENSES.md)
+- [Marketing Log (MARKETING-LOG.txt)](MARKETING-LOG.txt)
 - [Security & Vulnerability Reporting](#security--vulnerability-reporting)
 - [Development](#development)
+- [Changelog (CHANGELOG.md)](CHANGELOG.md)
 - [Deutsche Version (README_de.md)](README_de.md)
 
 ## System Architecture
@@ -141,6 +145,21 @@ sequenceDiagram
 | **Full Native i18n Localization** | Seamless multilingual developer and agent interaction. | Localized tool descriptions and JSON schemas for `en`, `de`, `es`, `zh`, `ja`, `ru`. |
 | **Non-Elevation & Secret Hygiene** | Unprivileged execution and strict credential exclusion from distribution. | Non-root compatibility; live configs/secrets ignored in `.gitignore` and `.npmignore`. |
 | **Multi-OS CI Smoke Integrity** | Verified cross-platform reliability on all major operating systems. | Multi-version CI matrix covering Python 3.10–3.13 and Node.js 20–24 on Linux/Windows/macOS. |
+
+## Governance & Runtime Invariants
+
+| Invariant ID | Title & Scope | Guarantee & Technical Enforcement | Verification Seam |
+|---|---|---|---|
+| **`INV-LOCAL-01`** | **100% Local-First & Zero-Egress** | All persistent memory, knowledge entries, and task states are stored locally in SQLite (`~/.homebase/`). Zero telemetry, analytics, or unrequested outbound cloud network calls. | `tests/test_server_transport.py`, `tests/test_repository_hygiene.py` |
+| **`INV-ENGINE-02`** | **Strict Engine Seams & Fail-Closed** | [`MODE-CONTRACT.md`](MODE-CONTRACT.md) enforcement: switching `[engines].mode = "canonical"` never silently falls back to bundled storage if the canonical engine is unreachable. | `tests/test_engine_seams.py` |
+| **`INV-SEAM-03`** | **Canonical-Only Isolation** | `hb_policy_*`, `hb_ticket_*`, and `hb_lock_*` provide read-only views into policy-registry, ticket-master, and lock-master. They possess no bundled imitation and fail closed unconditionally. | `tests/test_new_seams.py` |
+| **`INV-PROV-04`** | **Deterministic Provenance & Team-Memory** | Multi-agent coordination requires strict isolation. All memories, knowledge facts, and task transitions record `agent_id` attribution with SQLite WAL concurrency and busy timeouts. | `tests/test_module_contracts.py` |
+| **`INV-CRED-05`** | **Credential-Free Discovery & Probing** | Model routing suggestions (`hb_route_*`), swarm pattern blueprints (`hb_swarm_*`), and API schema probing (`hb_api_*`) function without private API keys, tokens, or credentials. | `tests/test_module_contracts.py` |
+| **`INV-STAGE-06`** | **Plan-Only Staging & Bounded Offline Queues** | Connector queues (`hb_conn_*`) and automation plans (`hb_auto_*`) record offline blueprints and dry-run staging manifests without executing arbitrary remote code or side-effects. | `tests/test_module_contracts.py` |
+| **`INV-I18N-07`** | **Native Multilingual Schema Parity** | All 51 tool definitions, input schemas, and validation errors maintain 100% complete localization across 6 supported languages (`en`, `de`, `es`, `zh`, `ja`, `ru`). | `tests/test_i18n_completeness.py` |
+| **`INV-PERM-08`** | **Non-Elevation & RunAsInvoker Principle** | Homebase runs strictly in unprivileged user space. It requires no administrator or root privileges and ignores sensitive local dotfiles and system credentials. | `tests/test_repository_hygiene.py` |
+| **`INV-SYNC-09`** | **Multi-Host Lock & Conflict Discipline** | Strict exclusion of conflict copies (`*.sync-conflict-*`, `*-conflict-*`) and honor of multi-agent lock mechanisms (`LOCK.*`, `*.lock`) to preserve database integrity across hosts. | `tests/test_metadata.py` |
+| **`INV-SLA-10`** | **48h Security Response & 5-Day Triage SLA** | Security disclosures sent to `security@ellmos.ai`, `support@lukasgeiger.com`, or `security@open-bricks.org` receive guaranteed initial response in <=48h and triage within 5 business days. | `SECURITY.md`, `tests/test_metadata.py` |
 
 ## Start Here
 

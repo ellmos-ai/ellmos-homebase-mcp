@@ -22,10 +22,10 @@ Englische Standard-README: [README.md](README.md)
 [![Plattformen](https://img.shields.io/badge/plattformen-Linux%20%7C%20Windows%20%7C%20macOS-informational.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp)
 [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Local--First%20%7C%20Zero--Egress-success.svg)](SECURITY.md)
 [![Speicher](https://img.shields.io/badge/speicher-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
-[![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet.svg)](https://modelcontextprotocol.io/)
-[![Status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Tests](https://img.shields.io/badge/tests-137%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
-[![Security SLA](https://img.shields.io/badge/security-48h%20SLA-blue.svg)](SECURITY.md)
+[![MCP](https://img.shields.io/badge/MCP-stdio%20(51%20Tools)-blueviolet.svg)](https://modelcontextprotocol.io/)
+[![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.25-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Tests](https://img.shields.io/badge/tests-141%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
+[![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%205d%20Triage-blue.svg)](SECURITY.md)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -39,7 +39,8 @@ Englische Standard-README: [README.md](README.md)
 
 - [Systemarchitektur](#systemarchitektur)
 - [Sequenzablauf & Lebenszyklus](#sequenzablauf--lebenszyklus)
-- [Kernfähigkeiten & Sicherheitsinvarianten](#kernf%C3%A4higkeiten--sicherheitsinvarianten)
+- [Kernfähigkeiten & Sicherheitsinvarianten](#kernfähigkeiten--sicherheitsinvarianten)
+- [Governance & Laufzeit-Invarianten](#governance--laufzeit-invarianten)
 - [Einstieg](#einstieg)
 - [Status](#status)
 - [Installation](#installation)
@@ -48,8 +49,11 @@ Englische Standard-README: [README.md](README.md)
 - [Tools](#tools)
 - [Discovery-Kontext](#discovery-kontext)
 - [ellmos-ai-Ökosystem](#ellmos-ai-%C3%B6kosystem)
+- [Drittanbieter-Lizenzen (THIRD_PARTY_LICENSES.md)](THIRD_PARTY_LICENSES.md)
+- [Marketing-Protokoll (MARKETING-LOG.txt)](MARKETING-LOG.txt)
 - [Sicherheit & Schwachstellenmeldung](#sicherheit--schwachstellenmeldung)
 - [Entwicklung](#entwicklung)
+- [Änderungsprotokoll (CHANGELOG.md)](CHANGELOG.md)
 - [Englische Version (README.md)](README.md)
 
 ## Systemarchitektur
@@ -142,6 +146,21 @@ sequenceDiagram
 | **Vollständige native i18n-Lokalisierung** | Nahtlose mehrsprachige Entwickler- und Agenteninteraktion. | Lokalisierte Tool-Beschreibungen und JSON-Schemas für `en`, `de`, `es`, `zh`, `ja`, `ru`. |
 | **Non-Elevation & Geheimnis-Hygiene** | Unprivilegierte Ausführung und strikter Ausschluss sensibler Daten aus der Distribution. | Kompatibel mit unprivilegierten Benutzern; Live-Konfigurationen/Secrets in `.gitignore` & `.npmignore`. |
 | **Multi-OS CI Smoke-Integrität** | Verifizierte plattformübergreifende Zuverlässigkeit auf allen Hauptbetriebssystemen. | Multi-Versionen CI-Matrix für Python 3.10–3.13 und Node.js 20–24 unter Linux/Windows/macOS. |
+
+## Governance & Laufzeit-Invarianten
+
+| Invarianten-ID | Titel & Geltungsbereich | Garantie & Technische Durchsetzung | Verifikations-Naht |
+|---|---|---|---|
+| **`INV-LOCAL-01`** | **100% Local-First & Zero-Egress** | Alle persistenten Memories, Wissenseinträge und Task-Zustände verbleiben lokal in SQLite (`~/.homebase/`). Keine Telemetrie, Analyse oder unaufgeforderte Cloud-Netzwerkverbindungen. | `tests/test_server_transport.py`, `tests/test_repository_hygiene.py` |
+| **`INV-ENGINE-02`** | **Strikte Engine-Nähte & Fail-Closed** | Durchsetzung von [`MODE-CONTRACT.md`](MODE-CONTRACT.md): Der Modus `[engines].mode = "canonical"` fällt niemals still auf lokale Kopien zurück, wenn ein kanonisches System nicht erreichbar ist. | `tests/test_engine_seams.py` |
+| **`INV-SEAM-03`** | **Kanonisch-Exklusive Seam-Isolation** | `hb_policy_*`, `hb_ticket_*` und `hb_lock_*` bieten ausschließlich Lese-Zugriff auf policy-registry, ticket-master und lock-master, besitzen keinen Bundled-Ersatz und versagen strikt fail-closed. | `tests/test_new_seams.py` |
+| **`INV-PROV-04`** | **Deterministische Provenienz & Team-Memory** | Multi-Agenten-Koordination erfordert strikte Isolation. Alle Fakten, Wissenseinträge und Tasks zeichnen `agent_id`-Provenienz mit SQLite WAL-Modus und Busy-Timeouts auf. | `tests/test_module_contracts.py` |
+| **`INV-CRED-05`** | **Schlüsselfreies Routing & API-Discovery** | Modell-Routing-Empfehlungen (`hb_route_*`), Schwarm-Baupläne (`hb_swarm_*`) und API-Erkundung (`hb_api_*`) arbeiten vollständig offline ohne private API-Keys oder Tokens. | `tests/test_module_contracts.py` |
+| **`INV-STAGE-06`** | **Plan-Only Staging & Bounded Offline Queues** | Connector-Warteschlangen (`hb_conn_*`) und Automatisierungs-Pläne (`hb_auto_*`) erfassen Offline-Pläne und Staging-Manifeste ohne Ausführung von beliebigem Remote-Code. | `tests/test_module_contracts.py` |
+| **`INV-I18N-07`** | **Vollständige native Lokalisierungs-Parität** | Alle 51 Tool-Definitionen, Input-Schemas und Fehlermeldungen bieten vollständige Parität über 6 Sprachen (`en`, `de`, `es`, `zh`, `ja`, `ru`) mit englischem Fallback. | `tests/test_i18n_completeness.py` |
+| **`INV-PERM-08`** | **Nicht-Privilegiertes RunAsInvoker-Prinzip** | Homebase läuft strikt im unprivilegierten Anwendermodus (Non-Elevation). Keine Administrator-Rechte erforderlich; sensible Host-Dateien werden ignoriert. | `tests/test_repository_hygiene.py` |
+| **`INV-SYNC-09`** | **Multi-Host Lock- & Konfliktkopien-Disziplin** | Strikter Ausschluss von Konfliktkopien (`*.sync-conflict-*`, `*-conflict-*`) und Einhaltung von Multi-Agenten-Locks (`LOCK.*`, `*.lock`) zum Schutz der lokalen Datenbank. | `tests/test_metadata.py` |
+| **`INV-SLA-10`** | **48h Sicherheitsreaktions- & 5-Tage-Triage-SLA** | Sicherheitsmeldungen an `security@ellmos.ai`, `support@lukasgeiger.com` oder `security@open-bricks.org` erhalten eine garantierte Antwort binnen 48h und Triage in 5 Werktagen. | `SECURITY.md`, `tests/test_metadata.py` |
 
 ## Einstieg
 

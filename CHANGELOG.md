@@ -2,6 +2,18 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.25 (Discoverability, Visual Architecture & Invariant Contracts) - 2026-09-10
+
+### Discoverability & Documentation
+- **Third-Party License Review**: Added `THIRD_PARTY_LICENSES.md` inventory detailing runtime (`update-notifier`, `mcp`, `tomli`), standard library PSFL components, optional backends (`anthropic`, `google-genai`, `requests`), dev dependencies (`pytest`, `ruff`), and architectural synergies (`modelcontextprotocol`, `gardener`, `rinnsal`, `bach`, `sqlite-transit-sync`).
+- **Discoverability & Marketing Log**: Published `MARKETING-LOG.txt` outlining product identity, 4 target personas (Local LLM Developers, Swarm Architects, Enterprise Security Officers, Cross-Framework AI Assistants), and ecosystem mappings.
+- **10 Governance & Runtime Invariants**: Formalized `INV-LOCAL-01` through `INV-SLA-10` in both `README.md` and `README_de.md`, covering 100% Local-First / Zero-Egress, strict fail-closed engine seams (`MODE-CONTRACT.md`), canonical-only seams (`hb_policy_*`, `hb_ticket_*`, `hb_lock_*`), `agent_id` team-memory provenance, credential-free probing, plan-only staging, multilingual schema parity, RunAsInvoker unprivileged execution, multi-host lock discipline, and 48h Security SLA.
+- **Synchronized Badges & Navigation**: Expanded 16-point Quick Navigation in English and German; updated tool count badge to `stdio (51 Tools)` and version badge to `0.1.0-alpha.25`.
+- **Machine-Readable Indexes**: Updated `llms.txt` (`Last-checked: 2026-09-10`), `server.json`, `glama.json` (version `0.1.0-alpha.25`, tool count 51), and `pyproject.toml` URLs (`Third-Party Licenses`, `Marketing Log`).
+
+### Tests & Quality Assurance
+- **Automated Metadata & Contract Tests**: Added contract tests in `tests/test_metadata.py` verifying `THIRD_PARTY_LICENSES.md`, `MARKETING-LOG.txt`, all 10 governance invariant IDs, PEP 621 metadata URLs, and `glama.json` tool count parity.
+
 ## 0.1.0-alpha.24 (Hygiene & Modernization) - 2026-09-09
 
 ### Repository Hygiene & Security

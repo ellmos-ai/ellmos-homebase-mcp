@@ -1,0 +1,107 @@
+================================================================================
+ELLMOS-AI / ELLMOS-HOMEBASE-MCP — DISCOVERABILITY & MARKETING LOG
+================================================================================
+Repository: https://github.com/ellmos-ai/ellmos-homebase-mcp
+Project Name: ellmos-homebase-mcp (Distribution: ellmos-homebase-mcp on npm)
+Umbrella Ecosystem: open-bricks (https://github.com/open-bricks)
+Architecture Domain: Local-First LLM Orchestration & Capability Stack (Stdio MCP Server)
+Audit Date: 2026-09-10
+Version: 0.1.0-alpha.25
+Status: ACTIVE / PFAD B DISCOVERABILITY & VISUAL ARCHITECTURE HARDENED
+================================================================================
+
+1. PRODUCT IDENTITY & MISSION
+--------------------------------------------------------------------------------
+ellmos-homebase-mcp is a unified, local-first Model Context Protocol (MCP) server
+that equips local LLMs (Ollama, Qwen, Llama, and local harnesses) with a comprehensive
+capability stack: persistent SQLite memory, knowledge digest with FTS5 search,
+state and task tracking, credential-free model routing, swarm coordination patterns,
+passive API discovery, local automation staging, and plugin exploration over stdio.
+
+Key architectural highlights:
+  1. 100% Local-First & Zero Cloud Egress: Zero external network calls required.
+     All persistent memory, knowledge, and state are stored in a local SQLite
+     database (~/.homebase/) using Write-Ahead Logging (WAL) and busy timeouts.
+  2. Strict Engine Seams & Fail-Closed Discipline: Implements MODE-CONTRACT.md;
+     seamlessly toggles between bundled zero-dependency SQLite storage and canonical
+     external engines (Gardener, Rinnsal, USMC) without silent fallbacks.
+  3. Canonical-Only Seams: hb_policy_*, hb_ticket_*, hb_lock_* modules provide
+     read-only introspection into policy-registry, ticket-master, and lock-master,
+     unconditionally failing closed if canonical engines are unreachable.
+  4. Team-Memory & Agent Provenance: Built-in agent_id tracking across facts,
+     knowledge entries, and tasks prevents cross-agent contamination in swarms.
+  5. Credential-Free Discovery & Planning: Routing recommendations, swarm patterns,
+     and API exploration function completely offline without API keys or tokens.
+  6. Multilingual Schema Parity: Native tool and schema descriptions for en, de,
+     es, zh, ja, ru with automated fallback to English.
+
+2. TARGET PERSONAS & AUDIENCE MAPPING
+--------------------------------------------------------------------------------
+Persona 1: Local LLM & Edge AI Developers
+  - Need: Comprehensive memory, knowledge search, and state persistence for
+    local models (Ollama, Qwen, Llama) without cloud dependencies or subscriptions.
+  - Value: Single stdio MCP server providing 51 tools, SQLite WAL storage,
+    full offline operation, and seamless integration with local harnesses (BACH).
+
+Persona 2: Multi-Agent Swarm Orchestrators & Autonomous Workflow Architects
+  - Need: Reliable coordination, shared memory with clear attribution, task queues,
+    and structured planning patterns for multi-agent collectives.
+  - Value: Native agent_id provenance, swarm decomposition templates (boss/worker,
+    parallel chunks, consensus voting), and isolated task state machines.
+
+Persona 3: Enterprise Security & Data Governance Officers
+  - Need: Verifiable zero-egress guarantees, fail-closed access policies,
+    and non-elevation compliance for agent tools in restricted environments.
+  - Value: Zero telemetry, fail-closed canonical engine seams (MODE-CONTRACT.md),
+    RunAsInvoker unprivileged execution, and formal 48h Security Response SLA.
+
+Persona 4: Cross-Framework AI Assistants & Pair Programmers
+  - Need: Seamless tool interoperability across Claude Code, Claude Desktop,
+    Codex, Antigravity, and Cursor.
+  - Value: Standard stdio JSON-RPC transport, machine-readable discovery via
+    llms.txt and server.json, and bilingual English/German documentation.
+
+3. ARCHITECTURAL INVARIANTS & GOVERNANCE
+--------------------------------------------------------------------------------
+The project strictly enforces 10 runtime invariants (INV-LOCAL-01 to INV-SLA-10):
+  - INV-LOCAL-01: 100% Local-First & Zero-Egress Storage (~/.homebase/ SQLite WAL)
+  - INV-ENGINE-02: Strict Engine Seams & Fail-Closed (MODE-CONTRACT.md compliance)
+  - INV-SEAM-03: Canonical-Only Seam Isolation (hb_policy_*, hb_ticket_*, hb_lock_*)
+  - INV-PROV-04: Deterministic Provenance & Team-Memory (native agent_id attribution)
+  - INV-CRED-05: Credential-Free Routing & API Discovery (offline exploration)
+  - INV-STAGE-06: Plan-Only Staging & Bounded Offline Queues (hb_conn_*, hb_auto_*)
+  - INV-I18N-07: Full Native Multilingual Schema Parity (en, de, es, zh, ja, ru)
+  - INV-PERM-08: Non-Elevation & RunAsInvoker Principle (unprivileged execution)
+  - INV-SYNC-09: Multi-Host Lock & Conflict Copy Discipline (fail-closed locks)
+  - INV-SLA-10: 48h Security Response & 5-Day Triage SLA (formal response guarantees)
+
+4. ECOSYSTEM SYNERGIES & SIBLING INTEGRATION
+--------------------------------------------------------------------------------
+- ellmos-ai:
+    * FileCommander (47 tools): Local filesystem and safe execution surface.
+    * CodeCommander (23 tools): Code analysis, AST refactoring, and JSON repair.
+    * ControlCenter (20 tools): Dynamic profile switching and tool governance.
+    * n8n-manager-mcp (19 tools): Workflow deployment and execution management.
+    * BACH: Local text-based OS and terminal harness for agent swarms.
+    * clutch: Provider-neutral LLM routing and token budget tracking.
+    * rinnsal: Event stream orchestration and reactive message bus.
+- open-bricks Umbrella:
+    * ProFiler: Privacy-safe desktop file organization and workspace indexing.
+    * DokuZen & KnowledgeDigest: Offline Markdown documentation and RAG search.
+    * DevCenter: Unified multi-repo developer dashboard and project health.
+
+5. DISCOVERABILITY & SEARCH OPTIMIZATION
+--------------------------------------------------------------------------------
+Key search terms:
+  - "ellmos Homebase MCP server"
+  - "local-first LLM orchestration MCP"
+  - "MCP server SQLite memory knowledge routing"
+  - "offline agent orchestration MCP server"
+  - "MCP swarm planning persistent state API discovery"
+  - "stdio MCP server for local LLM agents"
+  - "Ollama MCP memory and knowledge tool"
+
+Disambiguation: Distinct from Elmo/ELMO speech tools, AllenAI ELMo embeddings,
+Eclipse LMOS, or single-purpose cloud memory services. Homebase is an offline-first,
+multi-module MCP orchestration server.
+================================================================================

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ellmos-homebase-mcp"
-version = "0.1.0a24"
+version = "0.1.0a25"
 description = "MCP server that gives local LLMs a complete capability stack: memory, routing, knowledge, swarm coordination, state, API exploration, testing, and more."
 readme = "README.md"
 license = "MIT"
@@ -33,6 +33,8 @@ Repository = "https://github.com/ellmos-ai/ellmos-homebase-mcp.git"
 Issues = "https://github.com/ellmos-ai/ellmos-homebase-mcp/issues"
 Changelog = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/CHANGELOG.md"
 Security = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/SECURITY.md"
+"Third-Party Licenses" = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/THIRD_PARTY_LICENSES.md"
+"Marketing Log" = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/MARKETING-LOG.txt"
 "Parent Organization" = "https://github.com/ellmos-ai"
 "Umbrella Ecosystem" = "https://github.com/open-bricks"
 dependencies = [

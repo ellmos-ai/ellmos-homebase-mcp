@@ -1,6 +1,6 @@
 {
   "name": "ellmos-homebase-mcp",
-  "version": "0.1.0-alpha.24",
+  "version": "0.1.0-alpha.25",
   "description": "Alpha MCP server for local LLM memory, knowledge, state, routing, testing, and orchestration.",
   "type": "commonjs",
   "license": "MIT",
@@ -28,6 +28,8 @@
     "CHANGELOG.md",
     "LICENSE",
     "SECURITY.md",
+    "THIRD_PARTY_LICENSES.md",
+    "MARKETING-LOG.txt",
     "llms.txt",
     "server.json",
     "glama.json",
