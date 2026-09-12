@@ -15,15 +15,18 @@ if (process.stdout.isTTY) {
 }
 
 const python = process.env.PYTHON || (process.platform === "win32" ? "python" : "python3");
-const srcPath = path.resolve(__dirname, "..", "src");
+const packageRoot = path.resolve(__dirname, "..");
+const srcPath = path.join(packageRoot, "src");
 const env = {
   ...process.env,
-  PYTHONPATH: process.env.PYTHONPATH ? `${srcPath}${path.delimiter}${process.env.PYTHONPATH}` : srcPath,
+  PYTHONPATH: srcPath,
+  PYTHONSAFEPATH: "1",
 };
 
 const child = spawn(python, ["-m", "homebase.server"], {
   stdio: "inherit",
   env,
+  cwd: packageRoot,
 });
 
 child.on("error", (error) => {
