@@ -18,6 +18,7 @@ jobs:
   python-tests:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -40,7 +41,7 @@ jobs:
         run: ruff check .
 
       - name: Run tests
-        run: python -m pytest -q
+        run: python -m pytest -ra -v
 
       - name: Compile Python sources
         run: python -m compileall -q src tests
@@ -48,6 +49,7 @@ jobs:
   npm-package:
     name: Node.js ${{ matrix.node-version }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:

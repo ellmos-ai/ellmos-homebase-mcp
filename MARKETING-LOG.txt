@@ -5,9 +5,9 @@ Repository: https://github.com/ellmos-ai/ellmos-homebase-mcp
 Project Name: ellmos-homebase-mcp (Distribution: ellmos-homebase-mcp on npm)
 Umbrella Ecosystem: open-bricks (https://github.com/open-bricks)
 Architecture Domain: Local-First LLM Orchestration & Capability Stack (Stdio MCP Server)
-Audit Date: 2026-09-10
-Version: 0.1.0-alpha.25
-Status: ACTIVE / PFAD B DISCOVERABILITY & VISUAL ARCHITECTURE HARDENED
+Audit Date: 2026-09-12
+Version: 0.1.0-alpha.26
+Status: ACTIVE / PFAD A HYGIENE & CI HARDENING MAINTAINED
 ================================================================================
 
 1. PRODUCT IDENTITY & MISSION
@@ -104,4 +104,20 @@ Key search terms:
 Disambiguation: Distinct from Elmo/ELMO speech tools, AllenAI ELMo embeddings,
 Eclipse LMOS, or single-purpose cloud memory services. Homebase is an offline-first,
 multi-module MCP orchestration server.
+
+6. MAINTENANCE & HYGIENE LOG (Pfad A)
+--------------------------------------------------------------------------------
+- 2026-09-12 (Version 0.1.0-alpha.26):
+    * CI/CD Timeout Guardrail: timeout-minutes: 15 runaway protection across all
+      matrix jobs (Python 3.10-3.13, Node.js 20/22/24) in .github/workflows/tests.yml.
+    * Standardized Pytest Runner: python -m pytest -ra -v in CI, package.json, and pyproject.toml addopts.
+    * .gitignore Multi-Host Cloud-Sync & Lock-System Defense: * (kopie)*, * (copy)*,
+      *-WORKSTATION*, *-ASUS-GEI*, LOCK, LOCK.permissions.json, .coverage.*,
+      .nyc_output/, .turbo/, .tox/, *.orig, Thumbs.db, .DS_Store.
+    * PEP 621 Standard-Metadaten: URLs für "LLM Ready" und "Bug Tracker" unter [project.urls] in pyproject.toml.
+    * Linter-Regelsatz: [tool.ruff.lint].select um C4 (comprehensions) erweitert.
+    * Versionsanhebung auf 0.1.0-alpha.26 über alle Manifeste (package.json,
+      package-lock.json, server.json, glama.json, pyproject.toml, src/homebase/__init__.py,
+      README.md, README_de.md, llms.txt, MARKETING-LOG.txt).
+    * Automatisierte Vertragstestsuite in tests/test_metadata.py erweitert.
 ================================================================================

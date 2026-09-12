@@ -1,6 +1,6 @@
 {
   "name": "ellmos-homebase-mcp",
-  "version": "0.1.0-alpha.25",
+  "version": "0.1.0-alpha.26",
   "description": "Alpha MCP server for local LLM memory, knowledge, state, routing, testing, and orchestration.",
   "type": "commonjs",
   "license": "MIT",
@@ -54,7 +54,7 @@
     "ellmos"
   ],
   "scripts": {
-    "test": "python -m pytest -q",
+    "test": "python -m pytest -ra -v",
     "smoke": "node bin/ellmos-homebase.js --version"
   },
   "engines": {

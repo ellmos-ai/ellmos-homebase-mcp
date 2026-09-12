@@ -58,6 +58,10 @@ node_modules/
 .mcpregistry_*
 
 # Multi-Host synchronization conflicts
+* (kopie)*
+* (copy)*
+*-WORKSTATION*
+*-ASUS-GEI*
 *.sync-conflict-*
 *.conflict
 *-CONFLIT-*
@@ -65,17 +69,28 @@ node_modules/
 *.sync-temp-*
 
 # Multi-Agent and lock artifacts
+LOCK
 LOCK.*
 *.lock
 LOCK*.txt
+LOCK.permissions.json
 !package-lock.json
 
 # Wheel packaging and smoke test caches
 .wheel-smoke/
 wheelhouse/
+.coverage.*
+.nyc_output/
+.turbo/
+.tox/
 
-# Temporary and backup files
+# Temporary, merge and backup files
 *.tmp
 *.bak
 *.swp
+*.orig
 *~
+
+# Operating system files
+Thumbs.db
+.DS_Store

@@ -76,7 +76,7 @@ def test_llms_txt_and_discoverability_parity():
     llms_text = llms_file.read_text(encoding="utf-8")
     assert "ellmos-homebase-mcp" in llms_text
     assert "Canonical repository:" in llms_text
-    assert "Last-checked: 2026-09-10" in llms_text
+    assert "Last-checked: 2026-09-12" in llms_text
 
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
@@ -111,6 +111,7 @@ def test_ruff_config_in_pyproject():
     assert "ruff" in pyproject["tool"]
     assert pyproject["tool"]["ruff"]["line-length"] == 120
     assert "lint" in pyproject["tool"]["ruff"]
+    assert "C4" in pyproject["tool"]["ruff"]["lint"]["select"]
 
 
 def test_readme_and_readme_de_quick_navigation_and_mermaid_parity():
@@ -154,7 +155,9 @@ def test_pyproject_pep621_classifiers_and_project_urls():
     assert "Documentation" in urls
     assert "Repository" in urls
     assert "Issues" in urls
+    assert "Bug Tracker" in urls
     assert "Changelog" in urls
+    assert "LLM Ready" in urls
     assert "Third-Party Licenses" in urls
     assert "Marketing Log" in urls
     assert "Parent Organization" in urls
@@ -226,19 +229,32 @@ def test_gitignore_hygiene():
     content = gitignore_path.read_text(encoding="utf-8")
 
     patterns = (
+        "* (kopie)*",
+        "* (copy)*",
+        "*-WORKSTATION*",
+        "*-ASUS-GEI*",
         "*.sync-conflict-*",
         "*.conflict",
         "*-CONFLIT-*",
         "*-conflict-*",
         "*.sync-temp-*",
+        "LOCK",
         "LOCK.*",
         "*.lock",
         "LOCK*.txt",
+        "LOCK.permissions.json",
         "!package-lock.json",
         ".wheel-smoke/",
         "wheelhouse/",
+        ".coverage.*",
+        ".nyc_output/",
+        ".turbo/",
+        ".tox/",
         "*.tmp",
         "*.bak",
+        "*.orig",
+        "Thumbs.db",
+        ".DS_Store",
     )
     for pattern in patterns:
         assert pattern in content, f"Missing pattern {pattern} in .gitignore"
@@ -252,7 +268,7 @@ def test_pyproject_pytest_configuration():
     pytest_cfg = pyproject.get("tool", {}).get("pytest", {}).get("ini_options", {})
     assert "testpaths" in pytest_cfg
     assert "tests" in pytest_cfg["testpaths"]
-    assert "-v" in pytest_cfg.get("addopts", "")
+    assert "-ra -v" in pytest_cfg.get("addopts", "")
 
     urls = pyproject.get("project", {}).get("urls", {})
     assert "Security" in urls
@@ -328,5 +344,20 @@ def test_glama_metadata_parity():
     glama_file = REPO_ROOT / "glama.json"
     assert glama_file.is_file(), "glama.json must exist"
     data = json.loads(glama_file.read_text(encoding="utf-8"))
-    assert data["version"] == "0.1.0-alpha.25"
+    assert data["version"] == "0.1.0-alpha.26"
     assert data["tools"]["count"] == 51
+
+def test_github_actions_ci_timeout_guardrails():
+    ci_file = REPO_ROOT / ".github" / "workflows" / "tests.yml"
+    assert ci_file.is_file(), "tests.yml must exist"
+    ci_text = ci_file.read_text(encoding="utf-8")
+    assert "timeout-minutes: 15" in ci_text
+    assert ci_text.count("timeout-minutes: 15") >= 2
+
+
+def test_changelog_release_entry_exists():
+    changelog_file = REPO_ROOT / "CHANGELOG.md"
+    assert changelog_file.is_file(), "CHANGELOG.md must exist"
+    content = changelog_file.read_text(encoding="utf-8")
+    assert "## 0.1.0-alpha.26" in content
+    assert "2026-09-12" in content

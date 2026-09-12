@@ -2,6 +2,22 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.26 (Technical Hygiene, CI Hardening & Metadata Parity) - 2026-09-12
+
+### CI/CD & Multi-Host Hardening
+- **CI Workflow Timeout Guardrails**: Added `timeout-minutes: 15` runaway protection to both `python-tests` and `npm-package` matrix jobs in `.github/workflows/tests.yml`.
+- **Standardized Pytest Execution**: Upgraded test runners to `python -m pytest -ra -v` in CI workflow, `package.json`, and `pyproject.toml` `addopts`.
+- **Multi-Host .gitignore Defense**: Hardened `.gitignore` against multi-host sync conflicts (`* (kopie)*`, `* (copy)*`, `*-WORKSTATION*`, `*-ASUS-GEI*`), canonical lock artifacts (`LOCK`, `LOCK.permissions.json`), merge leftovers (`*.orig`), coverage variants (`.coverage.*`, `.nyc_output/`), and OS files (`Thumbs.db`, `.DS_Store`).
+
+### Packaging & Metadata Parity
+- **PEP 621 Metadata Expansion**: Added `LLM Ready` and `Bug Tracker` entries under `[project.urls]` in `pyproject.toml`.
+- **Linter Rule Hardening**: Expanded `[tool.ruff.lint].select` to include `C4` (comprehensions) rule set alongside `E`, `F`, `W`, `I`.
+- **Version Harmonization**: Bumped version to `0.1.0-alpha.26` across all manifests (`package.json`, `package-lock.json`, `server.json`, `glama.json`, `pyproject.toml`, `src/homebase/__init__.py`, `README.md`, `README_de.md`, `llms.txt`, `MARKETING-LOG.txt`).
+- **LLM Context & Discovery**: Synchronized `llms.txt` Last-checked timestamp to `2026-09-12`.
+
+### Tests & Quality Assurance
+- **Automated Contract Tests**: Expanded `tests/test_metadata.py` with contract tests verifying CI timeout guardrails, PEP 621 extended URLs, gitignore multi-host protections, and release entry integrity.
+
 ## 0.1.0-alpha.25 (Discoverability, Visual Architecture & Invariant Contracts) - 2026-09-10
 
 ### Discoverability & Documentation
