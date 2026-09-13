@@ -26,6 +26,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+dependencies = [
+    "mcp>=1.0.0",
+    "tomli>=2.0; python_version < '3.11'",
+]
+
 [project.urls]
 Homepage = "https://github.com/ellmos-ai/ellmos-homebase-mcp"
 Documentation = "https://github.com/ellmos-ai/ellmos-homebase-mcp#readme"
@@ -39,10 +44,6 @@ Security = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/SECURITY.
 "Marketing Log" = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/MARKETING-LOG.txt"
 "Parent Organization" = "https://github.com/ellmos-ai"
 "Umbrella Ecosystem" = "https://github.com/open-bricks"
-dependencies = [
-    "mcp>=1.0.0",
-    "tomli>=2.0; python_version < '3.11'",
-]
 
 [project.optional-dependencies]
 routing = ["anthropic>=0.39.0", "google-genai>=1.0.0", "requests>=2.31.0"]
