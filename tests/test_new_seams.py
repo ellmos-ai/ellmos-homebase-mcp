@@ -132,6 +132,35 @@ def test_resolve_tickets_root_prefers_env_override(tmp_path, monkeypatch):
     assert engine_seams.resolve_tickets_root() == tickets
 
 
+def test_resolve_tickets_root_follows_the_queue_rename(tmp_path, monkeypatch):
+    """The queue is renamed `_TICKETS` -> `TICKETS` (T-20260906-387521104).
+
+    Folder and the configs pointing at it replicate through OneDrive with
+    their own latency, so a host can have the old name configured while the
+    new one is already on disk. Without tolerance this seam reports "no
+    tickets" -- which reads as an empty queue, not as a wrong path.
+    """
+    monkeypatch.delenv("OneDrive", raising=False)
+    monkeypatch.delenv("ONEDRIVE", raising=False)
+    renamed = tmp_path / "TICKETS"
+    renamed.mkdir()
+    monkeypatch.setenv("HOMEBASE_TICKETS_ROOT", str(tmp_path / "_TICKETS"))
+
+    assert engine_seams.resolve_tickets_root() == renamed
+
+
+def test_resolve_tickets_root_prefers_the_existing_name(tmp_path, monkeypatch):
+    """No redirect while the requested name is there -- the guard stays inert."""
+    monkeypatch.delenv("OneDrive", raising=False)
+    monkeypatch.delenv("ONEDRIVE", raising=False)
+    old = tmp_path / "_TICKETS"
+    old.mkdir()
+    (tmp_path / "TICKETS").mkdir()
+    monkeypatch.setenv("HOMEBASE_TICKETS_ROOT", str(old))
+
+    assert engine_seams.resolve_tickets_root() == old
+
+
 def test_resolve_tickets_root_none_when_nothing_matches(monkeypatch):
     monkeypatch.delenv("HOMEBASE_TICKETS_ROOT", raising=False)
     monkeypatch.delenv("OneDrive", raising=False)
