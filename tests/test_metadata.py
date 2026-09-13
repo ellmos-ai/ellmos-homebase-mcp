@@ -361,3 +361,25 @@ def test_changelog_release_entry_exists():
     content = changelog_file.read_text(encoding="utf-8")
     assert "## 0.1.0-alpha.26" in content
     assert "2026-09-12" in content
+
+
+def test_project_urls_contain_only_urls():
+    """Regression zu T-20260913-506582780.
+
+    Commit aef6642 ("PEP 621 and metadata parity") haengte einen
+    `[project.urls]`-Block direkt vor `dependencies`, wodurch die
+    Abhaengigkeitsliste in die URL-Tabelle rutschte. `pip install -e .` brach
+    danach mit "URL `dependencies` of field `project.urls` must be a string"
+    ab -- ein Fehler, den kein Importtest sieht, weil er erst beim Bauen auftritt.
+    """
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    for name, value in pyproject["project"].get("urls", {}).items():
+        assert isinstance(value, str), f"[project.urls] enthaelt die Nicht-URL {name!r}"
+
+
+def test_runtime_dependencies_are_declared():
+    """Zweite Haelfte desselben Bugs: das Paket stand ohne Laufzeitabhaengigkeiten da."""
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    dependencies = pyproject["project"].get("dependencies", [])
+    assert dependencies, "[project] deklariert keine dependencies"
+    assert any(dep.startswith("mcp") for dep in dependencies)
