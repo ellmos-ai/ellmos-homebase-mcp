@@ -380,25 +380,50 @@ def load_policy_registry(configured_path: str | None = None):
     return module.PolicyRegistry
 
 
+# The queue folder is being renamed from `_TICKETS` to `TICKETS`
+# (T-20260906-387521104). Folder and the configs pointing at it live in
+# OneDrive and replicate with their own latency, so a host can have one name
+# configured and the other on disk. This reader would then simply report "no
+# tickets", which looks like an empty queue rather than a wrong path.
+_QUEUE_ALIASES = {"_TICKETS": "TICKETS", "TICKETS": "_TICKETS"}
+
+
+def _with_queue_alias(path: Path) -> list[Path]:
+    """The path, plus its renamed sibling when the last part is a queue name.
+
+    Order does not decide anything: the caller takes the first candidate that
+    actually exists, so a name that is not there simply costs nothing.
+    """
+    alias_name = _QUEUE_ALIASES.get(path.name)
+    if alias_name is None:
+        return [path]
+    return [path, path.with_name(alias_name)]
+
+
 def resolve_tickets_root(configured_path: str | None = None) -> Path | None:
-    """Return the `_control-center/_TICKETS` folder, or None if unreachable.
+    """Return the ticket queue folder, or None if unreachable.
 
     Deliberately independent of ``resolve_engine_path("ticket", ...)``: "is
     ticket-master's code installed" (a capability/presence check) and
-    "where does the `_TICKETS` lifecycle folder live" (a fixed, well-known
-    OneDrive convention path, documented in `_control-center/_TICKETS/
-    README.md`) are two separate questions -- the folder is not physically
-    under ticket-master's own module directory."""
+    "where does the lifecycle folder live" (a fixed, well-known OneDrive
+    convention path, documented in that folder's own README.md) are two
+    separate questions -- the folder is not physically under ticket-master's
+    own module directory.
+
+    Every source is expanded to both spellings of the queue name while the
+    rename is in flight; the first candidate that exists on disk wins."""
     candidates: list[Path] = []
     env_override = os.environ.get("HOMEBASE_TICKETS_ROOT")
     if env_override:
-        candidates.append(Path(env_override))
+        candidates.extend(_with_queue_alias(Path(env_override)))
     if configured_path:
-        candidates.append(Path(configured_path))
+        candidates.extend(_with_queue_alias(Path(configured_path)))
     one_drive = os.environ.get("OneDrive") or os.environ.get("ONEDRIVE")
     if one_drive:
-        candidates.append(Path(one_drive) / ".TOPICS" / "_control-center" / "_TICKETS")
-    candidates.append(Path("~/OneDrive/.TOPICS/_control-center/_TICKETS").expanduser())
+        base = Path(one_drive) / ".TOPICS" / "_control-center"
+        candidates.extend([base / "TICKETS", base / "_TICKETS"])
+    home_base = Path("~/OneDrive/.TOPICS/_control-center").expanduser()
+    candidates.extend([home_base / "TICKETS", home_base / "_TICKETS"])
     for candidate in candidates:
         path = candidate.expanduser()
         if path.is_dir():
