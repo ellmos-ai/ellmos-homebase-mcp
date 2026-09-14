@@ -2,6 +2,24 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.27 (Discoverability, Comparative Matrix & Visual Architecture) - 2026-09-14
+
+### Discoverability & Documentation
+- **Target Personas & Discoverability Architecture**: Formalized 4 distinct technical personas (`[PERSONA-01]` Local LLM & Edge AI Developers, `[PERSONA-02]` Multi-Agent Swarm Orchestrators & Swarm Architects, `[PERSONA-03]` Enterprise Security & Data Governance Officers, `[PERSONA-04]` Cross-Framework AI Assistants & Pair Programmers) with explicit pain points, value propositions, and sample workflows in `README.md` and `README_de.md`.
+- **10-Dimension Comparative Matrix vs. Alternatives**: Established comprehensive comparative matrix contrasting Homebase against Cloud Memory SaaS (Letta, Pinecone, LangSmith), Generic Memory MCPs (`mcp-server-memory`, `mcp-server-sqlite`), Heavy Agent Frameworks (CrewAI, AutoGen, LangGraph), and Ad-Hoc Scripts across 10 architectural and runtime dimensions (`INV-LOCAL-01` to `INV-SLA-10`).
+- **High-Intent Search & SEO Optimization**: Added bilingual search and discovery keywords targeting local-first LLM orchestration, SQLite WAL memory, stdio MCP transport, and multi-agent team-memory provenance.
+- **Quick Navigation Harmonization**: Synchronized 18-point Quick Navigation in `README.md` and `README_de.md` with 100% cross-lingual slug parity (`#target-personas--discoverability` / `#zielgruppen--auffindbarkeit`, `#comparative-matrix-vs-alternatives` / `#vergleichsmatrix-gegenüber-alternativen`).
+- **Third-Party License Review & Invariant Affirmation**: Updated `THIRD_PARTY_LICENSES.md` to Stand 2026-09-14 with formal affirmation of all 10 Governance & Runtime Invariants and zero-copyleft permissive licensing guarantees (MIT, BSD-2-Clause, Apache-2.0, PSFL).
+- **Marketing Log Synchronization**: Updated `MARKETING-LOG.txt` with Pfad B audit record for 2026-09-14.
+- **Machine-Readable AI Context**: Updated `llms.txt` (`Last-checked: 2026-09-14`) with direct references to Target Personas and Comparative Matrix.
+
+### Manifests & Packaging
+- **Version Harmonization**: Synchronized version `0.1.0-alpha.27` across `package.json`, `package-lock.json`, `server.json`, `glama.json`, `pyproject.toml`, `src/homebase/__init__.py`, `README.md`, `README_de.md`, and `llms.txt`.
+- **Shields.io Badges**: Synchronized status badge to `0.1.0--alpha.27` and test badge to passed count across `README.md` and `README_de.md`.
+
+### Tests & Quality Assurance
+- **Automated Contract Tests**: Expanded `tests/test_metadata.py` with new contract tests verifying Target Personas coverage, 10-dimension comparative matrix integrity, license invariant affirmations, and cross-manifest version synchronization.
+
 ## 0.1.0-alpha.26 (Technical Hygiene, CI Hardening & Metadata Parity) - 2026-09-12
 
 ### CI/CD & Multi-Host Hardening

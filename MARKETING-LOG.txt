@@ -5,9 +5,9 @@ Repository: https://github.com/ellmos-ai/ellmos-homebase-mcp
 Project Name: ellmos-homebase-mcp (Distribution: ellmos-homebase-mcp on npm)
 Umbrella Ecosystem: open-bricks (https://github.com/open-bricks)
 Architecture Domain: Local-First LLM Orchestration & Capability Stack (Stdio MCP Server)
-Audit Date: 2026-09-12
-Version: 0.1.0-alpha.26
-Status: ACTIVE / PFAD A HYGIENE & CI HARDENING MAINTAINED
+Audit Date: 2026-09-14
+Version: 0.1.0-alpha.27
+Status: ACTIVE / PFAD B MARKETING, DISCOVERABILITY & VISUAL ARCHITECTURE HARMONIZED
 ================================================================================
 
 1. PRODUCT IDENTITY & MISSION
@@ -120,4 +120,27 @@ multi-module MCP orchestration server.
       package-lock.json, server.json, glama.json, pyproject.toml, src/homebase/__init__.py,
       README.md, README_de.md, llms.txt, MARKETING-LOG.txt).
     * Automatisierte Vertragstestsuite in tests/test_metadata.py erweitert.
+================================================================================
+
+7. MARKETING & DISCOVERABILITY AUDIT (Pfad B - 2026-09-14)
+--------------------------------------------------------------------------------
+- Version Harmonization: Bumped to 0.1.0-alpha.27 across all package and service manifests
+  (package.json, package-lock.json, server.json, glama.json, pyproject.toml,
+  src/homebase/__init__.py, README.md, README_de.md, llms.txt, THIRD_PARTY_LICENSES.md).
+- Target Personas & Discoverability: Formalized 4 core target personas with explicit needs,
+  value propositions, and real-world workflows in both English and German documentation:
+  * [PERSONA-01] Local LLM & Edge AI Developers (Ollama, Qwen, Llama, zero-cloud orchestration).
+  * [PERSONA-02] Multi-Agent Swarm Orchestrators & Swarm Architects (agent_id attribution, consensus voting).
+  * [PERSONA-03] Enterprise Security & Data Governance Officers (zero egress, MODE-CONTRACT.md, 48h SLA).
+  * [PERSONA-04] Cross-Framework AI Assistants & Pair Programmers (Claude Code, Codex, Antigravity, Cursor).
+- Comparative Matrix vs. Alternatives: Integrated 10-dimension comparison matrix contrasting
+  Homebase against Cloud Memory SaaS (Letta/Pinecone), Generic Memory MCPs (mcp-server-memory),
+  Heavy Agent Frameworks (CrewAI/AutoGen), and Ad-hoc Custom SQLite scripts across INV-LOCAL-01
+  to INV-SLA-10.
+- Quick Navigation Parity: Expanded quick navigation across README.md and README_de.md with
+  100% slug parity (#target-personas--discoverability, #comparative-matrix-vs-alternatives).
+- Third-Party License & Invariant Re-Audit: Upgraded THIRD_PARTY_LICENSES.md to Stand 2026-09-14
+  with formal confirmation of all 10 Governance & Runtime Invariants and Zero-Copyleft affirmation.
+- Automated Contract Test Expansion: Added contract tests in tests/test_metadata.py verifying
+  personas, comparative matrix dimensions, license invariant affirmations, and version synchronization.
 ================================================================================

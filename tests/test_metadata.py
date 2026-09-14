@@ -76,7 +76,7 @@ def test_llms_txt_and_discoverability_parity():
     llms_text = llms_file.read_text(encoding="utf-8")
     assert "ellmos-homebase-mcp" in llms_text
     assert "Canonical repository:" in llms_text
-    assert "Last-checked: 2026-09-12" in llms_text
+    assert "Last-checked: 2026-09-14" in llms_text
 
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
@@ -128,8 +128,33 @@ def test_readme_and_readme_de_quick_navigation_and_mermaid_parity():
     assert "hb_mem_store" in readme_en and "hb_mem_store" in readme_de
 
     # Quick navigation anchors present
-    for anchor in ("#system-architecture", "#sequence-flow--lifecycle", "#core-capabilities--security-invariants", "#start-here", "#mcp-client-configuration", "#tools", "#discovery-context", "#security--vulnerability-reporting"):
+    for anchor in (
+        "#system-architecture",
+        "#sequence-flow--lifecycle",
+        "#core-capabilities--security-invariants",
+        "#target-personas--discoverability",
+        "#comparative-matrix-vs-alternatives",
+        "#start-here",
+        "#mcp-client-configuration",
+        "#tools",
+        "#discovery-context",
+        "#security--vulnerability-reporting",
+    ):
         assert anchor in readme_en, f"Missing anchor {anchor} in README.md"
+
+    for anchor in (
+        "#systemarchitektur",
+        "#sequenzablauf--lebenszyklus",
+        "#kernfähigkeiten--sicherheitsinvarianten",
+        "#zielgruppen--auffindbarkeit",
+        "#vergleichsmatrix-gegenüber-alternativen",
+        "#einstieg",
+        "#mcp-client-konfiguration",
+        "#tools",
+        "#discovery-kontext",
+        "#sicherheit--schwachstellenmeldung",
+    ):
+        assert anchor in readme_de, f"Missing anchor {anchor} in README_de.md"
 
 
 def test_capabilities_and_security_invariants_table_parity():
@@ -344,7 +369,7 @@ def test_glama_metadata_parity():
     glama_file = REPO_ROOT / "glama.json"
     assert glama_file.is_file(), "glama.json must exist"
     data = json.loads(glama_file.read_text(encoding="utf-8"))
-    assert data["version"] == "0.1.0-alpha.26"
+    assert data["version"] == "0.1.0-alpha.27"
     assert data["tools"]["count"] == 51
 
 def test_github_actions_ci_timeout_guardrails():
@@ -359,8 +384,79 @@ def test_changelog_release_entry_exists():
     changelog_file = REPO_ROOT / "CHANGELOG.md"
     assert changelog_file.is_file(), "CHANGELOG.md must exist"
     content = changelog_file.read_text(encoding="utf-8")
+    assert "## 0.1.0-alpha.27" in content
+    assert "2026-09-14" in content
     assert "## 0.1.0-alpha.26" in content
-    assert "2026-09-12" in content
+
+
+def test_target_personas_discoverability_parity():
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+
+    assert "## Target Personas & Discoverability" in readme_en
+    assert "## Zielgruppen & Auffindbarkeit" in readme_de
+
+    for persona in ("[PERSONA-01]", "[PERSONA-02]", "[PERSONA-03]", "[PERSONA-04]"):
+        assert persona in readme_en, f"Missing {persona} in README.md"
+        assert persona in readme_de, f"Missing {persona} in README_de.md"
+
+    assert "Local LLM & Edge AI Developers" in readme_en
+    assert "Entwickler lokaler LLMs & Edge-KI" in readme_de
+    assert "Multi-Agent Swarm Orchestrators & Swarm Architects" in readme_en
+    assert "Enterprise Security & Data Governance Officers" in readme_en
+    assert "Cross-Framework AI Assistants & Pair Programmers" in readme_en
+
+
+def test_comparative_matrix_vs_alternatives_parity():
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+
+    assert "## Comparative Matrix vs. Alternatives" in readme_en
+    assert "## Vergleichsmatrix gegenüber Alternativen" in readme_de
+
+    invariants = [
+        "INV-LOCAL-01",
+        "INV-ENGINE-02",
+        "INV-SEAM-03",
+        "INV-PROV-04",
+        "INV-CRED-05",
+        "INV-STAGE-06",
+        "INV-I18N-07",
+        "INV-PERM-08",
+        "INV-SYNC-09",
+        "INV-SLA-10",
+    ]
+    for inv in invariants:
+        assert inv in readme_en, f"Missing invariant {inv} in README.md comparative matrix"
+        assert inv in readme_de, f"Missing invariant {inv} in README_de.md comparative matrix"
+
+    for alt in ("Cloud Memory SaaS", "Generic Memory MCPs", "Heavy Agent Frameworks"):
+        assert alt in readme_en, f"Missing alternative {alt} in README.md"
+
+
+def test_third_party_licenses_governance_invariants_verification():
+    licenses_file = REPO_ROOT / "THIRD_PARTY_LICENSES.md"
+    assert licenses_file.is_file(), "THIRD_PARTY_LICENSES.md must exist in repository root"
+    content = licenses_file.read_text(encoding="utf-8")
+
+    assert "Stand: 2026-09-14" in content
+    assert "## 10 Governance & Runtime Invariants Verification" in content
+    assert "CONFIRMED / VERIFIED" in content
+    assert "Zero-Copyleft & Permissive Licensing Affirmation" in content
+
+    for inv in [
+        "INV-LOCAL-01",
+        "INV-ENGINE-02",
+        "INV-SEAM-03",
+        "INV-PROV-04",
+        "INV-CRED-05",
+        "INV-STAGE-06",
+        "INV-I18N-07",
+        "INV-PERM-08",
+        "INV-SYNC-09",
+        "INV-SLA-10",
+    ]:
+        assert inv in content, f"Missing invariant {inv} in THIRD_PARTY_LICENSES.md"
 
 
 def test_project_urls_contain_only_urls():

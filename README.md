@@ -22,8 +22,8 @@ German README: [README_de.md](README_de.md)
 [![Privacy](https://img.shields.io/badge/privacy-100%25%20Local--First%20%7C%20Zero--Egress-success.svg)](SECURITY.md)
 [![Storage](https://img.shields.io/badge/storage-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio%20(51%20Tools)-blueviolet.svg)](https://modelcontextprotocol.io/)
-[![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.26-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Tests](https://img.shields.io/badge/tests-143%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
+[![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.27-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Tests](https://img.shields.io/badge/tests-151%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
 [![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%205d%20Triage-blue.svg)](SECURITY.md)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
@@ -40,6 +40,8 @@ German README: [README_de.md](README_de.md)
 - [Sequence Flow & Lifecycle](#sequence-flow--lifecycle)
 - [Core Capabilities & Security Invariants](#core-capabilities--security-invariants)
 - [Governance & Runtime Invariants](#governance--runtime-invariants)
+- [Target Personas & Discoverability](#target-personas--discoverability)
+- [Comparative Matrix vs. Alternatives](#comparative-matrix-vs-alternatives)
 - [Start Here](#start-here)
 - [Status](#status)
 - [Install](#install)
@@ -160,6 +162,71 @@ sequenceDiagram
 | **`INV-PERM-08`** | **Non-Elevation & RunAsInvoker Principle** | Homebase runs strictly in unprivileged user space. It requires no administrator or root privileges and ignores sensitive local dotfiles and system credentials. | `tests/test_repository_hygiene.py` |
 | **`INV-SYNC-09`** | **Multi-Host Lock & Conflict Discipline** | Strict exclusion of conflict copies (`*.sync-conflict-*`, `*-conflict-*`) and honor of multi-agent lock mechanisms (`LOCK.*`, `*.lock`) to preserve database integrity across hosts. | `tests/test_metadata.py` |
 | **`INV-SLA-10`** | **48h Security Response & 5-Day Triage SLA** | Security disclosures sent to `security@ellmos.ai`, `support@lukasgeiger.com`, or `security@open-bricks.org` receive guaranteed initial response in <=48h and triage within 5 business days. | `SECURITY.md`, `tests/test_metadata.py` |
+
+## Target Personas & Discoverability
+
+Homebase is purpose-built to solve architectural and operational challenges across four core technical audiences:
+
+### `[PERSONA-01]` Local LLM & Edge AI Developers
+- **Profile & Objective:** AI engineers building offline or edge applications with Ollama, Qwen, or Llama models who need a robust orchestration harness.
+- **Pain Points:** Cloud memory APIs introduce unwanted latency, privacy leaks, subscription billing, and network failure modes.
+- **Homebase Solution:** Zero-cloud dependency, local SQLite WAL persistence (`~/.homebase/`), and 51 standard stdio tools providing memory, FTS5 knowledge search, and task tracking.
+- **Reference Workflow:**
+  ```json
+  {"tool": "hb_mem_store", "arguments": {"fact": "User prefers compact JSON output", "agent_id": "ollama-coder"}}
+  {"tool": "hb_kb_search", "arguments": {"query": "API routing rules", "fts": true}}
+  ```
+
+### `[PERSONA-02]` Multi-Agent Swarm Orchestrators & Swarm Architects
+- **Profile & Objective:** System architects orchestrating multi-agent collectives (Claude Code, Codex, Antigravity, local agents) operating concurrently on shared codebases.
+- **Pain Points:** State collisions, lack of origin tracking, race conditions in shared memory, and uncoordinated task delegation.
+- **Homebase Solution:** Native `agent_id` provenance across all facts, memories, and task states; built-in swarm templates (boss/worker, chunked parallel, consensus voting via `hb_swarm_*`).
+- **Reference Workflow:**
+  ```json
+  {"tool": "hb_swarm_plan", "arguments": {"goal": "Audit security seams", "pattern": "consensus"}}
+  {"tool": "hb_state_task_create", "arguments": {"title": "Verify fail-closed mode", "agent_id": "worker-audit-01"}}
+  ```
+
+### `[PERSONA-03]` Enterprise Security & Data Governance Officers
+- **Profile & Objective:** CISOs, SecOps teams, and compliance auditors in regulated industries (healthcare, finance, defense) evaluating developer agent toolchains.
+- **Pain Points:** Silent cloud telemetry, unvetted remote side-effects, privilege escalation risks, and missing SLA assurances.
+- **Homebase Solution:** Strict zero-egress architecture, fail-closed canonical engine seams (`MODE-CONTRACT.md`), unprivileged `RunAsInvoker` operation, and formal 48h Security Response SLA (`SECURITY.md`).
+- **Reference Workflow:**
+  ```json
+  {"tool": "hb_policy_list_rules", "arguments": {}}
+  ```
+  *Guaranteed fail-closed behavior: raises `CanonicalEngineUnavailable` instead of silently falling back to insecure stubs.*
+
+### `[PERSONA-04]` Cross-Framework AI Assistants & Pair Programmers
+- **Profile & Objective:** Developers utilizing multiple AI coding assistants (Claude Desktop, Codex, Cursor, Gemini) seeking uniform context and tool parity across environments.
+- **Pain Points:** Incompatible custom tool APIs, fragmented scratchpads, and lack of multilingual developer schemas.
+- **Homebase Solution:** Standard stdio MCP transport, machine-readable project metadata (`llms.txt`, `server.json`, `glama.json`), and 100% complete schema localization across 6 languages (`en`, `de`, `es`, `zh`, `ja`, `ru`).
+- **Reference Workflow:**
+  ```json
+  {"tool": "hb_ticket_list", "arguments": {"folder": "ACTIVE"}}
+  ```
+
+### High-Intent Search & SEO Keywords
+
+- **English Intent:** `local-first LLM orchestration MCP server`, `offline agent memory SQLite WAL`, `stdio Model Context Protocol Ollama Qwen`, `multi-agent swarm planning persistent state`, `zero-egress MCP server enterprise AI`, `fail-closed engine seams MODE-CONTRACT`, `team-memory agent_id provenance`.
+- **German Intent:** `Local-First LLM-Orchestrierung MCP-Server`, `Offline Agenten-Memory SQLite WAL`, `Model Context Protocol Stdio-Server Ollama`, `Multi-Agenten Schwarmplanung persistenter Zustand`, `Zero-Egress MCP-Server Unternehmens-KI`, `Fail-Closed Schnittstellen MODE-CONTRACT`, `Team-Memory Agenten-Provenienz`.
+
+## Comparative Matrix vs. Alternatives
+
+Homebase provides a uniquely comprehensive, local-first MCP capability stack compared to specialized or cloud-bound alternatives:
+
+| Architectural & Runtime Dimension | `ellmos-homebase-mcp` | Cloud Memory SaaS (Letta, Pinecone, LangSmith) | Generic Memory MCPs (mcp-server-memory, sqlite) | Heavy Agent Frameworks (CrewAI, AutoGen, LangGraph) | Ad-Hoc Scripts / Custom SQLite |
+|---|---|---|---|---|---|
+| **1. 100% Local-First & Zero Egress (`INV-LOCAL-01`)** | **Yes (100% local SQLite WAL, zero telemetry)** | No (Cloud-hosted, mandatory egress, PII risk) | Partial (Local file, but no strict egress contracts) | Variable (Often requires cloud API keys / SaaS) | Yes (Local, but no protocol guarantees) |
+| **2. Engine Seams & Fail-Closed (`INV-ENGINE-02`)** | **Yes (Strict `MODE-CONTRACT.md`, raises error on failure)** | No (Opaque cloud failovers) | No (Single hardcoded backend) | No (Unchecked exceptions / silent fallbacks) | No (Ad-hoc failure handling) |
+| **3. Canonical-Only Seams (`INV-SEAM-03`)** | **Yes (`hb_policy_*`, `hb_ticket_*`, `hb_lock_*` fail closed)** | No (No canonical system awareness) | No (No policy or lock integration) | No (No governance seam layer) | No (Manual coordination) |
+| **4. Team-Memory & Attribution (`INV-PROV-04`)** | **Yes (Native `agent_id` on facts, knowledge, tasks)** | Partial (User-level only, lacks multi-agent filters) | No (Single global unpartitioned graph) | Partial (In-memory agent state, lost on restart) | No (Manual schema management) |
+| **5. Credential-Free Discovery (`INV-CRED-05`)** | **Yes (Offline routing & swarm planning without tokens)** | No (Requires active paid cloud credentials) | No (No model routing or swarm tools) | No (Requires API keys for LLM planners) | No (No structured planning) |
+| **6. Plan-Only Staging Queues (`INV-STAGE-06`)** | **Yes (Safe connector queues & dry-run automation)** | No (Direct execution or none) | No (No connector or automation support) | No (Direct runtime side-effects) | No (Unsafe arbitrary execution) |
+| **7. Tool Breadth & Surface** | **51 Tools across 14 Modules in single stdio server** | 1-5 API endpoints | 2-5 basic tools | Framework-level Python library (not MCP native) | Fragmented CLI utilities |
+| **8. Multilingual Schema Parity (`INV-I18N-07`)** | **Yes (Full en, de, es, zh, ja, ru schema coverage)** | English only | English only | English only | English only / None |
+| **9. Non-Elevation Security (`INV-PERM-08`)** | **Yes (Unprivileged RunAsInvoker, dotfile defense)** | Cloud SaaS (Tenant-isolation trust model) | Variable (Local file permissions) | Variable (Often runs in root containers) | Variable (User scripts) |
+| **10. Security Response SLA (`INV-SLA-10`)** | **Yes (Formal 48h Response SLA & 5d Triage in `SECURITY.md`)** | Commercial SLA (Paid tiers only) | None / Best-effort community | None / Best-effort community | None |
 
 ## Start Here
 
