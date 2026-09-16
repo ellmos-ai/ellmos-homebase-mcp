@@ -5,9 +5,9 @@ Repository: https://github.com/ellmos-ai/ellmos-homebase-mcp
 Project Name: ellmos-homebase-mcp (Distribution: ellmos-homebase-mcp on npm)
 Umbrella Ecosystem: open-bricks (https://github.com/open-bricks)
 Architecture Domain: Local-First LLM Orchestration & Capability Stack (Stdio MCP Server)
-Audit Date: 2026-09-14
-Version: 0.1.0-alpha.27
-Status: ACTIVE / PFAD B MARKETING, DISCOVERABILITY & VISUAL ARCHITECTURE HARMONIZED
+Audit Date: 2026-09-16
+Version: 0.1.0-alpha.28
+Status: ACTIVE / PFAD A TECHNICAL HYGIENE & WORKFLOW AUTOMATION HARMONIZED
 ================================================================================
 
 1. PRODUCT IDENTITY & MISSION
@@ -143,4 +143,19 @@ multi-module MCP orchestration server.
   with formal confirmation of all 10 Governance & Runtime Invariants and Zero-Copyleft affirmation.
 - Automated Contract Test Expansion: Added contract tests in tests/test_metadata.py verifying
   personas, comparative matrix dimensions, license invariant affirmations, and version synchronization.
+================================================================================
+
+8. TECHNICAL HYGIENE & WORKFLOW AUTOMATION AUDIT (Pfad A - 2026-09-16)
+--------------------------------------------------------------------------------
+- Version Harmonization: Bumped to 0.1.0-alpha.28 (pyproject.toml PEP 440: 0.1.0a28) across all
+  package and service manifests (package.json, package-lock.json, server.json, glama.json,
+  pyproject.toml, src/homebase/__init__.py, README.md, README_de.md, llms.txt, THIRD_PARTY_LICENSES.md).
+- Stale Automation: Deployed .github/workflows/stale.yml with actions/stale@v9, daily cron 30 1 * * *,
+  runaway protection timeout-minutes: 10, and least-privilege permissions (issues: write, pull-requests: write).
+- Multi-Host Cloud-Sync & Conflict Defense: Hardened .gitignore against multi-host conflict variants
+  (*conflicted copy*, * (Kopie)*, * (Copy)*, *-ASUS*, *-LAPTOP*, *-Mac Studio*) and test caches (.hypothesis/).
+- Date & Context Synchronization: Upgraded THIRD_PARTY_LICENSES.md to Stand: 2026-09-16 and
+  llms.txt to Last-checked: 2026-09-16.
+- Automated Contract Test Expansion: Added contract tests in tests/test_metadata.py verifying
+  stale workflow configuration, least-privilege permissions, and expanded gitignore patterns.
 ================================================================================

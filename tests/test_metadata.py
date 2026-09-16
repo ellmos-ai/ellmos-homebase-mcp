@@ -76,7 +76,7 @@ def test_llms_txt_and_discoverability_parity():
     llms_text = llms_file.read_text(encoding="utf-8")
     assert "ellmos-homebase-mcp" in llms_text
     assert "Canonical repository:" in llms_text
-    assert "Last-checked: 2026-09-14" in llms_text
+    assert "Last-checked: 2026-09-16" in llms_text
 
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
@@ -254,10 +254,16 @@ def test_gitignore_hygiene():
     content = gitignore_path.read_text(encoding="utf-8")
 
     patterns = (
+        "*conflicted copy*",
         "* (kopie)*",
+        "* (Kopie)*",
         "* (copy)*",
+        "* (Copy)*",
         "*-WORKSTATION*",
+        "*-ASUS*",
         "*-ASUS-GEI*",
+        "*-LAPTOP*",
+        "*-Mac Studio*",
         "*.sync-conflict-*",
         "*.conflict",
         "*-CONFLIT-*",
@@ -272,6 +278,7 @@ def test_gitignore_hygiene():
         ".wheel-smoke/",
         "wheelhouse/",
         ".coverage.*",
+        ".hypothesis/",
         ".nyc_output/",
         ".turbo/",
         ".tox/",
@@ -369,7 +376,7 @@ def test_glama_metadata_parity():
     glama_file = REPO_ROOT / "glama.json"
     assert glama_file.is_file(), "glama.json must exist"
     data = json.loads(glama_file.read_text(encoding="utf-8"))
-    assert data["version"] == "0.1.0-alpha.27"
+    assert data["version"] == "0.1.0-alpha.28"
     assert data["tools"]["count"] == 51
 
 def test_github_actions_ci_timeout_guardrails():
@@ -380,13 +387,24 @@ def test_github_actions_ci_timeout_guardrails():
     assert ci_text.count("timeout-minutes: 15") >= 2
 
 
+def test_stale_workflow_hardening():
+    stale_file = REPO_ROOT / ".github" / "workflows" / "stale.yml"
+    assert stale_file.is_file(), "stale.yml must exist"
+    stale_text = stale_file.read_text(encoding="utf-8")
+    assert "actions/stale@v9" in stale_text
+    assert "timeout-minutes: 10" in stale_text
+    assert "issues: write" in stale_text
+    assert "pull-requests: write" in stale_text
+    assert "cron: '30 1 * * *'" in stale_text
+
+
 def test_changelog_release_entry_exists():
     changelog_file = REPO_ROOT / "CHANGELOG.md"
     assert changelog_file.is_file(), "CHANGELOG.md must exist"
     content = changelog_file.read_text(encoding="utf-8")
+    assert "## 0.1.0-alpha.28" in content
+    assert "2026-09-16" in content
     assert "## 0.1.0-alpha.27" in content
-    assert "2026-09-14" in content
-    assert "## 0.1.0-alpha.26" in content
 
 
 def test_target_personas_discoverability_parity():
@@ -439,7 +457,7 @@ def test_third_party_licenses_governance_invariants_verification():
     assert licenses_file.is_file(), "THIRD_PARTY_LICENSES.md must exist in repository root"
     content = licenses_file.read_text(encoding="utf-8")
 
-    assert "Stand: 2026-09-14" in content
+    assert "Stand: 2026-09-16" in content
     assert "## 10 Governance & Runtime Invariants Verification" in content
     assert "CONFIRMED / VERIFIED" in content
     assert "Zero-Copyleft & Permissive Licensing Affirmation" in content

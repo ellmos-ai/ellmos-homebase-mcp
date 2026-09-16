@@ -2,6 +2,21 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.28 (Technical Hygiene, Stale Automation & Cloud-Defense) - 2026-09-16
+
+### CI/CD & Workflow Automation
+- **Stale Issues & PRs Automation**: Added `.github/workflows/stale.yml` running `actions/stale@v9` with daily schedule (`30 1 * * *`), `timeout-minutes: 10` runaway protection, and least-privilege permissions (`issues: write`, `pull-requests: write`).
+
+### Multi-Host Hardening & Defense
+- **Multi-Host .gitignore Defense**: Hardened `.gitignore` against synchronization conflict variants (`*conflicted copy*`, `* (Kopie)*`, `* (Copy)*`, `*-ASUS*`, `*-LAPTOP*`, `*-Mac Studio*`) and testing framework caches (`.hypothesis/`), maintaining strict isolation alongside existing lock and cache boundaries.
+
+### Packaging & Metadata Parity
+- **Version Harmonization**: Bumped to `0.1.0-alpha.28` (PEP 440 `0.1.0a28`) across `package.json`, `package-lock.json`, `server.json`, `glama.json`, `pyproject.toml`, and `src/homebase/__init__.py`.
+- **Badges & Context Parity**: Synchronized status badge to `0.1.0--alpha.28` across `README.md` and `README_de.md`; updated `THIRD_PARTY_LICENSES.md` (`Stand: 2026-09-16`) and `llms.txt` (`Last-checked: 2026-09-16`).
+
+### Tests & Quality Assurance
+- **Automated Contract Tests**: Expanded `tests/test_metadata.py` with tests verifying `stale.yml` workflow presence, actions/stale@v9 pinning, timeout limits, and extended `.gitignore` conflict filters.
+
 ## 0.1.0-alpha.27 (Discoverability, Comparative Matrix & Visual Architecture) - 2026-09-14
 
 ### Discoverability & Documentation

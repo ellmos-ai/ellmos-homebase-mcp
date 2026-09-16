@@ -58,10 +58,16 @@ node_modules/
 .mcpregistry_*
 
 # Multi-Host synchronization conflicts
+*conflicted copy*
 * (kopie)*
+* (Kopie)*
 * (copy)*
+* (Copy)*
 *-WORKSTATION*
+*-ASUS*
 *-ASUS-GEI*
+*-LAPTOP*
+*-Mac Studio*
 *.sync-conflict-*
 *.conflict
 *-CONFLIT-*
@@ -80,6 +86,7 @@ LOCK.permissions.json
 .wheel-smoke/
 wheelhouse/
 .coverage.*
+.hypothesis/
 .nyc_output/
 .turbo/
 .tox/
