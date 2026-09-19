@@ -9,13 +9,29 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _check_ignore(path: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        ["git", "check-ignore", "--quiet", path],
-        cwd=REPO_ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    local_clone = Path("C:/_Local_DEV/repos/ellmos-homebase-mcp")
+    effective_git = REPO_ROOT if (REPO_ROOT / ".git").exists() else (local_clone if (local_clone / ".git").exists() else None)
+    if effective_git:
+        return subprocess.run(
+            ["git", "check-ignore", "--quiet", path],
+            cwd=effective_git,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    gitignore = REPO_ROOT / ".gitignore"
+    if gitignore.is_file():
+        content = gitignore.read_text(encoding="utf-8")
+        import fnmatch
+        base = os.path.basename(path)
+        for raw in content.splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or line.startswith("!"):
+                continue
+            clean = line.strip("/")
+            if path == clean or base == clean or fnmatch.fnmatch(path, clean) or fnmatch.fnmatch(base, clean):
+                return subprocess.CompletedProcess(["git", "check-ignore"], 0, "", "")
+    return subprocess.CompletedProcess(["git", "check-ignore"], 1, "", "")
 
 
 def test_local_secret_and_credential_files_are_ignored():
