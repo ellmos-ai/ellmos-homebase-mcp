@@ -1,6 +1,6 @@
 # Third-Party License Review
 
-Stand: 2026-09-16.
+Stand: 2026-09-21.
 
 ## Runtime dependencies
 
@@ -10,7 +10,7 @@ Stand: 2026-09-16.
 | `mcp` | >=1.0.0 | MIT | Model Context Protocol Python SDK (stdio protocol transport and types) |
 | `tomli` | >=2.0 | MIT | TOML parser for Python < 3.11 (Python standard library tomllib used for 3.11+) |
 
-The npm package does not vendor Node dependencies; they are resolved and installed by npm from their respective registry entries. Python dependencies are declared in `pyproject.toml` and resolved via pip.
+The npm package does not vendor Node dependencies; they are resolved and installed by npm from their respective registry entries. Python dependencies are declared in `pyproject.toml` and resolved via pip. The Python package metadata explicitly declares license files in `pyproject.toml` via `license-files = ["LICENSE", "THIRD_PARTY_LICENSES.md"]` conforming to the PEP 639 standard.
 
 ## Standard Library Dependencies
 
@@ -59,7 +59,7 @@ All runtime components and architectural dependencies enforce the following 10 i
 | `INV-I18N-07` | Native Multilingual Schema Parity | CONFIRMED / VERIFIED | 51 tools localized across 6 languages (en, de, es, zh, ja, ru) |
 | `INV-PERM-08` | Non-Elevation & RunAsInvoker Principle | CONFIRMED / VERIFIED | Unprivileged user space execution, dotfile immunity |
 | `INV-SYNC-09` | Multi-Host Lock & Conflict Discipline | CONFIRMED / VERIFIED | Exclusion of `*.sync-conflict-*`, honor of `LOCK.*` |
-| `INV-SLA-10` | 48h Security Response & 5-Day Triage SLA | CONFIRMED / VERIFIED | Bilingual `SECURITY.md`, dedicated response channels |
+| `INV-SLA-10` | 48h Response, 5-Day Triage & 30-Day Remediation SLA | CONFIRMED / VERIFIED | Bilingual `SECURITY.md`, dedicated response channels |
 
 ## Zero-Copyleft & Permissive Licensing Affirmation
 

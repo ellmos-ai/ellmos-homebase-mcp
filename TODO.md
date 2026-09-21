@@ -1,6 +1,6 @@
 # ellmos-homebase-mcp — Entwicklungsziele (TODO)
 
-> Stand: 2026-07-11. Diese Datei hält die strategische Entwicklungsrichtung fest, damit
+> Stand: 2026-09-20. Diese Datei hält die strategische Entwicklungsrichtung fest, damit
 > homebase gezielt zum **gemeinsamen Gedächtnis des KI-Teams** (Claude, Codex, Gemini, Kimi,
 > lokale LLMs via BACH/Buddha) ausgebaut wird. Grundlage: Vergleichsanalyse der drei
 > Shared-Memory-Ansätze (BACH-Shared-Memory, USMC, homebase) vom 2026-06-17.
@@ -34,13 +34,14 @@
       Erledigt 2026-06-18: `connect_db()` setzt `timeout=30.0`, `PRAGMA journal_mode=WAL`,
       `PRAGMA busy_timeout=30000` und `PRAGMA foreign_keys=ON`.
 
-- [ ] **`hb_mem` auf USMC als Backend umstellen, statt eigener Reimplementierung.**
-      Die `KONZEPT.md` nennt USMC als Quelle, der Code reimplementiert die Memory aber selbst.
-      Stattdessen `usmc.USMCClient` als Storage-Engine einbinden → erbt automatisch `agent_id`,
-      Confidence-Merge, `get_changes_since()` (Delta-Sync) und die 50 grünen Tests.
-      Homebase liefert dann nur noch den MCP-Wrapper. Das ist die saubere Schichtung:
-      **USMC = Engine, homebase = MCP-Frontend.**
-      → Voraussetzung: USMC vorher als Dependency paketieren (PyPI-Publish oder vendored).
+- [x] **`hb_mem` auf USMC als Backend umstellen, statt eigener Reimplementierung.**
+      Erledigt 2026-07-23: `hb_mem_store`, `hb_mem_query` und `hb_mem_context` delegieren
+      im `canonical`-Modus an `usmc.USMCClient`; Kategorie-Reconciliation, clientseitige
+      Query-Filterung und per-Aufruf-`agent_id` sind im Seam dokumentiert und getestet.
+      `hb_mem_merge` und `hb_mem_consolidate` bleiben bewusst bundled-only Bulk-Hygiene
+      und melden im canonical-Modus `not_supported`. Die frühere Annahme einer sofortigen
+      PyPI-/Vendoring-Voraussetzung ist durch den GitHub-first-Distributionsentscheid
+      überholt; verbleibende Distribution ist Folgearbeit, nicht diese Seam-Aufgabe.
 
 ## P1 — Gegen Overflow + tatsächliche Nutzung
 

@@ -76,7 +76,7 @@ def test_llms_txt_and_discoverability_parity():
     llms_text = llms_file.read_text(encoding="utf-8")
     assert "ellmos-homebase-mcp" in llms_text
     assert "Canonical repository:" in llms_text
-    assert "Last-checked: 2026-09-16" in llms_text
+    assert "Last-checked: 2026-09-21" in llms_text
 
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
@@ -206,6 +206,8 @@ def test_security_policy_sla_and_reporting_contracts():
 
     assert "48 hours" in content
     assert "48 Stunden" in content
+    assert "30 calendar days" in content
+    assert "30 Kalendertagen" in content
     assert "support@lukasgeiger.com" in content
     assert "security@ellmos.ai" in content
     assert "Security Advisories" in content
@@ -285,6 +287,16 @@ def test_gitignore_hygiene():
         "*.tmp",
         "*.bak",
         "*.orig",
+        "*.rej",
+        "*.crt",
+        "*.cert",
+        "*.csr",
+        "id_rsa*",
+        "id_ed25519*",
+        "*.token",
+        "*.secret",
+        "*secret*.json",
+        "CONFLICT_REVIEW_LOG*",
         "Thumbs.db",
         ".DS_Store",
     )
@@ -376,7 +388,7 @@ def test_glama_metadata_parity():
     glama_file = REPO_ROOT / "glama.json"
     assert glama_file.is_file(), "glama.json must exist"
     data = json.loads(glama_file.read_text(encoding="utf-8"))
-    assert data["version"] == "0.1.0-alpha.28"
+    assert data["version"] == "0.1.0-alpha.29"
     assert data["tools"]["count"] == 51
 
 def test_github_actions_ci_timeout_guardrails():
@@ -402,9 +414,9 @@ def test_changelog_release_entry_exists():
     changelog_file = REPO_ROOT / "CHANGELOG.md"
     assert changelog_file.is_file(), "CHANGELOG.md must exist"
     content = changelog_file.read_text(encoding="utf-8")
+    assert "## 0.1.0-alpha.29" in content
+    assert "2026-09-21" in content
     assert "## 0.1.0-alpha.28" in content
-    assert "2026-09-16" in content
-    assert "## 0.1.0-alpha.27" in content
 
 
 def test_target_personas_discoverability_parity():
@@ -457,7 +469,8 @@ def test_third_party_licenses_governance_invariants_verification():
     assert licenses_file.is_file(), "THIRD_PARTY_LICENSES.md must exist in repository root"
     content = licenses_file.read_text(encoding="utf-8")
 
-    assert "Stand: 2026-09-16" in content
+    assert "Stand: 2026-09-21" in content
+    assert "PEP 639" in content
     assert "## 10 Governance & Runtime Invariants Verification" in content
     assert "CONFIRMED / VERIFIED" in content
     assert "Zero-Copyleft & Permissive Licensing Affirmation" in content
@@ -497,3 +510,39 @@ def test_runtime_dependencies_are_declared():
     dependencies = pyproject["project"].get("dependencies", [])
     assert dependencies, "[project] deklariert keine dependencies"
     assert any(dep.startswith("mcp") for dep in dependencies)
+
+
+def test_pep639_license_files_metadata():
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    project = pyproject.get("project", {})
+    license_files = project.get("license-files", [])
+    assert "LICENSE" in license_files, "LICENSE must be declared in [project].license-files"
+    assert "THIRD_PARTY_LICENSES.md" in license_files, "THIRD_PARTY_LICENSES.md must be declared in [project].license-files"
+
+
+def test_security_hygiene_zero_hardcoded_secrets_and_personal_paths():
+    secret_patterns = [
+        re.compile(r"""(?:api[_-]?key|secret|token|password|auth[_-]?token)\s*[:=]\s*["'][A-Za-z0-9_\-]{20,}["']""", re.IGNORECASE),
+        re.compile(r"""-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"""),
+        re.compile(r"""ghp_[A-Za-z0-9]{36}"""),
+        re.compile(r"""xox[baprs]-[A-Za-z0-9\-]{10,}"""),
+    ]
+    path_pattern = re.compile(r"""[A-Za-z]:[\\/]Users[\\/][A-Za-z0-9_.\-]+""", re.IGNORECASE)
+
+    ignored_dirs = {".git", ".pytest_cache", ".ruff_cache", "node_modules", "__pycache__"}
+    ignored_suffixes = {".png", ".jpg", ".jpeg", ".gif", ".ico", ".woff", ".woff2", ".ttf", ".eot", ".db", ".sqlite", ".pyc"}
+
+    for path in REPO_ROOT.rglob("*"):
+        if not path.is_file():
+            continue
+        if any(part in ignored_dirs for part in path.parts):
+            continue
+        if path.suffix in ignored_suffixes:
+            continue
+        if path.name == "test_metadata.py":
+            continue
+
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for pattern in secret_patterns:
+            assert not pattern.search(text), f"Potential hardcoded secret in {path.relative_to(REPO_ROOT)}"
+        assert not path_pattern.search(text), f"Hardcoded developer personal path in {path.relative_to(REPO_ROOT)}"

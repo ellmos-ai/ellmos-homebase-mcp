@@ -22,9 +22,9 @@ German README: [README_de.md](README_de.md)
 [![Privacy](https://img.shields.io/badge/privacy-100%25%20Local--First%20%7C%20Zero--Egress-success.svg)](SECURITY.md)
 [![Storage](https://img.shields.io/badge/storage-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio%20(51%20Tools)-blueviolet.svg)](https://modelcontextprotocol.io/)
-[![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.28-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Tests](https://img.shields.io/badge/tests-152%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
-[![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%205d%20Triage-blue.svg)](SECURITY.md)
+[![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.29-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Tests](https://img.shields.io/badge/tests-154%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
+[![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%2030d%20Remediation-blue.svg)](SECURITY.md)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -161,7 +161,7 @@ sequenceDiagram
 | **`INV-I18N-07`** | **Native Multilingual Schema Parity** | All 51 tool definitions, input schemas, and validation errors maintain 100% complete localization across 6 supported languages (`en`, `de`, `es`, `zh`, `ja`, `ru`). | `tests/test_i18n_completeness.py` |
 | **`INV-PERM-08`** | **Non-Elevation & RunAsInvoker Principle** | Homebase runs strictly in unprivileged user space. It requires no administrator or root privileges and ignores sensitive local dotfiles and system credentials. | `tests/test_repository_hygiene.py` |
 | **`INV-SYNC-09`** | **Multi-Host Lock & Conflict Discipline** | Strict exclusion of conflict copies (`*.sync-conflict-*`, `*-conflict-*`) and honor of multi-agent lock mechanisms (`LOCK.*`, `*.lock`) to preserve database integrity across hosts. | `tests/test_metadata.py` |
-| **`INV-SLA-10`** | **48h Security Response & 5-Day Triage SLA** | Security disclosures sent to `security@ellmos.ai`, `support@lukasgeiger.com`, or `security@open-bricks.org` receive guaranteed initial response in <=48h and triage within 5 business days. | `SECURITY.md`, `tests/test_metadata.py` |
+| **`INV-SLA-10`** | **48h Response, 5-Day Triage & 30-Day Remediation SLA** | Security disclosures sent to `security@ellmos.ai`, `support@lukasgeiger.com`, or `security@open-bricks.org` receive guaranteed initial response in <=48h, triage within 5 business days, and verified remediation within 30 calendar days. | `SECURITY.md`, `tests/test_metadata.py` |
 
 ## Target Personas & Discoverability
 
@@ -226,7 +226,7 @@ Homebase provides a uniquely comprehensive, local-first MCP capability stack com
 | **7. Tool Breadth & Surface** | **51 Tools across 14 Modules in single stdio server** | 1-5 API endpoints | 2-5 basic tools | Framework-level Python library (not MCP native) | Fragmented CLI utilities |
 | **8. Multilingual Schema Parity (`INV-I18N-07`)** | **Yes (Full en, de, es, zh, ja, ru schema coverage)** | English only | English only | English only | English only / None |
 | **9. Non-Elevation Security (`INV-PERM-08`)** | **Yes (Unprivileged RunAsInvoker, dotfile defense)** | Cloud SaaS (Tenant-isolation trust model) | Variable (Local file permissions) | Variable (Often runs in root containers) | Variable (User scripts) |
-| **10. Security Response SLA (`INV-SLA-10`)** | **Yes (Formal 48h Response SLA & 5d Triage in `SECURITY.md`)** | Commercial SLA (Paid tiers only) | None / Best-effort community | None / Best-effort community | None |
+| **10. Security Response SLA (`INV-SLA-10`)** | **Yes (Formal 48h Response, 5d Triage & 30d Remediation in `SECURITY.md`)** | Commercial SLA (Paid tiers only) | None / Best-effort community | None / Best-effort community | None |
 
 ## Start Here
 

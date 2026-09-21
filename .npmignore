@@ -45,3 +45,8 @@ id_dsa
 *.p12
 *.pfx
 *.kdbx
+*.crt
+*.cert
+*.csr
+*.token
+*.secret

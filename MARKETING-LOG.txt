@@ -5,9 +5,9 @@ Repository: https://github.com/ellmos-ai/ellmos-homebase-mcp
 Project Name: ellmos-homebase-mcp (Distribution: ellmos-homebase-mcp on npm)
 Umbrella Ecosystem: open-bricks (https://github.com/open-bricks)
 Architecture Domain: Local-First LLM Orchestration & Capability Stack (Stdio MCP Server)
-Audit Date: 2026-09-16
-Version: 0.1.0-alpha.28
-Status: ACTIVE / PFAD A TECHNICAL HYGIENE & WORKFLOW AUTOMATION HARMONIZED
+Audit Date: 2026-09-21
+Version: 0.1.0-alpha.29
+Status: ACTIVE / AI SECURITY & DEPENDENCY AUDIT COMPLETED
 ================================================================================
 
 1. PRODUCT IDENTITY & MISSION
@@ -158,4 +158,21 @@ multi-module MCP orchestration server.
   llms.txt to Last-checked: 2026-09-16.
 - Automated Contract Test Expansion: Added contract tests in tests/test_metadata.py verifying
   stale workflow configuration, least-privilege permissions, and expanded gitignore patterns.
+================================================================================
+
+9. AI SECURITY, DEPENDENCY & LICENSE HARDENING AUDIT (2026-09-21)
+--------------------------------------------------------------------------------
+- PEP 639 Standard Metadata: Formally declared license-files = ["LICENSE", "THIRD_PARTY_LICENSES.md"]
+  in pyproject.toml and documented packaging invariants.
+- 30-Day Remediation SLA: Formalized 30-day vulnerability remediation commitment in SECURITY.md
+  (English and German) and synchronized INV-SLA-10 across README.md, README_de.md, and THIRD_PARTY_LICENSES.md.
+- Multi-Host & Credential Gitignore Hardening: Expanded .gitignore with certificates (*.crt, *.cert,
+  *.csr), SSH wildcard patterns (id_rsa*, id_ed25519*), generic secret tokens (*.token, *.secret,
+  *secret*.json), merge reject files (*.rej), and multi-host review logs (CONFLICT_REVIEW_LOG*).
+- Zero Secrets & Hardcoded Paths: AST/regex scan verified 0 credentials, 0 private keys, and 0 personal paths.
+- Manifest & Packaging Parity: Bumped version to 0.1.0-alpha.29 (pyproject.toml 0.1.0a29) across
+  package.json, package-lock.json, server.json, glama.json, pyproject.toml, src/homebase/__init__.py,
+  README.md, README_de.md, llms.txt, and THIRD_PARTY_LICENSES.md (Stand: 2026-09-21).
+- Automated Contract Test Expansion: Expanded tests/test_metadata.py with assertions verifying PEP 639
+  metadata, 30d remediation SLA, and extended gitignore credential protections.
 ================================================================================

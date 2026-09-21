@@ -2,6 +2,21 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## 0.1.0-alpha.29 (AI Security, Dependency & License Hardening) - 2026-09-21
+
+### Security & Governance
+- **PEP 639 Standard Metadata**: Formally declared `license-files = ["LICENSE", "THIRD_PARTY_LICENSES.md"]` in `pyproject.toml` and documented packaging invariants.
+- **30-Day Remediation SLA**: Formalized 30-day vulnerability remediation commitment in `SECURITY.md` (English and German) and synchronized `INV-SLA-10` across `README.md`, `README_de.md`, and `THIRD_PARTY_LICENSES.md`.
+- **Gitignore & Npmignore Hardening**: Expanded `.gitignore` and `.npmignore` with certificates (`*.crt`, `*.cert`, `*.csr`), SSH wildcard patterns (`id_rsa*`, `id_ed25519*`, `id_ecdsa*`, `id_dsa*`), generic secret tokens (`*.token`, `*.secret`, `*secret*.json`), merge reject files (`*.rej`), and multi-host review logs (`CONFLICT_REVIEW_LOG*`).
+- **Zero-Secret & Path Verification**: Automated AST/regex scan verified 0 hardcoded credentials, 0 private keys, and 0 personal paths across all repository files.
+
+### Packaging & Metadata Parity
+- **Version Harmonization**: Bumped to `0.1.0-alpha.29` (PEP 440 `0.1.0a29`) across `package.json`, `package-lock.json`, `server.json`, `glama.json`, `pyproject.toml`, and `src/homebase/__init__.py`.
+- **Badges & Context Parity**: Synchronized status badges in `README.md` and `README_de.md`; updated `THIRD_PARTY_LICENSES.md` (`Stand: 2026-09-21`), `llms.txt` (`Last-checked: 2026-09-21`), and `MARKETING-LOG.txt`.
+
+### Tests & Quality Assurance
+- **Automated Contract Tests**: Expanded `tests/test_metadata.py` with contract tests verifying PEP 639 license-files declaration, 30-day remediation SLA in `SECURITY.md`, hardened `.gitignore` rules, and AST-based secret and path absence.
+
 ## 0.1.0-alpha.28 (Technical Hygiene, Stale Automation & Cloud-Defense) - 2026-09-16
 
 ### CI/CD & Workflow Automation

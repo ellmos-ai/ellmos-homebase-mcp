@@ -23,9 +23,9 @@ Englische Standard-README: [README.md](README.md)
 [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Local--First%20%7C%20Zero--Egress-success.svg)](SECURITY.md)
 [![Speicher](https://img.shields.io/badge/speicher-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio%20(51%20Tools)-blueviolet.svg)](https://modelcontextprotocol.io/)
-[![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.28-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Tests](https://img.shields.io/badge/tests-152%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
-[![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%205d%20Triage-blue.svg)](SECURITY.md)
+[![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.29-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
+[![Tests](https://img.shields.io/badge/tests-154%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
+[![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%2030d%20Remediation-blue.svg)](SECURITY.md)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -162,7 +162,7 @@ sequenceDiagram
 | **`INV-I18N-07`** | **Vollständige native Lokalisierungs-Parität** | Alle 51 Tool-Definitionen, Input-Schemas und Fehlermeldungen bieten vollständige Parität über 6 Sprachen (`en`, `de`, `es`, `zh`, `ja`, `ru`) mit englischem Fallback. | `tests/test_i18n_completeness.py` |
 | **`INV-PERM-08`** | **Nicht-Privilegiertes RunAsInvoker-Prinzip** | Homebase läuft strikt im unprivilegierten Anwendermodus (Non-Elevation). Keine Administrator-Rechte erforderlich; sensible Host-Dateien werden ignoriert. | `tests/test_repository_hygiene.py` |
 | **`INV-SYNC-09`** | **Multi-Host Lock- & Konfliktkopien-Disziplin** | Strikter Ausschluss von Konfliktkopien (`*.sync-conflict-*`, `*-conflict-*`) und Einhaltung von Multi-Agenten-Locks (`LOCK.*`, `*.lock`) zum Schutz der lokalen Datenbank. | `tests/test_metadata.py` |
-| **`INV-SLA-10`** | **48h Sicherheitsreaktions- & 5-Tage-Triage-SLA** | Sicherheitsmeldungen an `security@ellmos.ai`, `support@lukasgeiger.com` oder `security@open-bricks.org` erhalten eine garantierte Antwort binnen 48h und Triage in 5 Werktagen. | `SECURITY.md`, `tests/test_metadata.py` |
+| **`INV-SLA-10`** | **48h Sicherheitsreaktions-, 5-Tage-Triage- & 30-Tage-Behebungs-SLA** | Sicherheitsmeldungen an `security@ellmos.ai`, `support@lukasgeiger.com` oder `security@open-bricks.org` erhalten eine garantierte Antwort binnen 48h, Triage in 5 Werktagen und bestätigte Behebung binnen 30 Kalendertagen. | `SECURITY.md`, `tests/test_metadata.py` |
 
 ## Zielgruppen & Auffindbarkeit
 
@@ -227,7 +227,7 @@ Homebase bietet im Vergleich zu spezialisierten Einzellösungen oder reinen Clou
 | **7. Tool-Vielfalt & Oberfläche** | **51 Tools über 14 Module in einem einzigen stdio-Server** | 1-5 API-Endpunkte | 2-5 einfache Tools | Python-Bibliothek (nicht primär MCP-nativ) | Fragmentierte CLI-Skripte |
 | **8. Mehrsprachige Schema-Parität (`INV-I18N-07`)** | **Ja (Vollständige Abdeckung für en, de, es, zh, ja, ru)** | Nur Englisch | Nur Englisch | Nur Englisch | Nur Englisch / Keine |
 | **9. Non-Elevation-Sicherheit (`INV-PERM-08`)** | **Ja (Unprivilegiertes RunAsInvoker, Schutz vor Systemdateien)** | Cloud SaaS (Vertrauen auf Mandanten-Isolation) | Variabel (Lokale Dateirechte) | Variabel (Läuft oft in privilegierten Containern) | Variabel (Benutzerskripte) |
-| **10. Sicherheitsreaktions-SLA (`INV-SLA-10`)** | **Ja (Verbindliches 48h Response SLA & 5d Triage in `SECURITY.md`)** | Kommerzielles SLA (Nur in Enterprise-Tarifen) | Keine / Best-effort Community | Keine / Best-effort Community | Keine |
+| **10. Sicherheitsreaktions-SLA (`INV-SLA-10`)** | **Ja (Verbindliches 48h Response, 5d Triage & 30d Behebungs-SLA in `SECURITY.md`)** | Kommerzielles SLA (Nur in Enterprise-Tarifen) | Keine / Best-effort Community | Keine / Best-effort Community | Keine |
 
 ## Einstieg
 

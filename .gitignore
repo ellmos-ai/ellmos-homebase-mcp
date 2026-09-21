@@ -9,11 +9,14 @@ config/*.local.toml
 *.secret.toml
 secrets.json
 secrets.*.json
+*secret*.json
 credentials.json
 credentials.*.json
 token.json
 tokens.json
 *.token.json
+*.token
+*.secret
 .npmrc
 .pypirc
 *recovery*codes*.txt
@@ -31,10 +34,13 @@ tokens.json
 *.p12
 *.pfx
 *.kdbx
-id_rsa
-id_ed25519
-id_ecdsa
-id_dsa
+*.crt
+*.cert
+*.csr
+id_rsa*
+id_ed25519*
+id_ecdsa*
+id_dsa*
 
 # Python build and test artifacts
 __pycache__/
@@ -73,6 +79,7 @@ node_modules/
 *-CONFLIT-*
 *-conflict-*
 *.sync-temp-*
+CONFLICT_REVIEW_LOG*
 
 # Multi-Agent and lock artifacts
 LOCK
@@ -96,6 +103,7 @@ wheelhouse/
 *.bak
 *.swp
 *.orig
+*.rej
 *~
 
 # Operating system files
