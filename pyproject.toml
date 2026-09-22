@@ -68,7 +68,7 @@ packages = ["src/homebase"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
-addopts = "-ra -v"
+addopts = "-ra -v --basetemp=.pytest_tmp"
 
 [tool.ruff]
 line-length = 120

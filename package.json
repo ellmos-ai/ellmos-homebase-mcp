@@ -54,7 +54,7 @@
     "ellmos"
   ],
   "scripts": {
-    "test": "python -m pytest -ra -v",
+    "test": "python -m pytest -ra -v --basetemp=.pytest_tmp",
     "smoke": "node bin/ellmos-homebase.js --version"
   },
   "engines": {
