@@ -10,11 +10,12 @@ Homebase is designed primarily for **local LLMs** (Ollama, Qwen, Llama, or any l
 
 German README: [README_de.md](README_de.md)
 
-*Part of the [ellmos-ai](https://github.com/ellmos-ai) family.*
+*Part of the [ellmos-ai](https://github.com/ellmos-ai) family under the [open-bricks](https://github.com/open-bricks) umbrella.*
 
 [![Ecosystem: open-bricks](https://img.shields.io/badge/Ecosystem-open--bricks-blue.svg)](https://github.com/open-bricks)
 [![Organization: ellmos-ai](https://img.shields.io/badge/Organization-ellmos--ai-blue.svg)](https://github.com/ellmos-ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Attribution: NOTICE](https://img.shields.io/badge/Attribution-NOTICE-informational.svg)](NOTICE)
 [![npm version](https://img.shields.io/npm/v/ellmos-homebase-mcp.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
 [![Python Matrix](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
@@ -25,6 +26,8 @@ German README: [README_de.md](README_de.md)
 [![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.29-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
 [![Tests](https://img.shields.io/badge/tests-154%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
 [![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%2030d%20Remediation-blue.svg)](SECURITY.md)
+[![Security: RunAsInvoker](https://img.shields.io/badge/security-RunAsInvoker%20(Non--Elevation)-success.svg)](SECURITY.md)
+[![Audit](https://img.shields.io/badge/audit-verified%202026--09--23-brightgreen.svg)](MARKETING-LOG.txt)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -36,27 +39,29 @@ German README: [README_de.md](README_de.md)
 
 ## Quick Navigation / Schnellnavigation
 
-- [System Architecture](#system-architecture)
-- [Sequence Flow & Lifecycle](#sequence-flow--lifecycle)
-- [Core Capabilities & Security Invariants](#core-capabilities--security-invariants)
-- [Governance & Runtime Invariants](#governance--runtime-invariants)
-- [Target Personas & Discoverability](#target-personas--discoverability)
-- [Comparative Matrix vs. Alternatives](#comparative-matrix-vs-alternatives)
-- [Start Here](#start-here)
-- [Status](#status)
-- [Install](#install)
-- [MCP Client Configuration](#mcp-client-configuration)
-- [Server Configuration](#server-configuration)
-- [Tools](#tools)
-- [Discovery Context](#discovery-context)
-- [ellmos-ai Ecosystem](#ellmos-ai-ecosystem)
-- [Third-Party Licenses (THIRD_PARTY_LICENSES.md)](THIRD_PARTY_LICENSES.md)
-- [Marketing Log (MARKETING-LOG.txt)](MARKETING-LOG.txt)
-- [Security & Vulnerability Reporting](#security--vulnerability-reporting)
-- [Development](#development)
-- [Changelog (CHANGELOG.md)](CHANGELOG.md)
-- [Deutsche Version (README_de.md)](README_de.md)
+- [System Architecture](#system-architecture) (`#sec-01`)
+- [Sequence Flow & Lifecycle](#sequence-flow--lifecycle) (`#sec-02`)
+- [Core Capabilities & Security Invariants](#core-capabilities--security-invariants) (`#sec-03`)
+- [Governance & Runtime Invariants](#governance--runtime-invariants) (`#sec-04`)
+- [Target Personas & Discoverability](#target-personas--discoverability) (`#sec-05`)
+- [Comparative Matrix vs. Alternatives](#comparative-matrix-vs-alternatives) (`#sec-06`)
+- [Start Here](#start-here) (`#sec-07`)
+- [Status](#status) (`#sec-08`)
+- [Install](#install) (`#sec-09`)
+- [MCP Client Configuration](#mcp-client-configuration) (`#sec-10`)
+- [Server Configuration](#server-configuration) (`#sec-11`)
+- [Tools](#tools) (`#sec-12`)
+- [Discovery Context](#discovery-context) (`#sec-13`)
+- [ellmos-ai Ecosystem](#ellmos-ai-ecosystem) (`#sec-14`)
+- [Third-Party Licenses (THIRD_PARTY_LICENSES.md)](THIRD_PARTY_LICENSES.md) (`#sec-15`)
+- [Security & Vulnerability Reporting](#security--vulnerability-reporting) (`#sec-16`)
+- [Development](#development) (`#sec-17`)
+- [License & Statutory Liability Disclaimer (§ 521 BGB)](#license--statutory-disclaimer) (`#sec-18`)
+- [Marketing Log (MARKETING-LOG.txt)](MARKETING-LOG.txt) | [Changelog (CHANGELOG.md)](CHANGELOG.md) | [Legal Attribution (NOTICE)](NOTICE) | [Deutsche Version (README_de.md)](README_de.md)
 
+---
+
+<a id="sec-01"></a><a id="system-architecture"></a>
 ## System Architecture
 
 ```mermaid
@@ -104,6 +109,9 @@ flowchart TD
     ToolGroups --> DB
 ```
 
+---
+
+<a id="sec-02"></a><a id="sequence-flow--lifecycle"></a>
 ## Sequence Flow & Lifecycle
 
 ```mermaid
@@ -135,6 +143,9 @@ sequenceDiagram
     Stdio-->>Client: Result payload (Zero cloud egress, 100% local)
 ```
 
+---
+
+<a id="sec-03"></a><a id="core-capabilities--security-invariants"></a>
 ## Core Capabilities & Security Invariants
 
 | Capability / Invariant | Guarantee | Technical Implementation |
@@ -148,6 +159,9 @@ sequenceDiagram
 | **Non-Elevation & Secret Hygiene** | Unprivileged execution and strict credential exclusion from distribution. | Non-root compatibility; live configs/secrets ignored in `.gitignore` and `.npmignore`. |
 | **Multi-OS CI Smoke Integrity** | Verified cross-platform reliability on all major operating systems. | Multi-version CI matrix covering Python 3.10–3.13 and Node.js 20–24 on Linux/Windows/macOS. |
 
+---
+
+<a id="sec-04"></a><a id="governance--runtime-invariants"></a>
 ## Governance & Runtime Invariants
 
 | Invariant ID | Title & Scope | Guarantee & Technical Enforcement | Verification Seam |
@@ -163,6 +177,9 @@ sequenceDiagram
 | **`INV-SYNC-09`** | **Multi-Host Lock & Conflict Discipline** | Strict exclusion of conflict copies (`*.sync-conflict-*`, `*-conflict-*`) and honor of multi-agent lock mechanisms (`LOCK.*`, `*.lock`) to preserve database integrity across hosts. | `tests/test_metadata.py` |
 | **`INV-SLA-10`** | **48h Response, 5-Day Triage & 30-Day Remediation SLA** | Security disclosures sent to `security@ellmos.ai`, `support@lukasgeiger.com`, or `security@open-bricks.org` receive guaranteed initial response in <=48h, triage within 5 business days, and verified remediation within 30 calendar days. | `SECURITY.md`, `tests/test_metadata.py` |
 
+---
+
+<a id="sec-05"></a><a id="target-personas--discoverability"></a>
 ## Target Personas & Discoverability
 
 Homebase is purpose-built to solve architectural and operational challenges across four core technical audiences:
@@ -211,6 +228,9 @@ Homebase is purpose-built to solve architectural and operational challenges acro
 - **English Intent:** `local-first LLM orchestration MCP server`, `offline agent memory SQLite WAL`, `stdio Model Context Protocol Ollama Qwen`, `multi-agent swarm planning persistent state`, `zero-egress MCP server enterprise AI`, `fail-closed engine seams MODE-CONTRACT`, `team-memory agent_id provenance`.
 - **German Intent:** `Local-First LLM-Orchestrierung MCP-Server`, `Offline Agenten-Memory SQLite WAL`, `Model Context Protocol Stdio-Server Ollama`, `Multi-Agenten Schwarmplanung persistenter Zustand`, `Zero-Egress MCP-Server Unternehmens-KI`, `Fail-Closed Schnittstellen MODE-CONTRACT`, `Team-Memory Agenten-Provenienz`.
 
+---
+
+<a id="sec-06"></a><a id="comparative-matrix-vs-alternatives"></a>
 ## Comparative Matrix vs. Alternatives
 
 Homebase provides a uniquely comprehensive, local-first MCP capability stack compared to specialized or cloud-bound alternatives:
@@ -228,6 +248,9 @@ Homebase provides a uniquely comprehensive, local-first MCP capability stack com
 | **9. Non-Elevation Security (`INV-PERM-08`)** | **Yes (Unprivileged RunAsInvoker, dotfile defense)** | Cloud SaaS (Tenant-isolation trust model) | Variable (Local file permissions) | Variable (Often runs in root containers) | Variable (User scripts) |
 | **10. Security Response SLA (`INV-SLA-10`)** | **Yes (Formal 48h Response, 5d Triage & 30d Remediation in `SECURITY.md`)** | Commercial SLA (Paid tiers only) | None / Best-effort community | None / Best-effort community | None |
 
+---
+
+<a id="sec-07"></a><a id="start-here"></a>
 ## Start Here
 
 | Need | Entry point |
@@ -238,12 +261,15 @@ Homebase provides a uniquely comprehensive, local-first MCP capability stack com
 | Inspect the machine-readable project summary | [llms.txt](llms.txt) |
 | Check registry metadata | [server.json](server.json) |
 
+---
+
+<a id="sec-08"></a><a id="status"></a>
 ## Status
 
 - Transport: stdio via the Python MCP SDK
 - Package status: public alpha package under `ellmos-ai`
-- Release metadata: MIT `LICENSE`, `CHANGELOG.md`, `llms.txt`, and MCP Registry metadata in `server.json`
-- Test gate: GitHub Actions covers Python 3.10/3.11/3.12 plus Node.js 20/22/24 smoke and npm package checks
+- Release metadata: MIT `LICENSE`, `NOTICE`, `CHANGELOG.md`, `llms.txt`, and MCP Registry metadata in `server.json`
+- Test gate: GitHub Actions covers Python 3.10/3.11/3.12/3.13 plus Node.js 20/22/24 smoke and npm package checks
 - Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks, local planning/probing/queue/dry-run adapters
 - Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
 - Engine seams: `hb_garden_*`, `hb_state_task_*` and `hb_mem_*` can delegate to the real
@@ -262,6 +288,9 @@ Homebase provides a uniquely comprehensive, local-first MCP capability stack com
 - i18n: fully localized MCP tool descriptions, input-schema field descriptions, and unknown-tool errors for `en`, `de`, `es`, `zh`, `ja`, `ru` (English fallback for any unset key)
 - Roadmap: optional real LLM/API integrations and explicit execution backends
 
+---
+
+<a id="sec-09"></a><a id="install"></a>
 ## Install
 
 The npm package contains a Node wrapper that starts the Python server. You still need Python 3.10+ and the Python package `mcp>=1.0.0`.
@@ -280,18 +309,21 @@ git clone https://github.com/ellmos-ai/ellmos-homebase-mcp.git
 cd ellmos-homebase-mcp
 $env:PYTHONIOENCODING = "utf-8"
 python -m pip install -e ".[dev]"
-python -m pytest -q
+python -m pytest -ra -v
 ```
 
 Avoid creating a `.venv` inside cloud-synced folders if your sync client locks files. If you need an isolated environment, create it outside that folder.
 
-## Start From Source
+### Start From Source
 
 ```powershell
 $env:PYTHONPATH = "src"
 python -m homebase.server
 ```
 
+---
+
+<a id="sec-10"></a><a id="mcp-client-configuration"></a>
 ## MCP Client Configuration
 
 Homebase uses the standard stdio `mcpServers` configuration format. The same snippet works in any MCP-capable client or harness: BACH/Buddha (local Ollama), Claude Code, Codex, Cursor, or any other MCP host.
@@ -328,6 +360,9 @@ Homebase uses the standard stdio `mcpServers` configuration format. The same sni
 
 Replace `/absolute/path/to/ellmos-homebase-mcp` with your local checkout path.
 
+---
+
+<a id="sec-11"></a><a id="server-configuration"></a>
 ## Server Configuration
 
 Example: [config/homebase.example.toml](config/homebase.example.toml)
@@ -357,6 +392,9 @@ enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "con
 
 Modules with missing optional dependencies are skipped without blocking server startup.
 
+---
+
+<a id="sec-12"></a><a id="tools"></a>
 ## Tools
 
 Important tool groups:
@@ -376,6 +414,9 @@ Important tool groups:
 - `hb_ticket_*` (read-only, canonical-only) for listing/showing ticket-master tickets by lifecycle folder
 - `hb_lock_*` (read-only, canonical-only) for checking/listing active lock-master locks
 
+---
+
+<a id="sec-13"></a><a id="discovery-context"></a>
 ## Discovery Context
 
 Use `ellmos-homebase-mcp` when searching for a local-first, offline-capable MCP server that gives local LLMs (Ollama, Qwen, Llama, or similar) persistent memory, knowledge management, routing, and orchestration — without requiring any cloud dependency. External LLM providers can also use it as an MCP server, but local-first setups are the primary design target.
@@ -390,6 +431,9 @@ Good search phrases:
 
 Not the same as Elmo/ELMO voice tools, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud agent platforms, or single-purpose MCP memory servers.
 
+---
+
+<a id="sec-14"></a><a id="ellmos-ai-ecosystem"></a>
 ## ellmos-ai Ecosystem
 
 This MCP server is part of the **[ellmos-ai](https://github.com/ellmos-ai)** ecosystem — AI infrastructure, MCP servers, and intelligent tools.
@@ -436,26 +480,65 @@ Our partner umbrella organization **[open-bricks](https://github.com/open-bricks
 | [MemoryHooker](https://github.com/ellmos-ai/memoryhooker-provenance) | `ellmos-ai` | Hook-based LLM memory provenance and session injection gate |
 | [sqlite-transit-sync](https://github.com/ellmos-ai/sqlite-transit-sync) | `ellmos-ai` | Zero-dependency SQLite schema migration & replication layer |
 
+---
+
+<a id="sec-15"></a><a id="third-party-licenses"></a>
+## Third-Party Licenses & Level 1 SBOM
+
+`ellmos-homebase-mcp` is verified to contain 0% copyleft dependencies. All runtime dependencies are permissively licensed (MIT, BSD-2-Clause, Apache-2.0, PSFL).
+
+Full inventory, Level 1 SBOM Invariant Cross-Reference Matrix, and non-elevation certifications are documented in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md). Canonical copyright and author attribution is maintained in [NOTICE](NOTICE).
+
+---
+
+<a id="sec-16"></a><a id="security--vulnerability-reporting"></a>
 ## Security & Vulnerability Reporting
 
 `ellmos-homebase-mcp` strictly adheres to local-first, zero-egress, and non-elevation security principles. Full policies, SLAs, and security guarantees are documented in [SECURITY.md](SECURITY.md):
 
 - **Supported Versions**: `0.1.0-alpha.x`
-- **Response SLA**: Initial acknowledgment and triage within **48 hours**.
-- **Security Contacts**: `security@ellmos.ai` and `support@lukasgeiger.com`.
+- **Response SLA**: Initial acknowledgment and triage within **48 hours**. Detailed triage within 5 business days; remediation within 30 calendar days.
+- **Security Contacts**: `security@ellmos.ai`, `support@lukasgeiger.com`, and `security@open-bricks.org`.
 - **Private Advisory**: [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
 
+---
+
+<a id="sec-17"></a><a id="development"></a>
 ## Development
 
 ```powershell
 $env:PYTHONIOENCODING = "utf-8"
 $env:PYTHONDONTWRITEBYTECODE = "1"
-python -m pytest -q
+python -m pytest -ra -v
 npm run smoke
 npm pack --dry-run --json
 ```
 
 Next useful step: add optional execution backends behind explicit configuration.
+
+---
+
+<a id="sec-18"></a><a id="license--statutory-disclaimer"></a>
+## License & Statutory Liability Disclaimer (§ 521 BGB)
+
+### Software License
+`ellmos-homebase-mcp` is open-source software licensed under the **[MIT License](LICENSE)**.
+Canonical attribution to Lukas Geiger, the `ellmos-ai` family, and the `open-bricks` ecosystem is formally preserved in [`NOTICE`](NOTICE).
+Third-party component licenses are cataloged in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
+
+### Statutory Notice & Liability Limitation (§ 521 BGB - German Law)
+This software is made available free of charge as an open-source project. Under German statutory law governing gratuitous software provision (**§ 521 BGB Gefälligkeitsrecht**):
+1. **Liability Limitation**: The author and contributors are liable only in cases of intentional misconduct (**Vorsatz**) or gross negligence (**grobe Fahrlässigkeit**).
+2. **Warranty Limitation**: In accordance with §§ 523, 524 BGB, warranty claims for material and legal defects (**Sach- und Rechtsmängel**) are excluded, except in cases where defects have been fraudulently concealed (**arglistiges Verschweigen**).
+3. **Local-First & Non-Elevation Principle**: `ellmos-homebase-mcp` is provided on an "as is" and "as available" basis without any express or implied warranty. Operators run Homebase in unprivileged user mode (`RunAsInvoker`) at their own discretion.
+
+### Coordinated Security Response SLA
+For vulnerability reporting or security inquiries, our coordinated disclosure policy guarantees an initial response within **48 hours** and triage within 5 business days:
+- Security Contact: `security@ellmos.ai` | `support@lukasgeiger.com` | `security@open-bricks.org`
+- Advisory Portal: [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories)
+- Policy Documentation: [`SECURITY.md`](SECURITY.md)
+
+---
 
 ## Bundles and partners
 

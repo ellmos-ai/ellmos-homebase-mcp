@@ -176,3 +176,25 @@ multi-module MCP orchestration server.
 - Automated Contract Test Expansion: Expanded tests/test_metadata.py with assertions verifying PEP 639
   metadata, 30d remediation SLA, and extended gitignore credential protections.
 ================================================================================
+
+10. MARKETING, DISCOVERABILITY & VISUAL ARCHITECTURE AUDIT (Pfad B - 2026-09-23)
+--------------------------------------------------------------------------------
+- Version Freeze Integrity (T-20260920-167562623): Strictly preserved version 0.1.0-alpha.29
+  (pyproject.toml 0.1.0a29) without bump, documenting all enhancements under [Unreleased].
+- Canonical Root NOTICE Attribution: Established root NOTICE attributing copyright (c) 2026 Lukas Geiger,
+  the ellmos-ai family, and the open-bricks umbrella. Integrated into pyproject.toml license-files and package.json files array.
+- 18-Point Bilingual Navigation Parity: Implemented reciprocal dual HTML anchors (<a id="sec-01"></a> to <a id="sec-18"></a>)
+  across README.md and README_de.md with complete 18-point bilingual structural alignment.
+- German Statutory Disclaimer (§ 521 BGB): Integrated formal Gefälligkeitsrecht liability limitation
+  and warranty disclaimer into Section 18 of both README files alongside 48h Security Response SLA.
+- Level 1 SBOM Invariant Cross-Reference Matrix: Upgraded THIRD_PARTY_LICENSES.md to Stand: 2026-09-23
+  with detailed component-to-invariant mapping (INV-LOCAL-01 to INV-SLA-10) and RunAsInvoker non-elevation certification.
+- Saturated Repository Topics (20/20): Updated remote GitHub topics to maximum 20-topic saturation
+  (ai-agents, automation, llm-orchestration, local-first, mcp, model-context-protocol, nodejs, plugin-discovery,
+  python, sqlite-memory, agent-framework, knowledge-base, llm-memory, local-llm, mcp-server, sqlite, ellmos-ai,
+  fail-closed, open-bricks, zero-egress).
+- Machine-Readable AI Context & Metadata Parity: Updated llms.txt (Re-verified: 2026-09-23) and synchronized
+  keywords across pyproject.toml and package.json.
+- Automated Contract Test Expansion: Expanded tests/test_metadata.py with assertions verifying root NOTICE,
+  18-point dual anchors, Section 18 § 521 BGB disclaimer, Level 1 SBOM matrix, and keyword saturation.
+================================================================================

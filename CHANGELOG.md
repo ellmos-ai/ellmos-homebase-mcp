@@ -2,6 +2,25 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
+## [Unreleased] (Discoverability, Level 1 SBOM, 18-Point Navigation Parity & NOTICE Attribution) - 2026-09-23
+
+### Discoverability & Documentation
+- **18-Point Bilingual Dual Reciprocal Navigation**: Standardized `README.md` and `README_de.md` to an 18-point quick navigation structure with dual reciprocal HTML anchor aliases (`<a id="sec-01"></a><a id="slug"></a>` through `sec-18`) for seamless cross-language navigation.
+- **Visual Architecture & Lifecycle**: Maintained and verified Mermaid 5-layer system architecture (`flowchart TD`) and end-to-end execution sequence diagram (`sequenceDiagram`) illustrating stdio transport, agent provenance injection, SQLite WAL persistence, and fail-closed canonical delegation seams.
+- **Target Personas & Comparative Matrix**: Documented 4 distinct technical personas (`[PERSONA-01]` to `[PERSONA-04]`) with workflows and contrasted Homebase against 4 alternatives across 10 governance and runtime dimensions (`INV-LOCAL-01` to `INV-SLA-10`).
+- **Topic Saturation (20/20)**: Saturated GitHub repository topics with high-intent search tags (`ai-agents`, `fail-closed`, `zero-egress`, `open-bricks`, `ellmos-ai`).
+
+### Governance, Licensing & Legal Notice
+- **Canonical Root NOTICE Attribution**: Created root `NOTICE` declaring Lukas Geiger, `ellmos-ai`, and `open-bricks` umbrella attribution under the MIT License.
+- **German Statutory Liability Disclaimer (§ 521 BGB)**: Added statutory notice and liability disclaimer in Section 18 of both README files governing gratuitous open-source software provision under German law (§ 521 BGB Gefälligkeitsrecht: liability limited to intent and gross negligence; warranty excluded except for fraudulent concealment per §§ 523, 524 BGB).
+- **Level 1 SBOM Invariant Cross-Reference Matrix**: Upgraded `THIRD_PARTY_LICENSES.md` to Stand: 2026-09-23 with comprehensive Level 1 SBOM mapping invariants `INV-LOCAL-01` to `INV-SLA-10` to runtime components and licenses, certifying unprivileged `RunAsInvoker` non-elevation and zero-copyleft guarantees.
+
+### Packaging & Quality Assurance
+- **PEP 621 & PEP 639 Standard Metadata**: Updated `license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md"]` and added `Notice` URL in `pyproject.toml`.
+- **NPM Package Files & Keywords Parity**: Added `"NOTICE"` to `files` array and synchronized 20 saturated keywords in `package.json` matching `pyproject.toml`.
+- **Machine-Readable AI Context**: Updated `llms.txt` with NOTICE attribution reference and re-verified timestamp (`2026-09-23`).
+- **Automated Contract Tests**: Expanded `tests/test_metadata.py` with contract assertions validating root `NOTICE` presence, 18-point dual anchors, § 521 BGB disclaimer, Level 1 SBOM matrix, and keyword saturation.
+
 ## 0.1.0-alpha.29 (AI Security, Dependency & License Hardening) - 2026-09-21
 
 ### Security & Governance

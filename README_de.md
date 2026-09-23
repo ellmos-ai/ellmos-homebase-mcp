@@ -1,31 +1,33 @@
-
 # ellmos-homebase-mcp
 
 <p align="center">
   <img src="assets/homebase-logo.jpg" alt="ellmos Homebase MCP Logo" width="640">
 </p>
 
-Alpha-MCP-Server für **local-first LLM-Orchestrierung**: Memory, Knowledge, Routing, Schwarmmuster, API-Probing, persistenter Zustand, Tests, Automatisierungsplanung und Plugin-Discovery in einem stdio-Server.
+Alpha-MCP-Server für **lokal-zentrierte LLM-Orchestrierung (Local-First)**: Memory, Wissen, Routing, Schwarm-Muster, API-Probing, persistenter Zustand, Tests, Automationsplanung und Plugin-Discovery in einem einzigen stdio-Server.
 
-Homebase ist primär für **lokale LLMs** (Ollama, Qwen, Llama oder beliebige lokal gehostete Modelle über eine MCP-fähige Harness) konzipiert. Alle persistenten Daten werden per SQLite ohne Cloud-Abhängigkeit gespeichert. Externe LLM-Anbieter (Claude, Codex, Gemini, OpenAI) können sich ebenfalls als MCP-Clients verbinden, aber lokale, offline-fähige Setups sind das primäre Zielszenario.
+Homebase ist primär für **lokale LLMs** konzipiert (Ollama, Qwen, Llama oder jedes lokal betriebene Modell über ein MCP-fähiges Harness). Sämtlicher persistenter Speicher nutzt SQLite ohne jede Cloud-Abhängigkeit. Externe LLM-Anbieter (Claude, Codex, Gemini, OpenAI) können sich ebenfalls als MCP-Clients verbinden; lokale, offline-fähige Setups sind jedoch das primäre Entwicklungsziel.
 
-Englische Standard-README: [README.md](README.md)
+Englisches README: [README.md](README.md)
 
-*Teil der [ellmos-ai](https://github.com/ellmos-ai)-Familie.*
+*Teil der [ellmos-ai](https://github.com/ellmos-ai)-Familie unter dem Dach von [open-bricks](https://github.com/open-bricks).*
 
 [![Ecosystem: open-bricks](https://img.shields.io/badge/Ecosystem-open--bricks-blue.svg)](https://github.com/open-bricks)
 [![Organization: ellmos-ai](https://img.shields.io/badge/Organization-ellmos--ai-blue.svg)](https://github.com/ellmos-ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Attribution: NOTICE](https://img.shields.io/badge/Attribution-NOTICE-informational.svg)](NOTICE)
 [![npm version](https://img.shields.io/npm/v/ellmos-homebase-mcp.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
 [![Python Matrix](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
-[![Plattformen](https://img.shields.io/badge/plattformen-Linux%20%7C%20Windows%20%7C%20macOS-informational.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp)
-[![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Local--First%20%7C%20Zero--Egress-success.svg)](SECURITY.md)
-[![Speicher](https://img.shields.io/badge/speicher-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
+[![Platforms](https://img.shields.io/badge/platforms-Linux%20%7C%20Windows%20%7C%20macOS-informational.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp)
+[![Privacy](https://img.shields.io/badge/privacy-100%25%20Local--First%20%7C%20Zero--Egress-success.svg)](SECURITY.md)
+[![Storage](https://img.shields.io/badge/storage-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio%20(51%20Tools)-blueviolet.svg)](https://modelcontextprotocol.io/)
 [![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.29-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
 [![Tests](https://img.shields.io/badge/tests-154%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
 [![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%2030d%20Remediation-blue.svg)](SECURITY.md)
+[![Security: RunAsInvoker](https://img.shields.io/badge/security-RunAsInvoker%20(Non--Elevation)-success.svg)](SECURITY.md)
+[![Audit](https://img.shields.io/badge/audit-verified%202026--09--23-brightgreen.svg)](MARKETING-LOG.txt)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -33,31 +35,33 @@ Englische Standard-README: [README.md](README.md)
 **Auffindbarkeit:** Veröffentlicht auf [npm](https://www.npmjs.com/package/ellmos-homebase-mcp) als `ellmos-homebase-mcp` und gepflegt in der Organisation [`ellmos-ai`](https://github.com/ellmos-ai).
 
 > [!NOTE]
-> **Für KI-Assistenten & LLM-Agenten:** Die maschinenlesbare Architekturzusammenfassung, der Index und die Tool-Fähigkeiten sind in [llms.txt](llms.txt) veröffentlicht. MCP-Registry-Metadaten sind in [server.json](server.json) verfügbar.
+> **Für KI-Assistenten & LLM-Agenten:** Eine maschinenlesbare Architekturübersicht, Index und Werkzeugfähigkeiten sind in [llms.txt](llms.txt) bereitgestellt. MCP-Registry-Metadaten sind in [server.json](server.json) verfügbar.
 
 ## Schnellnavigation / Quick Navigation
 
-- [Systemarchitektur](#systemarchitektur)
-- [Sequenzablauf & Lebenszyklus](#sequenzablauf--lebenszyklus)
-- [Kernfähigkeiten & Sicherheitsinvarianten](#kernfähigkeiten--sicherheitsinvarianten)
-- [Governance & Laufzeit-Invarianten](#governance--laufzeit-invarianten)
-- [Zielgruppen & Auffindbarkeit](#zielgruppen--auffindbarkeit)
-- [Vergleichsmatrix gegenüber Alternativen](#vergleichsmatrix-gegenüber-alternativen)
-- [Einstieg](#einstieg)
-- [Status](#status)
-- [Installation](#installation)
-- [MCP-Client-Konfiguration](#mcp-client-konfiguration)
-- [Server-Konfiguration](#server-konfiguration)
-- [Tools](#tools)
-- [Discovery-Kontext](#discovery-kontext)
-- [ellmos-ai-Ökosystem](#ellmos-ai-%C3%B6kosystem)
-- [Drittanbieter-Lizenzen (THIRD_PARTY_LICENSES.md)](THIRD_PARTY_LICENSES.md)
-- [Marketing-Protokoll (MARKETING-LOG.txt)](MARKETING-LOG.txt)
-- [Sicherheit & Schwachstellenmeldung](#sicherheit--schwachstellenmeldung)
-- [Entwicklung](#entwicklung)
-- [Änderungsprotokoll (CHANGELOG.md)](CHANGELOG.md)
-- [Englische Version (README.md)](README.md)
+- [Systemarchitektur](#systemarchitektur) (`#sec-01`)
+- [Sequenzablauf & Lebenszyklus](#sequenzablauf--lebenszyklus) (`#sec-02`)
+- [Kernfähigkeiten & Sicherheitsinvarianten](#kernfähigkeiten--sicherheitsinvarianten) (`#sec-03`)
+- [Governance & Laufzeit-Invarianten](#governance--laufzeit-invarianten) (`#sec-04`)
+- [Zielgruppen & Auffindbarkeit](#zielgruppen--auffindbarkeit) (`#sec-05`)
+- [Vergleichsmatrix gegenüber Alternativen](#vergleichsmatrix-gegenüber-alternativen) (`#sec-06`)
+- [Einstieg](#einstieg) (`#sec-07`)
+- [Status](#status) (`#sec-08`)
+- [Installation](#installation) (`#sec-09`)
+- [MCP-Client-Konfiguration](#mcp-client-konfiguration) (`#sec-10`)
+- [Server-Konfiguration](#server-konfiguration) (`#sec-11`)
+- [Tools](#tools) (`#sec-12`)
+- [Discovery-Kontext](#discovery-kontext) (`#sec-13`)
+- [ellmos-ai-Ökosystem](#ellmos-ai-ökosystem) (`#sec-14`)
+- [Drittanbieter-Lizenzen & Level 1 SBOM](#drittanbieter-lizenzen) (`#sec-15`)
+- [Sicherheit & Schwachstellenmeldung](#sicherheit--schwachstellenmeldung) (`#sec-16`)
+- [Entwicklung](#entwicklung) (`#sec-17`)
+- [Lizenz & Gesetzlicher Haftungsausschluss (§ 521 BGB)](#lizenz--gesetzlicher-haftungsausschluss) (`#sec-18`)
+- [Marketing-Log (MARKETING-LOG.txt)](MARKETING-LOG.txt) | [Änderungsprotokoll (CHANGELOG.md)](CHANGELOG.md) | [Urheberrechtshinweis (NOTICE)](NOTICE) | [Englische Version (README.md)](README.md)
 
+---
+
+<a id="sec-01"></a><a id="systemarchitektur"></a>
 ## Systemarchitektur
 
 ```mermaid
@@ -72,26 +76,26 @@ flowchart TD
         Stdio["stdio (Python MCP SDK)"]
     end
 
-    subgraph Core ["ellmos-homebase-mcp Core Engine"]
+    subgraph Core ["ellmos-homebase-mcp Kern-Engine"]
         Server["homebase.server"]
         Config["homebase.config"]
     end
 
-    subgraph ToolGroups ["51 MCP-Tools über 14 funktionale Module"]
+    subgraph ToolGroups ["51 MCP-Tools über 14 Funktionsmodule"]
         Mem["hb_mem_* (SQLite-Memory)"]
-        KB["hb_kb_* (Knowledge Digest)"]
-        State["hb_state_* (State & Tasks)"]
-        Route["hb_route_* (Model Router)"]
+        KB["hb_kb_* (Wissens-Digest)"]
+        State["hb_state_* (Zustand & Aufgaben)"]
+        Route["hb_route_* (Modell-Router)"]
         Swarm["hb_swarm_* (Schwarm-Muster)"]
-        Api["hb_api_* (API Probing)"]
-        Conn["hb_conn_* (Connectors Queue)"]
-        Auto["hb_auto_* (Automatisierungs-Ketten)"]
+        Api["hb_api_* (API-Probing)"]
+        Conn["hb_conn_* (Konnektoren-Warteschlange)"]
+        Auto["hb_auto_* (Automationsketten)"]
         Plug["hb_plug_* (Plugin-Discovery)"]
-        Garden["hb_garden_* (Garden Store)"]
-        Test["hb_test_* (Selbst-Tests)"]
-        Policy["hb_policy_* (Policy Registry, nur lesend)"]
-        Ticket["hb_ticket_* (Ticket Master, nur lesend)"]
-        Lock["hb_lock_* (Lock Master, nur lesend)"]
+        Garden["hb_garden_* (Garten-Speicher)"]
+        Test["hb_test_* (Selbsttests)"]
+        Policy["hb_policy_* (Policy-Registry, lesend)"]
+        Ticket["hb_ticket_* (Ticket-Master, lesend)"]
+        Lock["hb_lock_* (Lock-Master, lesend)"]
     end
 
     subgraph Storage ["Lokaler Speicher (Offline-First)"]
@@ -105,6 +109,9 @@ flowchart TD
     ToolGroups --> DB
 ```
 
+---
+
+<a id="sec-02"></a><a id="sequenzablauf--lebenszyklus"></a>
 ## Sequenzablauf & Lebenszyklus
 
 ```mermaid
@@ -113,193 +120,208 @@ sequenceDiagram
     participant Client as MCP-Client (Lokales LLM / Claude / Codex)
     participant Stdio as Transportschicht (stdio)
     participant Server as Server & Registry (homebase)
-    participant Module as Funktionales Modul (hb_mem / hb_state / hb_route)
-    participant Engine as Engine-Schnittstelle (Bundled vs. Canonical)
+    participant Module as Funktionsmodul (hb_mem / hb_state / hb_route)
+    participant Engine as Engine-Seam (Bundled vs. Canonical)
     participant DB as SQLite-Speicher (~/.homebase/)
 
-    Client->>Stdio: JSON-RPC 2.0 Request (tools/call: hb_mem_store, agent_id="agent-01")
-    Stdio->>Server: Dekodiere & leite Tool-Aufruf weiter
-    Server->>Module: Validiere Argumente & injiziere Agenten-Provenienz
+    Client->>Stdio: JSON-RPC 2.0 Anfrage (tools/call: hb_mem_store, agent_id="agent-01")
+    Stdio->>Server: Dekodierung & Tool-Dispatch
+    Server->>Module: Argumente validieren & Agenten-Provenienz injizieren
     alt Bundled Engine Modus (Standard)
-        Module->>DB: Führe SQLite-Abfrage aus (WAL-Modus, Busy-Timeout)
-        DB-->>Module: Liefere strukturierte Datensätze / Mutationsstatus
+        Module->>DB: SQLite-Query ausführen (WAL-Modus, Busy-Timeout)
+        DB-->>Module: Strukturierte Einträge / Mutationsstatus zurückgeben
     else Canonical Engine Modus ([engines].mode = "canonical")
-        Module->>Engine: Schnittstellen-Prüfung (Gardener / TASKPLAN / USMC)
-        alt Engine Verfügbar
-            Engine-->>Module: Delegiere an kanonisches Subsystem
-        else Engine Nicht Erreichbar
-            Engine-->>Module: Werfe CanonicalEngineUnavailable (Fail-Closed)
+        Module->>Engine: Seam-Prüfung (Gardener / TASKPLAN / USMC)
+        alt Engine erreichbar
+            Engine-->>Module: An kanonisches Subsystem delegieren
+        else Engine nicht erreichbar
+            Engine-->>Module: CanonicalEngineUnavailable auslösen (Fail-Closed)
         end
     end
-    Module-->>Server: Formatiere Antwort in gewählter Sprache (i18n: en/de/es/zh/ja/ru)
-    Server-->>Stdio: Enkodiere JSON-RPC 2.0 Response
-    Stdio-->>Client: Ergebnisdaten (Zero Cloud-Egress, 100% lokal)
+    Module-->>Server: Antwort in konfigurierter Sprache formatieren (i18n: en/de/es/zh/ja/ru)
+    Server-->>Stdio: JSON-RPC 2.0 Antwort kodieren
+    Stdio-->>Client: Ergebnis-Payload (Zero-Cloud-Egress, 100% lokal)
 ```
 
+---
+
+<a id="sec-03"></a><a id="kernfähigkeiten--sicherheitsinvarianten"></a>
 ## Kernfähigkeiten & Sicherheitsinvarianten
 
 | Fähigkeit / Invariante | Garantie | Technische Umsetzung |
 |---|---|---|
-| **100% Local-First & Zero-Egress** | Vollständige Privatsphäre und Offline-Fähigkeit; keine ungefragte Cloud-Kommunikation oder Telemetrie. | Alle Memory-, Knowledge- und Zustandsdaten verbleiben in lokalem SQLite (`~/.homebase/`). |
-| **Strikte Engine-Seams & Fail-Closed** | Kein stillschweigender Fallback auf getrennte Datenbanken bei Anforderung kanonischer Systeme. | [`MODE-CONTRACT.md`](MODE-CONTRACT.md)-Durchsetzung: wirft `CanonicalEngineUnavailable` bei Nichterreichbarkeit. |
-| **Team-Memory Provenienz (`agent_id`)** | Deterministische Nachvollziehbarkeit und filterbare Zuordnung für Multi-Agenten-Workflows. | Native `agent_id`-Verfolgung über Memory-Fakten, Knowledge-Einträge und Task-Zustände. |
-| **Schlüsselfreie Discovery & Planung** | Null Geheimnis-Exposition bei lokalen Modell-Empfehlungen und API-Erkundungen. | `hb_route_*`, `hb_swarm_*` und `hb_api_*` laufen ohne Übertragung von API-Keys oder Token. |
-| **Sichere Plan-and-Queue Adapter** | Gefahrloses Queueing und Ketten-Staging ohne unkontrollierte Remote-Code-Ausführung. | `hb_conn_*` und `hb_auto_*` führen plan-only Warteschlangen und Offline-Staging-Datensätze. |
-| **Vollständige native i18n-Lokalisierung** | Nahtlose mehrsprachige Entwickler- und Agenteninteraktion. | Lokalisierte Tool-Beschreibungen und JSON-Schemas für `en`, `de`, `es`, `zh`, `ja`, `ru`. |
-| **Non-Elevation & Geheimnis-Hygiene** | Unprivilegierte Ausführung und strikter Ausschluss sensibler Daten aus der Distribution. | Kompatibel mit unprivilegierten Benutzern; Live-Konfigurationen/Secrets in `.gitignore` & `.npmignore`. |
-| **Multi-OS CI Smoke-Integrität** | Verifizierte plattformübergreifende Zuverlässigkeit auf allen Hauptbetriebssystemen. | Multi-Versionen CI-Matrix für Python 3.10–3.13 und Node.js 20–24 unter Linux/Windows/macOS. |
+| **100% Local-First & Zero-Egress** | Vollständige Privatsphäre und Offline-Betrieb; keinerlei unerwartete Cloud-Kommunikation oder Telemetrie. | Sämtlicher persistenter Speicher für Memory, Wissen und Tasks liegt in lokalem SQLite (`~/.homebase/`). |
+| **Strikte Engine-Seams & Fail-Closed** | Kein stiller Fallback in isolierte Datenbanken beim Anfordern kanonischer Systeme. | Durchsetzung via [`MODE-CONTRACT.md`](MODE-CONTRACT.md): löst `CanonicalEngineUnavailable` aus, falls Ziel unerreichbar. |
+| **Team-Memory Provenienz (`agent_id`)** | Deterministischer Audit-Trail und filterbare Zuständigkeiten für Multi-Agenten-Systeme. | Native `agent_id`-Erfassung über Fakten, Wissenseinträge und Aufgabenstatus hinweg. |
+| **Credential-Free Discovery & Planung** | Null Offenlegung von Geheimnissen bei Modell-Routing und API-Probing. | `hb_route_*`, `hb_swarm_*` und `hb_api_*` operieren ohne Übertragung privater API-Keys oder Token. |
+| **Sichere Plan-and-Queue Adapter** | Sicheres Staging von Warteschlangen und Ketten ohne unkontrollierte Remote-Ausführung. | `hb_conn_*` und `hb_auto_*` führen reine Planungs-Warteschlangen und Offline-Staging-Manifeste. |
+| **Vollständige native i18n-Lokalisierung** | Barrierefreie mehrsprachige Interaktion für Entwickler und Agenten. | Lokalisierte Tool-Beschreibungen und Schemas für `en`, `de`, `es`, `zh`, `ja`, `ru`. |
+| **Rechte-Nicht-Eskalation & Hygiene** | Unprivilegierte Ausführung und strikter Ausschluss von Anmeldedaten aus Distributionen. | Non-Root-Kompatibilität; Live-Konfigurationen und Secrets werden via `.gitignore` und `.npmignore` ignoriert. |
+| **Multi-OS CI Smoke Integrität** | Verifizierte plattformübergreifende Zuverlässigkeit auf allen großen Betriebssystemen. | Mehrstufige CI-Matrix für Python 3.10–3.13 und Node.js 20–24 unter Linux/Windows/macOS. |
 
+---
+
+<a id="sec-04"></a><a id="governance--laufzeit-invarianten"></a>
 ## Governance & Laufzeit-Invarianten
 
-| Invarianten-ID | Titel & Geltungsbereich | Garantie & Technische Durchsetzung | Verifikations-Naht |
+| Invarianten-ID | Titel & Geltungsbereich | Garantie & Technische Durchsetzung | Verifikations-Seam |
 |---|---|---|---|
-| **`INV-LOCAL-01`** | **100% Local-First & Zero-Egress** | Alle persistenten Memories, Wissenseinträge und Task-Zustände verbleiben lokal in SQLite (`~/.homebase/`). Keine Telemetrie, Analyse oder unaufgeforderte Cloud-Netzwerkverbindungen. | `tests/test_server_transport.py`, `tests/test_repository_hygiene.py` |
-| **`INV-ENGINE-02`** | **Strikte Engine-Nähte & Fail-Closed** | Durchsetzung von [`MODE-CONTRACT.md`](MODE-CONTRACT.md): Der Modus `[engines].mode = "canonical"` fällt niemals still auf lokale Kopien zurück, wenn ein kanonisches System nicht erreichbar ist. | `tests/test_engine_seams.py` |
-| **`INV-SEAM-03`** | **Kanonisch-Exklusive Seam-Isolation** | `hb_policy_*`, `hb_ticket_*` und `hb_lock_*` bieten ausschließlich Lese-Zugriff auf policy-registry, ticket-master und lock-master, besitzen keinen Bundled-Ersatz und versagen strikt fail-closed. | `tests/test_new_seams.py` |
-| **`INV-PROV-04`** | **Deterministische Provenienz & Team-Memory** | Multi-Agenten-Koordination erfordert strikte Isolation. Alle Fakten, Wissenseinträge und Tasks zeichnen `agent_id`-Provenienz mit SQLite WAL-Modus und Busy-Timeouts auf. | `tests/test_module_contracts.py` |
-| **`INV-CRED-05`** | **Schlüsselfreies Routing & API-Discovery** | Modell-Routing-Empfehlungen (`hb_route_*`), Schwarm-Baupläne (`hb_swarm_*`) und API-Erkundung (`hb_api_*`) arbeiten vollständig offline ohne private API-Keys oder Tokens. | `tests/test_module_contracts.py` |
-| **`INV-STAGE-06`** | **Plan-Only Staging & Bounded Offline Queues** | Connector-Warteschlangen (`hb_conn_*`) und Automatisierungs-Pläne (`hb_auto_*`) erfassen Offline-Pläne und Staging-Manifeste ohne Ausführung von beliebigem Remote-Code. | `tests/test_module_contracts.py` |
-| **`INV-I18N-07`** | **Vollständige native Lokalisierungs-Parität** | Alle 51 Tool-Definitionen, Input-Schemas und Fehlermeldungen bieten vollständige Parität über 6 Sprachen (`en`, `de`, `es`, `zh`, `ja`, `ru`) mit englischem Fallback. | `tests/test_i18n_completeness.py` |
-| **`INV-PERM-08`** | **Nicht-Privilegiertes RunAsInvoker-Prinzip** | Homebase läuft strikt im unprivilegierten Anwendermodus (Non-Elevation). Keine Administrator-Rechte erforderlich; sensible Host-Dateien werden ignoriert. | `tests/test_repository_hygiene.py` |
-| **`INV-SYNC-09`** | **Multi-Host Lock- & Konfliktkopien-Disziplin** | Strikter Ausschluss von Konfliktkopien (`*.sync-conflict-*`, `*-conflict-*`) und Einhaltung von Multi-Agenten-Locks (`LOCK.*`, `*.lock`) zum Schutz der lokalen Datenbank. | `tests/test_metadata.py` |
-| **`INV-SLA-10`** | **48h Sicherheitsreaktions-, 5-Tage-Triage- & 30-Tage-Behebungs-SLA** | Sicherheitsmeldungen an `security@ellmos.ai`, `support@lukasgeiger.com` oder `security@open-bricks.org` erhalten eine garantierte Antwort binnen 48h, Triage in 5 Werktagen und bestätigte Behebung binnen 30 Kalendertagen. | `SECURITY.md`, `tests/test_metadata.py` |
+| **`INV-LOCAL-01`** | **100% Local-First & Zero-Egress** | Alle persistenten Speicher, Wissenseinträge und Task-Zustände liegen lokal in SQLite (`~/.homebase/`). Keine Telemetrie, Analyse oder unaufgeforderte Cloud-Netzwerkaufrufe. | `tests/test_server_transport.py`, `tests/test_repository_hygiene.py` |
+| **`INV-ENGINE-02`** | **Strikte Engine-Seams & Fail-Closed** | Durchsetzung via [`MODE-CONTRACT.md`](MODE-CONTRACT.md): `[engines].mode = "canonical"` fällt niemals still auf bundled zurück, wenn die kanonische Engine unerreichbar ist. | `tests/test_engine_seams.py` |
+| **`INV-SEAM-03`** | **Canonical-Only Isolation** | `hb_policy_*`, `hb_ticket_*` und `hb_lock_*` bieten reine Lese-Sichten auf policy-registry, ticket-master und lock-master. Sie besitzen kein bundled Imitat und scheitern fail-closed. | `tests/test_new_seams.py` |
+| **`INV-PROV-04`** | **Deterministische Provenienz & Team-Memory** | Multi-Agenten-Koordination erfordert strikte Zuordnung. Alle Fakten und Task-Übergänge speichern `agent_id`-Attribute mit SQLite-WAL-Parallelität und Busy-Timeouts. | `tests/test_module_contracts.py` |
+| **`INV-CRED-05`** | **Credential-Free Discovery & Probing** | Modell-Routing-Empfehlungen (`hb_route_*`), Schwarmmuster-Vorlagen (`hb_swarm_*`) und API-Schema-Probing (`hb_api_*`) arbeiten ohne private Tokens oder API-Schlüssel. | `tests/test_module_contracts.py` |
+| **`INV-STAGE-06`** | **Plan-Only Staging & Bounded Offline Queues** | Konnektoren-Queues (`hb_conn_*`) und Automationspläne (`hb_auto_*`) erfassen Offline-Blueprints und Dry-Run-Manifeste ohne Ausführung willkürlichen Remote-Codes. | `tests/test_module_contracts.py` |
+| **`INV-I18N-07`** | **Native mehrsprachige Schema-Parität** | Alle 51 Tool-Definitionen, Eingabeschemas und Validierungsfehler besitzen 100% vollständige Lokalisierung in 6 Sprachen (`en`, `de`, `es`, `zh`, `ja`, `ru`). | `tests/test_i18n_completeness.py` |
+| **`INV-PERM-08`** | **Rechte-Nicht-Eskalation & RunAsInvoker** | Homebase läuft strikt im unprivilegierten Benutzerraum. Es benötigt keinerlei Administrator- oder Root-Rechte und ignoriert sensitive Dotfiles und Systemanmeldedaten. | `tests/test_repository_hygiene.py` |
+| **`INV-SYNC-09`** | **Multi-Host Lock- & Konflikt-Disziplin** | Strikter Ausschluss von Konfliktkopien (`*.sync-conflict-*`, `*-conflict-*`) und Beachtung von Multi-Agenten-Sperrmechanismen (`LOCK.*`, `*.lock`). | `tests/test_metadata.py` |
+| **`INV-SLA-10`** | **48h Antwort, 5-Tage-Triage & 30-Tage-Behebung SLA** | Sicherheitsmeldungen an `security@ellmos.ai`, `support@lukasgeiger.com` oder `security@open-bricks.org` erhalten garantierte Erstantwort in <=48h, Triage in 5 Werktagen und Behebung in 30 Tagen. | `SECURITY.md`, `tests/test_metadata.py` |
 
+---
+
+<a id="sec-05"></a><a id="zielgruppen--auffindbarkeit"></a>
 ## Zielgruppen & Auffindbarkeit
 
-Homebase wurde gezielt entwickelt, um architektonische und betriebliche Herausforderungen von vier technischen Kernzielgruppen zu lösen:
+Homebase wurde speziell entwickelt, um architektonische und operative Herausforderungen von vier primären technischen Zielgruppen zu lösen:
 
 ### `[PERSONA-01]` Entwickler lokaler LLMs & Edge-KI
-- **Profil & Ziel:** KI-Entwickler, die Offline- oder Edge-Anwendungen mit Modellen wie Ollama, Qwen oder Llama betreiben und eine robuste Orchestrierungs-Harness benötigen.
-- **Herausforderungen:** Cloud-Memory-APIs verursachen unerwünschte Latenzen, Datenschutzrisiken, monatliche Abokosten und Netzwerk-Fehlerquellen.
-- **Homebase-Lösung:** Vollständige Unabhängigkeit von Cloud-Diensten, persistente lokale SQLite-WAL-Speicherung (`~/.homebase/`) und 51 einheitliche stdio-Tools für Gedächtnis, FTS5-Wissenssuche und Aufgabenverwaltung.
-- **Beispielhafter Ablauf:**
+- **Profil & Ziel:** KI-Entwickler, die Offline- oder Edge-Anwendungen mit Ollama-, Qwen- oder Llama-Modellen erstellen und ein zuverlässiges Orchestrierungs-Harness benötigen.
+- **Herausforderungen:** Cloud-Memory-APIs verursachen ungewollte Latenzen, Datenschutzrisiken, Abo-Kosten und Netzwerkausfälle.
+- **Homebase-Lösung:** Keine Cloud-Abhängigkeiten, lokale SQLite WAL-Persistenz (`~/.homebase/`) und 51 Standard-stdio-Tools für Gedächtnis, FTS5-Wissenssuche und Task-Tracking.
+- **Referenz-Workflow:**
   ```json
-  {"tool": "hb_mem_store", "arguments": {"fact": "Benutzer bevorzugt kompakte JSON-Ausgaben", "agent_id": "ollama-coder"}}
-  {"tool": "hb_kb_search", "arguments": {"query": "API Routing-Regeln", "fts": true}}
+  {"tool": "hb_mem_store", "arguments": {"fact": "Benutzer bevorzugt kompakte JSON-Ausgabe", "agent_id": "ollama-coder"}}
+  {"tool": "hb_kb_search", "arguments": {"query": "API routing rules", "fts": true}}
   ```
 
-### `[PERSONA-02]` Multi-Agenten-Schwarm-Orchestrierer & Systemarchitekten
-- **Profil & Ziel:** Softwarearchitekten, die heterogene Multi-Agenten-Kollektive (Claude Code, Codex, Antigravity, lokale Agenten) zeitgleich auf gemeinsamen Codebases koordinieren.
-- **Herausforderungen:** Zustands-Kollisionen, fehlende Herkunftsnachweise, Race Conditions im gemeinsamen Speicher und unkoordinierte Aufgabenweitergabe.
-- **Homebase-Lösung:** Native `agent_id`-Provenienz über alle Fakten, Erinnerungen und Aufgabenzustände; integrierte Schwarm-Vorlagen (Boss/Worker, parallele Chunks, Konsensabstimmung via `hb_swarm_*`).
-- **Beispielhafter Ablauf:**
+### `[PERSONA-02]` Multi-Agent Swarm Orchestrators & Swarm Architects
+- **Profil & Ziel:** Systemarchitekten, die Multi-Agenten-Kollektive (Claude Code, Codex, Antigravity, lokale Agenten) auf gemeinsamen Codebases koordinieren.
+- **Herausforderungen:** Zustandskollisionen, fehlende Herkunftsnachweise, Race-Conditions in geteilten Speichern und unkoordinierte Aufgabenübergaben.
+- **Homebase-Lösung:** Native `agent_id`-Provenienz für alle Fakten, Erinnerungen und Task-Zustände; integrierte Schwarm-Muster (Boss/Worker, parallele Chunks, Consensus-Voting via `hb_swarm_*`).
+- **Referenz-Workflow:**
   ```json
-  {"tool": "hb_swarm_plan", "arguments": {"goal": "Sicherheits-Schnittstellen auditieren", "pattern": "consensus"}}
+  {"tool": "hb_swarm_plan", "arguments": {"goal": "Sicherheits-Seams auditieren", "pattern": "consensus"}}
   {"tool": "hb_state_task_create", "arguments": {"title": "Fail-Closed-Modus verifizieren", "agent_id": "worker-audit-01"}}
   ```
 
 ### `[PERSONA-03]` Enterprise Security & Data Governance Officers
-- **Profil & Ziel:** CISOs, IT-Sicherheitsbeauftragte und Compliance-Auditoren in regulierten Branchen (Gesundheitswesen, Finanzen, Forschung), die Entwickler-Agentenwerkzeuge bewerten.
-- **Herausforderungen:** Unbemerkte Cloud-Telemetrie, unkontrollierte Remote-Seiteneffekte, Privilegien-Eskalation und fehlende verbindliche SLAs.
-- **Homebase-Lösung:** Strikte Zero-Egress-Architektur, Fail-Closed-Schnittstellen nach `MODE-CONTRACT.md`, unprivilegierte Ausführung (`RunAsInvoker`) und ein formales 48-Stunden-Sicherheits-SLA (`SECURITY.md`).
-- **Beispielhafter Ablauf:**
+- **Profil & Ziel:** CISOs, SecOps-Teams und Compliance-Auditoren in regulierten Branchen (Gesundheitswesen, Finanzen, öffentliche Hand), die KI-Toolchains bewerten.
+- **Herausforderungen:** Intransparente Cloud-Telemetrie, unüberprüfte Remote-Seiteneffekte, Privilegien-Eskalationsrisiken und fehlende SLA-Zusagen.
+- **Homebase-Lösung:** Strikte Zero-Egress-Architektur, Fail-Closed kanonische Engine-Seams (`MODE-CONTRACT.md`), unprivilegierter `RunAsInvoker`-Betrieb und verbindliche 48h Security Response SLA (`SECURITY.md`).
+- **Referenz-Workflow:**
   ```json
   {"tool": "hb_policy_list_rules", "arguments": {}}
   ```
-  *Garantiertes Fail-Closed-Verhalten: wirft `CanonicalEngineUnavailable`, anstatt unbemerkt auf unsichere Notlösungen zurückzufallen.*
+  *Garantiertes Fail-Closed-Verhalten: Löst `CanonicalEngineUnavailable` aus, statt still auf unsichere Stubs auszuweichen.*
 
-### `[PERSONA-04]` Cross-Framework KI-Assistenten & Pair Programmer
-- **Profil & Ziel:** Entwickler, die verschiedene KI-Coding-Assistenten (Claude Desktop, Codex, Cursor, Gemini) einsetzen und systemübergreifende Kontext- und Tool-Parität erwarten.
-- **Herausforderungen:** Inkompatible proprietäre Tool-APIs, fragmentierte Notizen und fehlende mehrsprachige Entwickler-Schemas.
-- **Homebase-Lösung:** Standardisierter stdio-MCP-Transport, maschinenlesbare Projekt-Metadaten (`llms.txt`, `server.json`, `glama.json`) und lückenlose Schema-Lokalisierung über 6 Sprachen (`en`, `de`, `es`, `zh`, `ja`, `ru`).
-- **Beispielhafter Ablauf:**
+### `[PERSONA-04]` Cross-Framework AI Assistants & Pair Programmers
+- **Profil & Ziel:** Entwickler, die mehrere KI-Assistenten (Claude Desktop, Codex, Cursor, Gemini) parallel einsetzen und einheitliche Werkzeug-Parität erwarten.
+- **Herausforderungen:** Inkompatible Werkzeug-Schnittstellen, fragmentierte Notizen und fehlende mehrsprachige Entwickler-Schemas.
+- **Homebase-Lösung:** Standardisiertes stdio MCP-Transportprotokoll, maschinenlesbare Metadaten (`llms.txt`, `server.json`, `glama.json`) und vollständige Lokalisierung in 6 Sprachen (`en`, `de`, `es`, `zh`, `ja`, `ru`).
+- **Referenz-Workflow:**
   ```json
   {"tool": "hb_ticket_list", "arguments": {"folder": "ACTIVE"}}
   ```
 
-### High-Intent Suchbegriffe & Auffindbarkeit
+---
 
-- **Englische Suchintention:** `local-first LLM orchestration MCP server`, `offline agent memory SQLite WAL`, `stdio Model Context Protocol Ollama Qwen`, `multi-agent swarm planning persistent state`, `zero-egress MCP server enterprise AI`, `fail-closed engine seams MODE-CONTRACT`, `team-memory agent_id provenance`.
-- **Deutsche Suchintention:** `Local-First LLM-Orchestrierung MCP-Server`, `Offline Agenten-Memory SQLite WAL`, `Model Context Protocol Stdio-Server Ollama`, `Multi-Agenten Schwarmplanung persistenter Zustand`, `Zero-Egress MCP-Server Unternehmens-KI`, `Fail-Closed Schnittstellen MODE-CONTRACT`, `Team-Memory Agenten-Provenienz`.
-
+<a id="sec-06"></a><a id="vergleichsmatrix-gegenüber-alternativen"></a>
 ## Vergleichsmatrix gegenüber Alternativen
 
-Homebase bietet im Vergleich zu spezialisierten Einzellösungen oder reinen Cloud-Plattformen einen vollständigen, lokalen MCP-Funktionsstack:
+Homebase bietet einen umfassenden, lokal-zentrierten Funktionsumfang im direkten Vergleich zu cloud-basierten oder isolierten Alternativen:
 
-| Architektur- & Laufzeit-Dimension | `ellmos-homebase-mcp` | Cloud Memory SaaS (Letta, Pinecone, LangSmith) | Generische Memory-MCPs (mcp-server-memory, sqlite) | Schwere Agent-Frameworks (CrewAI, AutoGen, LangGraph) | Ad-Hoc Skripte / Eigene SQLite-DBs |
+| Architektur- & Laufzeitdimension | `ellmos-homebase-mcp` | Cloud Memory SaaS (Letta, Pinecone, LangSmith) | Generische Memory-MCPs (mcp-server-memory, sqlite) | Schwere Agenten-Frameworks (CrewAI, AutoGen, LangGraph) | Ad-Hoc Skripte / Benutzer-SQLite |
 |---|---|---|---|---|---|
-| **1. 100% Local-First & Zero Egress (`INV-LOCAL-01`)** | **Ja (100% lokales SQLite WAL, null Telemetrie)** | Nein (Cloud-Hosting, erzwungene Egress-Verbindungen) | Teilweise (Lokale Datei, aber ohne Egress-Vertrag) | Variabel (Erfordert häufig Cloud-API-Keys / SaaS) | Ja (Lokal, jedoch ohne Protokoll-Garantien) |
-| **2. Schnittstellen & Fail-Closed (`INV-ENGINE-02`)** | **Ja (Strikter `MODE-CONTRACT.md`, wirft Fehler bei Ausfall)** | Nein (Undurchsichtige Cloud-Failovers) | Nein (Starres Einzel-Backend) | Nein (Unbehandelte Exceptions / stumme Fallbacks) | Nein (Ad-hoc Fehlerbehandlung) |
-| **3. Kanonische Schnittstellen (`INV-SEAM-03`)** | **Ja (`hb_policy_*`, `hb_ticket_*`, `hb_lock_*` schlagen Fail-Closed fehl)** | Nein (Kein Verständnis für kanonische Systeme) | Nein (Keine Anbindung an Governance/Locks) | Nein (Keine Governance-Schicht vorhanden) | Nein (Manuelle Koordination) |
-| **4. Team-Memory & Attribution (`INV-PROV-04`)** | **Ja (Native `agent_id` für Fakten, Wissen, Aufgaben)** | Teilweise (Nur auf Benutzerebene, keine Agentenfilter) | Nein (Ein einzelner globaler Graph ohne Trennung) | Teilweise (Flüchtiger Agentenstatus im RAM) | Nein (Manuelle Schemaverwaltung) |
-| **5. Schlüsselfreie Discovery (`INV-CRED-05`)** | **Ja (Offline-Routing & Schwarmplanung ohne API-Tokens)** | Nein (Erfordert aktive kostenpflichtige API-Keys) | Nein (Keine Routing- oder Schwarmtools) | Nein (Erfordert API-Keys für LLM-Planer) | Nein (Keine strukturierte Planung) |
-| **6. Plan-Only Staging-Queues (`INV-STAGE-06`)** | **Ja (Sichere Connector-Queues & Dry-Run-Automation)** | Nein (Direkte Ausführung oder nicht vorhanden) | Nein (Keine Connector- oder Automation-Tools) | Nein (Direkte Seiteneffekte zur Laufzeit) | Nein (Unsichere Ausführung von Fremdcode) |
-| **7. Tool-Vielfalt & Oberfläche** | **51 Tools über 14 Module in einem einzigen stdio-Server** | 1-5 API-Endpunkte | 2-5 einfache Tools | Python-Bibliothek (nicht primär MCP-nativ) | Fragmentierte CLI-Skripte |
-| **8. Mehrsprachige Schema-Parität (`INV-I18N-07`)** | **Ja (Vollständige Abdeckung für en, de, es, zh, ja, ru)** | Nur Englisch | Nur Englisch | Nur Englisch | Nur Englisch / Keine |
-| **9. Non-Elevation-Sicherheit (`INV-PERM-08`)** | **Ja (Unprivilegiertes RunAsInvoker, Schutz vor Systemdateien)** | Cloud SaaS (Vertrauen auf Mandanten-Isolation) | Variabel (Lokale Dateirechte) | Variabel (Läuft oft in privilegierten Containern) | Variabel (Benutzerskripte) |
-| **10. Sicherheitsreaktions-SLA (`INV-SLA-10`)** | **Ja (Verbindliches 48h Response, 5d Triage & 30d Behebungs-SLA in `SECURITY.md`)** | Kommerzielles SLA (Nur in Enterprise-Tarifen) | Keine / Best-effort Community | Keine / Best-effort Community | Keine |
+| **1. 100% Local-First & Zero Egress (`INV-LOCAL-01`)** | **Ja (100% lokales SQLite WAL, null Telemetrie)** | Nein (Cloud-hosted, obligatorischer Egress) | Teilweise (Lokale Datei, aber ohne strikte Garantien) | Variabel (Erfordert häufig Cloud-API-Schlüssel) | Ja (Lokal, aber ohne standardisiertes Protokoll) |
+| **2. Engine-Seams & Fail-Closed (`INV-ENGINE-02`)** | **Ja (Strikter `MODE-CONTRACT.md`, wirft Fehler bei Ausfall)** | Nein (Undurchsichtige Cloud-Failovers) | Nein (Fest verdrahtetes Backend) | Nein (Unbehandelte Ausnahmen / stiller Fallback) | Nein (Ad-Hoc Fehlerbehandlung) |
+| **3. Canonical-Only Seams (`INV-SEAM-03`)** | **Ja (`hb_policy_*`, `hb_ticket_*`, `hb_lock_*` fail-closed)** | Nein (Kein kanonisches Systemverständnis) | Nein (Keine Integration für Governance/Locks) | Nein (Keine Governance-Seams) | Nein (Manuelle Koordination) |
+| **4. Team-Memory & Attribution (`INV-PROV-04`)** | **Ja (Native `agent_id` auf Fakten, Wissen, Tasks)** | Teilweise (Nur Benutzerebene, keine Agentenfilter) | Nein (Einzelner globaler Graph) | Teilweise (Nur im RAM, nach Neustart verloren) | Nein (Manuelle Schemapflege) |
+| **5. Credential-Free Discovery (`INV-CRED-05`)** | **Ja (Offline-Routing & Schwarmplanung ohne Token)** | Nein (Erfordert aktive bezahlte Cloud-Zugänge) | Nein (Keine Routing- oder Schwarmtools) | Nein (Erfordert API-Keys für LLM-Planung) | Nein (Keine Strukturplanung) |
+| **6. Plan-Only Staging Queues (`INV-STAGE-06`)** | **Ja (Sichere Konnektoren-Queues & Dry-Run Automation)** | Nein (Direktausführung oder keine) | Nein (Keine Konnektoren-/Automationsunterstützung) | Nein (Direkte Laufzeit-Seiteneffekte) | Nein (Unsichere Ausführung) |
+| **7. Werkzeugbreite & Oberfläche** | **51 Tools über 14 Module in einem einzigen stdio-Server** | 1-5 API-Endpunkte | 2-5 elementare Tools | Framework-Bibliothek (nicht nativ MCP) | Fragmentierte CLI-Skripte |
+| **8. Mehrsprachige Schema-Parität (`INV-I18N-07`)** | **Ja (Vollständige Abdeckung: en, de, es, zh, ja, ru)** | Nur Englisch | Nur Englisch | Nur Englisch | Nur Englisch / Keine |
+| **9. Nicht-Eskalationssicherheit (`INV-PERM-08`)** | **Ja (Unprivilegierter RunAsInvoker-Betrieb)** | Cloud SaaS (Tenant-Isolationsmodell) | Variabel (Lokale Dateiberechtigungen) | Variabel (Läuft oft in Root-Containern) | Variabel (Benutzerskripte) |
+| **10. Sicherheits-SLA (`INV-SLA-10`)** | **Ja (Verbindlich 48h Antwort, 5d Triage & 30d Behebung in `SECURITY.md`)** | Kommerzielles SLA (nur Bezahlpläne) | Keine / Community Best-Effort | Keine / Community Best-Effort | Keine |
 
+---
+
+<a id="sec-07"></a><a id="einstieg"></a>
 ## Einstieg
 
-| Bedarf | Einstieg |
+| Anforderung | Einstiegspunkt |
 |---|---|
-| Alpha-MCP-Server installieren | `npm install -g ellmos-homebase-mcp@alpha` |
-| Aus einem Quellcode-Checkout starten | `python -m homebase.server` mit `PYTHONPATH=src` |
-| Lokale LLM-Harness, Claude Code, Codex oder anderen MCP-Client konfigurieren | [MCP-Client-Konfiguration](#mcp-client-konfiguration) |
-| Maschinenlesbare Projektzusammenfassung prüfen | [llms.txt](llms.txt) |
+| Installation des Alpha-MCP-Servers | `npm install -g ellmos-homebase-mcp@alpha` |
+| Starten aus einem Quell-Checkout | `python -m homebase.server` mit `PYTHONPATH=src` |
+| Lokales LLM-Harness, Claude Code, Codex oder beliebigen MCP-Client anbinden | [MCP-Client-Konfiguration](#mcp-client-konfiguration) |
+| Maschinenlesbare Projektübersicht einsehen | [llms.txt](llms.txt) |
 | Registry-Metadaten prüfen | [server.json](server.json) |
 
+---
+
+<a id="sec-08"></a><a id="status"></a>
 ## Status
 
-- Transport: stdio über das Python-MCP-SDK
-- Paketstatus: öffentliches Alpha-Paket unter `ellmos-ai`
-- Release-Metadaten: MIT-`LICENSE`, `CHANGELOG.md`, `llms.txt` und MCP-Registry-Metadaten in `server.json`
-- Test-Gate: GitHub Actions prüft Python 3.10/3.11/3.12 sowie Node.js 20/22/24 mit Smoke- und npm-Paketchecks
-- Aktiver Kern: Modul-Discovery, MCP-Tool-Liste, MCP-Tool-Dispatch, Config-Fallbacks, lokale Planungs-, Probing-, Queue- und Dry-run-Adapter
-- Echte lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Engine-Seams: `hb_garden_*`, `hb_state_task_*` und `hb_mem_*` können über
-  `[engines].mode = "canonical"` an die echten Gardener-/Rinnsal-/USMC-Engines delegieren statt
-  an die eingebauten SQLite-Kopien (Default bleibt `"bundled"` für eine
-  Zero-Dependency-Installation). **Kein stiller Fallback:** Ist bei `canonical` die Engine
-  unerreichbar, liefern diese Tools einen Fehler, statt still die bundled-DB zu benutzen — der
-  Server startet weiterhin und listet seine Tools. Verbindliche Regel und Migration:
-  **[MODE-CONTRACT.md](MODE-CONTRACT.md)**; Mechanismus:
-  [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
-- Canonical-only-Seams (kein bundled-Alternative überhaupt): `hb_policy_*` (policy-registry),
-  `hb_ticket_*` (ticket-master), `hb_lock_*` (lock-master) — alle nur lesend in v1. Eine lokal
-  gefälschte Kopie von live-Policy-/Ticket-/Lock-Zustand würde eher irreführen als helfen; darum
-  versuchen diese drei immer das kanonische Modul und scheitern unbedingt fail-closed, wenn es
-  unerreichbar ist.
-- Team-Memory-Grundlagen: `agent_id`-Herkunft und Filter für Memory, Knowledge, State-Memory und Tasks; SQLite nutzt WAL plus Busy-Timeout für sicherere parallele Agenten
+- Transport: stdio über das offizielle Python MCP SDK
+- Paketstatus: Öffentliches Alpha-Paket unter `ellmos-ai`
+- Release-Metadaten: MIT `LICENSE`, `NOTICE`, `CHANGELOG.md`, `llms.txt` und MCP Registry-Metadaten in `server.json`
+- Test-Schranke: GitHub Actions deckt Python 3.10/3.11/3.12/3.13 sowie Node.js 20/22/24 Smoke- und npm-Paket-Checks ab
+- Aktueller Kern: Modul-Erkennung, MCP-Tool-Listing, Tool-Dispatch, Konfigurations-Fallbacks, lokale Planungs-, Probing-, Queue- und Dry-Run-Adapter
+- Reale lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
+- Engine-Seams: `hb_garden_*`, `hb_state_task_*` und `hb_mem_*` können an die echten,
+  kanonischen Gardener/Rinnsal/USMC-Engines delegieren via `[engines].mode = "canonical"`
+  (Standard bleibt `"bundled"` für eine installationsfreie Nutzung).
+  **Kein stiller Fallback:** Wenn `canonical` gewählt wurde und die Engine nicht erreichbar ist,
+  geben diese Tools einen Fehler zurück, anstatt still die lokale DB zu nutzen.
+  Verbindliche Regel und Migrationshinweise: **[MODE-CONTRACT.md](MODE-CONTRACT.md)**;
+  Mechanismus: [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
+- Canonical-Only Seams (keine lokale Alternative vorhanden): `hb_policy_*` (policy-registry),
+  `hb_ticket_*` (ticket-master), `hb_lock_*` (lock-master) – in v1 ausschließlich lesend.
+  Eine lokal gefälschte Kopie von Richtlinien/Tickets/Sperren würde täuschen; diese drei
+  versuchen stets das kanonische Modul und schlagen fail-closed fehl, wenn es unerreichbar ist.
+- Team-Memory Grundlagen: `agent_id`-Herkunft und Filter für Memory, Wissen, State-Memory und Aufgaben; SQLite nutzt WAL-Modus plus Busy-Timeout für sicherere Nebenläufigkeit
 - Credential-freie Alpha-Adapter: `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`
-- i18n: vollständig lokalisierte MCP-Tool-Beschreibungen, Input-Schema-Feldbeschreibungen und Unknown-Tool-Fehler für `en`, `de`, `es`, `zh`, `ja`, `ru` (Englisch-Fallback für nicht gesetzte Keys)
-- Roadmap: optionale echte LLM/API-Integrationen und explizite Ausführungsbackends
+- i18n: Vollständig lokalisierte Tool-Beschreibungen, Schema-Feld-Texte und Fehlermeldungen für `en`, `de`, `es`, `zh`, `ja`, `ru` (Englischer Fallback bei fehlendem Schlüssel)
+- Roadmap: Optionale echte LLM/API-Integrationen und explizite Ausführungs-Backends
 
+---
+
+<a id="sec-09"></a><a id="installation"></a>
 ## Installation
 
-Das npm-Paket enthält einen Node-Wrapper, der den Python-Server startet. Voraussetzung bleibt Python 3.10+ mit installiertem Python-Paket `mcp>=1.0.0`.
+Das npm-Paket enthält einen Node-Wrapper, der den Python-Server startet. Erforderlich sind Python 3.10+ und das Python-Paket `mcp>=1.0.0`.
 
-### Option 1: Installation per npm
+### Option 1: Installation über npm
 
 ```powershell
 npm install -g ellmos-homebase-mcp@alpha
 ellmos-homebase
 ```
 
-### Option 2: Installation aus dem Quellcode
+### Option 2: Installation aus den Quellen
 
 ```powershell
 git clone https://github.com/ellmos-ai/ellmos-homebase-mcp.git
 cd ellmos-homebase-mcp
 $env:PYTHONIOENCODING = "utf-8"
 python -m pip install -e ".[dev]"
-python -m pytest -q
+python -m pytest -ra -v
 ```
 
-Keine `.venv` in cloud-synchronisierten Ordnern anlegen, wenn der Sync-Client Dateien sperrt. Falls eine isolierte Umgebung gebraucht wird, außerhalb dieses Ordners erstellen.
+Vermeide das Erstellen einer `.venv` in Cloud-synchronisierten Ordnern, falls der Sync-Client Dateien sperrt.
 
-## Start Aus Dem Quellbaum
+### Start aus den Quellen
 
 ```powershell
 $env:PYTHONPATH = "src"
 python -m homebase.server
 ```
 
+---
+
+<a id="sec-10"></a><a id="mcp-client-konfiguration"></a>
 ## MCP-Client-Konfiguration
 
-Homebase nutzt das standardisierte stdio-`mcpServers`-Format. Dasselbe Snippet funktioniert in jedem MCP-fähigen Client oder jeder Harness: BACH/Buddha (lokales Ollama), Claude Code, Codex, Cursor oder einem anderen MCP-Host.
-
-> **Hinweis zu lokalen LLMs:** Eine bare Ollama-Instanz spricht kein MCP nativ — dafür braucht es eine MCP-fähige Harness (z.B. BACH, einen Open-Source-MCP-Proxy oder eine andere Orchestrierungsschicht). Diese Harness wird dann so konfiguriert, dass sie Homebase als MCP-Server einbindet (Snippet unten).
+Homebase nutzt das standardisierte stdio `mcpServers`-Konfigurationsformat.
 
 ### Globale npm-Installation
 
@@ -313,7 +335,7 @@ Homebase nutzt das standardisierte stdio-`mcpServers`-Format. Dasselbe Snippet f
 }
 ```
 
-### Quellcode-Checkout
+### Quelltext-Checkout
 
 ```json
 {
@@ -322,31 +344,28 @@ Homebase nutzt das standardisierte stdio-`mcpServers`-Format. Dasselbe Snippet f
       "command": "python",
       "args": ["-m", "homebase.server"],
       "env": {
-        "PYTHONPATH": "/absolute/path/to/ellmos-homebase-mcp/src"
+        "PYTHONPATH": "/absoluter/pfad/zu/ellmos-homebase-mcp/src"
       }
     }
   }
 }
 ```
 
-`/absolute/path/to/ellmos-homebase-mcp` durch den eigenen lokalen Checkout-Pfad ersetzen.
+---
 
+<a id="sec-11"></a><a id="server-konfiguration"></a>
 ## Server-Konfiguration
 
 Beispiel: [config/homebase.example.toml](config/homebase.example.toml)
 
-Maschinenlesbarer Projektkontext: [llms.txt](llms.txt)
-
-MCP-Registry-Metadaten: [server.json](server.json)
-
 Standardpfade:
-
 - `%USERPROFILE%\.homebase\homebase.toml`
 - `%USERPROFILE%\.config\homebase\homebase.toml`
-- Override per `HOMEBASE_CONFIG`
+- überschreibbar mit `HOMEBASE_CONFIG`
 
-Die Sprache kann über `[server].language`, `HOMEBASE_LANG` oder `HOMEBASE_LOCALE` gesetzt werden.
-Der schreibende Agent kann pro Tool-Aufruf als `agent_id` übergeben werden; sonst nutzen die Module `HOMEBASE_AGENT_ID`, `AGENT_ID`, eine modulweite `agent_id` oder `unknown`.
+Die Sprache kann über `[server].language`, `HOMEBASE_LANG` oder `HOMEBASE_LOCALE` festgelegt werden.
+Der schreibende Agent kann pro Aufruf als `agent_id` übergeben werden; andernfalls nutzen die Module
+`HOMEBASE_AGENT_ID`, `AGENT_ID`, ein modulspezifisches `agent_id` oder `unknown`.
 
 ```toml
 [server]
@@ -357,120 +376,161 @@ language = "de" # en, de, es, zh, ja, ru
 enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "conn", "auto", "plug"]
 ```
 
-Module mit fehlenden optionalen Dependencies werden beim Laden übersprungen, ohne den Serverstart zu blockieren.
+---
 
+<a id="sec-12"></a><a id="tools"></a>
 ## Tools
 
-Wichtige Tool-Gruppen:
+Wichtige Modulgruppen:
 
-- `hb_mem_*` für SQLite-Memory
-- `hb_kb_*` für SQLite-Knowledge
-- `hb_state_*` für persistenten SQLite-Zustand und Tasks
-- `hb_garden_*` für den kleinen SQLite-Garden-Store
-- `hb_route_*` für credential-freie Modell-Routing-Empfehlungen und Feedback-Statistiken
-- `hb_swarm_*` für credential-freie Schwarm-Planungsmuster
-- `hb_api_*` für passive HTTP-API-Discovery mit SQLite-Historie
-- `hb_test_*` für eingebaute Metadata- und Smoke-Selbsttests
-- `hb_conn_*` für eine lokale Connector-Registry plus SQLite-gestützte Inbox-/Outbox-Queues ohne Netzwerksends
-- `hb_auto_*` für lokale Automatisierungsketten und queue-basierte Planläufe ohne Backend-Ausführung
-- `hb_plug_*` für lokale Plugin-Discovery und Dry-run-Protokolle ohne Plugin-Code auszuführen
-- `hb_policy_*` (nur lesend, canonical-only) zum Auflösen/Auflisten von policy-registry-Regeln
-- `hb_ticket_*` (nur lesend, canonical-only) zum Auflisten/Anzeigen von ticket-master-Tickets je Lifecycle-Ordner
-- `hb_lock_*` (nur lesend, canonical-only) zum Prüfen/Auflisten aktiver lock-master-Sperren
+- `hb_mem_*` für SQLite-gespeichertes Gedächtnis
+- `hb_kb_*` für SQLite-gespeichertes Wissen
+- `hb_state_*` für persistenten Zustand und Aufgaben
+- `hb_garden_*` für Wissensgärten
+- `hb_route_*` für schlüssellose Modell-Empfehlungen
+- `hb_swarm_*` für schlüssellose Schwarm-Planungsmuster
+- `hb_api_*` für passive HTTP-API-Erkundung mit Historie
+- `hb_test_*` für Selbsttests
+- `hb_conn_*` für Konnektoren-Verwaltung und Warteschlangen
+- `hb_auto_*` für Automationsketten-Definitionen
+- `hb_plug_*` für Plugin-Erkundung
+- `hb_policy_*` (lesend, nur kanonisch) für Richtlinienabfragen
+- `hb_ticket_*` (lesend, nur kanonisch) für Ticketübersichten
+- `hb_lock_*` (lesend, nur kanonisch) für Sperrprüfungen
 
-## Auffindbarkeitskontext
+---
 
-`ellmos-homebase-mcp` ist der passende Suchanker für einen local-first, offline-fähigen MCP-Server, der lokalen LLMs (Ollama, Qwen, Llama o.ä.) persistentes Gedächtnis, Knowledge-Management, Routing und Orchestrierung gibt — ohne Cloud-Abhängigkeit. Externe LLM-Anbieter können ihn ebenfalls als MCP-Server nutzen, aber lokale Setups sind das primäre Designziel.
+<a id="sec-13"></a><a id="discovery-kontext"></a>
+## Discovery-Kontext
 
-Geeignete Suchphrasen:
+Verwende `ellmos-homebase-mcp`, wenn nach einem lokalen, offline-fähigen MCP-Server gesucht wird, der lokalen LLMs (Ollama, Qwen, Llama o. ä.) persistentes Gedächtnis, Wissensverwaltung, Routing und Orchestrierung bereitstellt – ohne Cloud-Zwang.
 
+Empfohlene Suchbegriffe:
 - `ellmos Homebase MCP server`
 - `local-first LLM orchestration MCP`
 - `MCP server SQLite memory knowledge routing`
 - `offline agent orchestration MCP server`
 - `MCP swarm planning persistent state API discovery`
 
-Nicht gemeint sind Elmo-/ELMO-Voice-Tools, AllenAI-ELMo-Embeddings, Eclipse LMOS, generische Cloud-Agent-Plattformen oder einzelne MCP-Memory-Server ohne Orchestrierungsschicht.
+---
 
+<a id="sec-14"></a><a id="ellmos-ai-ökosystem"></a>
 ## ellmos-ai-Ökosystem
 
-Dieser MCP-Server ist Teil des **[ellmos-ai](https://github.com/ellmos-ai)**-Ökosystems — KI-Infrastruktur, MCP-Server und intelligente Werkzeuge.
+Dieser MCP-Server ist Teil des **[ellmos-ai](https://github.com/ellmos-ai)**-Ökosystems – KI-Infrastruktur, MCP-Server und intelligente Werkzeuge.
 
 ### MCP-Server-Familie
 
 | Server | Tools | Fokus | npm |
 |--------|-------|-------|-----|
-| [FileCommander](https://github.com/ellmos-ai/ellmos-filecommander-mcp) | 47 | Dateisystem, Prozessverwaltung, interaktive Sitzungen, Cloud-Lock-sichere Operationen | [`ellmos-filecommander-mcp`](https://www.npmjs.com/package/ellmos-filecommander-mcp) |
-| [CodeCommander](https://github.com/ellmos-ai/ellmos-codecommander-mcp) | 23 | Code-Analyse, JSON-Reparatur, Imports, Diffs, Regex | [`ellmos-codecommander-mcp`](https://www.npmjs.com/package/ellmos-codecommander-mcp) |
-| [Clatcher](https://github.com/ellmos-ai/ellmos-clatcher-mcp) | 12 | Dateireparatur, Formatkonvertierung, Batch-Operationen | [`ellmos-clatcher-mcp`](https://www.npmjs.com/package/ellmos-clatcher-mcp) |
-| [n8n Manager](https://github.com/ellmos-ai/n8n-manager-mcp) | 19 | n8n-Workflow-Verwaltung über KI-Assistenten | [`n8n-manager-mcp`](https://www.npmjs.com/package/n8n-manager-mcp) |
-| [ControlCenter](https://github.com/ellmos-ai/ellmos-controlcenter-mcp) | 20 | MCP-Stack-Discovery, Profilverwaltung, Control Plane | [`ellmos-controlcenter-mcp`](https://www.npmjs.com/package/ellmos-controlcenter-mcp) |
-| **[Homebase](https://github.com/ellmos-ai/ellmos-homebase-mcp)** | **51** | **Local-first LLM-Gedächtnis, Wissen, Zustand, Routing, Schwarm-Orchestrierung** | **[`ellmos-homebase-mcp`](https://www.npmjs.com/package/ellmos-homebase-mcp)** (alpha) |
-| [ServerCommander](https://github.com/ellmos-ai/ellmos-servercommander-mcp) | 8 | Server-Operationen: Health-Checks, Log-Analyse, Deploy-Dry-Runs, Mail-Diagnose | [`ellmos-servercommander-mcp`](https://www.npmjs.com/package/ellmos-servercommander-mcp) (alpha) |
-| [Blender Use](https://github.com/ellmos-ai/ellmos-blender-use-mcp) | 3 | Headless Blender-Asset-QA und FBX-Reimport-Verifikation | [`ellmos-blender-use-mcp`](https://www.npmjs.com/package/ellmos-blender-use-mcp) (alpha) |
-| [Open Compute](https://github.com/ellmos-ai/open-compute-mcp) | 10 | Modell-agnostischer Computer-Use: Capture, safety-gated Aktionen, Windows-UIA | [`open-compute-mcp`](https://www.npmjs.com/package/open-compute-mcp) (alpha) |
+| [FileCommander](https://github.com/ellmos-ai/ellmos-filecommander-mcp) | 47 | Dateisystem, Prozessmanagement, interaktive Sitzungen | [`ellmos-filecommander-mcp`](https://www.npmjs.com/package/ellmos-filecommander-mcp) |
+| [CodeCommander](https://github.com/ellmos-ai/ellmos-codecommander-mcp) | 23 | Code-Analyse, JSON-Reparatur, Imports, Diffs | [`ellmos-codecommander-mcp`](https://www.npmjs.com/package/ellmos-codecommander-mcp) |
+| [Clatcher](https://github.com/ellmos-ai/ellmos-clatcher-mcp) | 12 | Dateireparatur, Formatkonvertierung, Stapelverarbeitung | [`ellmos-clatcher-mcp`](https://www.npmjs.com/package/ellmos-clatcher-mcp) |
+| [n8n Manager](https://github.com/ellmos-ai/n8n-manager-mcp) | 19 | n8n-Workflow-Management via KI-Assistenten | [`n8n-manager-mcp`](https://www.npmjs.com/package/n8n-manager-mcp) |
+| [ControlCenter](https://github.com/ellmos-ai/ellmos-controlcenter-mcp) | 20 | MCP-Stack-Erkennung, Profilverwaltung, Steuerung | [`ellmos-controlcenter-mcp`](https://www.npmjs.com/package/ellmos-controlcenter-mcp) |
+| **[Homebase](https://github.com/ellmos-ai/ellmos-homebase-mcp)** | **51** | **Lokales LLM-Gedächtnis, Wissen, Zustand, Routing, Schwarm-Orchestrierung** | **[`ellmos-homebase-mcp`](https://www.npmjs.com/package/ellmos-homebase-mcp)** (Alpha) |
+| [ServerCommander](https://github.com/ellmos-ai/ellmos-servercommander-mcp) | 8 | Server-Betrieb: Health-Checks, Log-Analyse, Deploy-Dry-Runs | [`ellmos-servercommander-mcp`](https://www.npmjs.com/package/ellmos-servercommander-mcp) (Alpha) |
+| [Blender Use](https://github.com/ellmos-ai/ellmos-blender-use-mcp) | 3 | Headless Blender-Asset-QS und FBX-Verifikation | [`ellmos-blender-use-mcp`](https://www.npmjs.com/package/ellmos-blender-use-mcp) (Alpha) |
+| [Open Compute](https://github.com/ellmos-ai/open-compute-mcp) | 10 | Modell-unabhängige Computer-Nutzung: UI-Automatisierung | [`open-compute-mcp`](https://www.npmjs.com/package/open-compute-mcp) (Alpha) |
 
 ### KI-Infrastruktur
 
 | Projekt | Beschreibung |
 |---------|-------------|
-| [BACH](https://github.com/ellmos-ai/bach) | Local-first textbasiertes OS für LLM-Agenten — 113+ Handler, 550+ Tools, SQLite-Memory |
-| [open-compute](https://github.com/ellmos-ai/open-compute) | Modell-agnostischer Computer-Use-Kern hinter Open Compute MCP |
-| [clutch](https://github.com/ellmos-ai/clutch) | Provider-neutrale LLM-Orchestrierung mit Auto-Routing und Budget-Tracking |
-| [rinnsal](https://github.com/ellmos-ai/rinnsal) | Leichte Agent-Memory-, Connector- und Automatisierungsinfrastruktur |
-| [ellmos-stack](https://github.com/ellmos-ai/ellmos-stack) | Self-hosted AI Research Stack (Ollama + n8n + Rinnsal + KnowledgeDigest) |
-| [MarbleRun](https://github.com/ellmos-ai/MarbleRun) | Autonomes Agent-Chain-Framework für Claude Code |
-| [gardener](https://github.com/ellmos-ai/gardener) | Minimalistischer datenbankgetriebener LLM-OS-Prototyp (4 Funktionen, 1 Tabelle) |
-| [ellmos-tests](https://github.com/ellmos-ai/ellmos-tests) | Testframework für LLM-Betriebssysteme (7 Dimensionen) |
+| [BACH](https://github.com/ellmos-ai/bach) | Lokales textbasiertes Betriebssystem für KI-Agenten – 113+ Handler, 550+ Tools |
+| [open-compute](https://github.com/ellmos-ai/open-compute) | Computer-Use-Kern zur Steuerung von Desktops |
+| [clutch](https://github.com/ellmos-ai/clutch) | Modell-neutrales LLM-Routing und Budget-Tracking |
+| [rinnsal](https://github.com/ellmos-ai/rinnsal) | Leichtgewichtige Agenten-Speicher- und Automationsinfrastruktur |
+| [ellmos-stack](https://github.com/ellmos-ai/ellmos-stack) | Selbst gehosteter KI-Forschungs-Stack |
+| [MarbleRun](https://github.com/ellmos-ai/MarbleRun) | Autonome Agentenketten für Claude Code |
+| [gardener](https://github.com/ellmos-ai/gardener) | Minimalistischer, datenbankgestützter LLM-OS-Prototyp |
+| [ellmos-tests](https://github.com/ellmos-ai/ellmos-tests) | Test-Framework für LLM-Betriebssysteme |
 
-### Desktop-Software & Geschwister-Ökosystem
+### Desktop-Software & Partner-Ökosystem
 
-Unsere Partner-Dachorganisation **[open-bricks](https://github.com/open-bricks)** und Schwesterorganisationen pflegen datenschutzkonforme, lokale Desktop-Software und Entwicklerwerkzeuge:
+Unsere Partner-Dachorganisation **[open-bricks](https://github.com/open-bricks)** und Schwesterorganisationen pflegen datenschutzkonforme, lokale Desktop-Software und Entwickler-Tools:
 
 | Anwendung / Werkzeug | Organisation | Fokus & Integration |
 |---|---|---|
-| [ProFiler](https://github.com/file-bricks/ProFiler) | `file-bricks` | Lokaler Desktop-Datei-Organizer mit PII-sicherem Workspace-Exchange |
-| [DokuZen](https://github.com/doc-bricks/DokuZen) | `doc-bricks` | Ablenkungsfreie Markdown- & PDF-Dokumentenverwaltung |
-| [PDFtoPDFocr](https://github.com/doc-bricks/PDFtoPDFocr) | `doc-bricks` | Local-First PDF-OCR und Textebenen-Einbettung |
-| [KnowledgeDigest](https://github.com/doc-bricks/KnowledgeDigest) | `doc-bricks` | Offline Dokumenten-Zusammenfassung und Embedding-Engine |
-| [DevCenter](https://github.com/dev-bricks/DevCenter) | `dev-bricks` | Entwickler-Arbeitsplatz und Multi-Repository-Verwaltung |
+| [ProFiler](https://github.com/file-bricks/ProFiler) | `file-bricks` | Lokale Desktop-Dateiverwaltung und DSGVO-sicherer Workspace-Austausch |
+| [DokuZen](https://github.com/doc-bricks/DokuZen) | `doc-bricks` | Ablenkungsfreier Markdown- & PDF-Dokumentationsmanager |
+| [PDFtoPDFocr](https://github.com/doc-bricks/PDFtoPDFocr) | `doc-bricks` | Lokales PDF-OCR und Einbettung von Textebenen |
+| [KnowledgeDigest](https://github.com/doc-bricks/KnowledgeDigest) | `doc-bricks` | Offline-Dokumentenzusammenfassung und Embedding-Engine |
+| [DevCenter](https://github.com/dev-bricks/DevCenter) | `dev-bricks` | Entwickler-Arbeitsplatz-Hub und Multi-Repository-Management |
 | [CodeBox](https://github.com/dev-bricks/CodeBox) | `dev-bricks` | Isolierter Sandbox-Runner und lokaler Code-Ausführungsassistent |
-| [MemoryHooker](https://github.com/ellmos-ai/memoryhooker-provenance) | `ellmos-ai` | Hook-basierte LLM-Gedächtnis-Provenienz und Sitzungsinjektion |
-| [sqlite-transit-sync](https://github.com/ellmos-ai/sqlite-transit-sync) | `ellmos-ai` | Abhängigkeitsfreie SQLite-Schemamigration & Replikationsschicht |
+| [MemoryHooker](https://github.com/ellmos-ai/memoryhooker-provenance) | `ellmos-ai` | Hook-basierte LLM-Memory-Provenienz und Sitzungsinjektions-Gate |
+| [sqlite-transit-sync](https://github.com/ellmos-ai/sqlite-transit-sync) | `ellmos-ai` | Abhängigkeitsfreie SQLite-Schemamigration und Replikationsschicht |
 
+---
+
+<a id="sec-15"></a><a id="drittanbieter-lizenzen"></a>
+## Drittanbieter-Lizenzen & Level 1 SBOM
+
+`ellmos-homebase-mcp` enthält nachweislich 0% Copyleft-Abhängigkeiten. Alle Laufzeitabhängigkeiten sind permissiv lizenziert (MIT, BSD-2-Clause, Apache-2.0, PSFL).
+
+Das vollständige Verzeichnis, die Level 1 SBOM Invarianten-Kreuzreferenzmatrix sowie die Nicht-Eskalationszertifizierung (`RunAsInvoker`) sind in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) dokumentiert. Die verbindliche Urheberrechtsangabe ist in [NOTICE](NOTICE) gepflegt.
+
+---
+
+<a id="sec-16"></a><a id="sicherheit--schwachstellenmeldung"></a>
 ## Sicherheit & Schwachstellenmeldung
 
-`ellmos-homebase-mcp` folgt strikten Sicherheitsprinzipien für Offline-Betrieb, Zero-Egress und unprivilegierte Ausführung. Vollständige Richtlinien, SLAs und Kontaktwege sind in [SECURITY.md](SECURITY.md) dokumentiert:
+`ellmos-homebase-mcp` befolgt strikt das Local-First-, Zero-Egress- und Non-Elevation-Sicherheitsprinzip. Vollständige Richtlinien und SLAs finden sich in [SECURITY.md](SECURITY.md):
 
 - **Unterstützte Versionen**: `0.1.0-alpha.x`
-- **Reaktions-SLA**: Erstbewertung und Rückmeldung innerhalb von **48 Stunden**.
-- **Sicherheitskontakte**: `security@ellmos.ai` und `support@lukasgeiger.com`.
-- **Private Advisory**: [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
+- **Reaktions-SLA**: Erste Bestätigung und Triage innerhalb von **48 Stunden**. Detaillierte Einstufung binnen 5 Werktagen; Behebung innerhalb von 30 Kalendertagen.
+- **Sicherheitskontakte**: `security@ellmos.ai`, `support@lukasgeiger.com` und `security@open-bricks.org`.
+- **Sicherheitsmeldungen**: [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
 
+---
+
+<a id="sec-17"></a><a id="entwicklung"></a>
 ## Entwicklung
 
 ```powershell
 $env:PYTHONIOENCODING = "utf-8"
 $env:PYTHONDONTWRITEBYTECODE = "1"
-python -m pytest -q
+python -m pytest -ra -v
 npm run smoke
 npm pack --dry-run --json
 ```
 
-Der nächste sinnvolle Schritt ist, optionale Ausführungsbackends nur explizit konfiguriert zu aktivieren.
+---
+
+<a id="sec-18"></a><a id="lizenz--gesetzlicher-haftungsausschluss"></a>
+## Lizenz & Gesetzlicher Haftungsausschluss (§ 521 BGB)
+
+### Softwarelizenz
+`ellmos-homebase-mcp` ist Open-Source-Software unter der **[MIT-Lizenz](LICENSE)**.
+Die verbindliche Namensnennung zugunsten von Lukas Geiger, der `ellmos-ai`-Familie und dem `open-bricks`-Ökosystem ist in [`NOTICE`](NOTICE) hinterlegt.
+Die Lizenzen aller Drittanbieter-Komponenten sind in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) erfasst.
+
+### Gesetzlicher Hinweis & Haftungsbeschränkung (§ 521 BGB - Deutsches Recht)
+Diese Software wird als Open-Source-Projekt unentgeltlich zur Verfügung gestellt. Gemäß den gesetzlichen Bestimmungen des deutschen Schenkungs- und Gefälligkeitsrechts (**§ 521 BGB**):
+1. **Haftungsbeschränkung**: Die Haftung des Autors und der Mitwirkenden ist auf Vorsatz und grobe Fahrlässigkeit beschränkt.
+2. **Gewährleistungsausschluss**: Gemäß §§ 523, 524 BGB ist die Gewährleistung für Sach- und Rechtsmängel ausgeschlossen, es sei denn, Mängel wurden arglistig verschwiegen (**arglistiges Verschweigen**).
+3. **Local-First & Non-Elevation Prinzip**: `ellmos-homebase-mcp` wird im aktuellen Zustand ("as is") und ohne ausdrückliche oder stillschweigende Garantie bereitgestellt. Anwender betreiben Homebase im unprivilegierten Benutzermodus (`RunAsInvoker`) auf eigenes Risiko.
+
+### Verbindliche Sicherheitsreaktions-SLA
+Für Sicherheitsmeldungen garantiert unsere Richtlinie zur koordinierten Offenlegung eine Erstantwort innerhalb von **48 Stunden** und eine Einstufung innerhalb von 5 Werktagen:
+- Sicherheitskontakt: `security@ellmos.ai` | `support@lukasgeiger.com` | `security@open-bricks.org`
+- Advisory-Portal: [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories)
+- Sicherheitsrichtlinie: [`SECURITY.md`](SECURITY.md)
+
+---
 
 ## Bundles und Partner
 
-Homebase MCP bleibt ein eigenständig nutzbarer Local-first-MCP-Server. In der
-V4-Komposition ist er eine optionale **MCP-Zugangsfläche** des
-`ellmos-memory-human-context-bundle`: Ein konfiguriertes System kann über ihn
-Memory- und Human-Context-Fähigkeiten erreichen. Diese Zugangsrolle macht
-Homebase nicht zum kanonischen Owner jeder Memory-, Wissens-, Zustands-,
-Routing- oder Automatisierungsfunktion; der ausgewählte Host und die
-Systemmanifeste behalten diese Bindungen.
+Homebase MCP bleibt ein eigenständiger, lokal-zentrierter MCP-Server. In der
+V4-Komposition dient er als optionale **MCP-Zugriffsoberfläche** des
+`ellmos-memory-human-context-bundle`: Ein konfiguriertes Gesamtsystem kann über
+diesen Server auf Memory- und Human-Context-Fähigkeiten zugreifen. Diese Rolle
+macht Homebase nicht zum kanonischen Eigentümer aller Memory-, Wissens-,
+Zustands-, Routing- oder Automationsfunktionen; die ausgewählten Host- und
+Systemmanifeste behalten ihre primären Bindungen.
 
-Kanonische oder gebündelte Engines sind explizit konfigurierte
-Integrationspartner, keine impliziten Ersetzungen dieses Servers. Verbindliche
-Bundle-Mitgliedschaft, Versionen, Profile und private
-Zusammensetzungsrezepte bleiben in den jeweiligen Bundle-Manifesten. Dieser
-öffentliche Abschnitt dient ausschließlich der Discovery.
+Kanonische oder gebündelte Engines sind per expliziter Konfiguration
+ausgewählte Integrationspartner, keine stillen Ersetzungen für diesen Server.
+Verbindliche Bundle-Zugehörigkeiten, Versionen, Profile und private
+Kompositionsrezepte verbleiben in den jeweiligen Bundle-Manifesten. Dieser
+öffentliche Abschnitt dient ausschließlich der Auffindbarkeit.

@@ -517,6 +517,7 @@ def test_pep639_license_files_metadata():
     project = pyproject.get("project", {})
     license_files = project.get("license-files", [])
     assert "LICENSE" in license_files, "LICENSE must be declared in [project].license-files"
+    assert "NOTICE" in license_files, "NOTICE must be declared in [project].license-files"
     assert "THIRD_PARTY_LICENSES.md" in license_files, "THIRD_PARTY_LICENSES.md must be declared in [project].license-files"
 
 
@@ -546,3 +547,78 @@ def test_security_hygiene_zero_hardcoded_secrets_and_personal_paths():
         for pattern in secret_patterns:
             assert not pattern.search(text), f"Potential hardcoded secret in {path.relative_to(REPO_ROOT)}"
         assert not path_pattern.search(text), f"Hardcoded developer personal path in {path.relative_to(REPO_ROOT)}"
+
+
+def test_root_notice_attribution_and_manifest_inclusion():
+    notice_file = REPO_ROOT / "NOTICE"
+    assert notice_file.is_file(), "NOTICE must exist in repository root"
+    content = notice_file.read_text(encoding="utf-8")
+    assert "ellmos-homebase-mcp" in content
+    assert "Lukas Geiger" in content
+    assert "ellmos-ai" in content
+    assert "open-bricks" in content
+    assert "MIT License" in content
+
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+    assert "NOTICE" in package.get("files", []), "NOTICE must be listed in package.json files array"
+
+
+def test_bilingual_18_point_dual_anchors_and_statutory_disclaimer():
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+
+    for i in range(1, 19):
+        sec_tag = f'id="sec-{i:02d}"'
+        assert sec_tag in readme_en, f"Missing {sec_tag} in README.md"
+        assert sec_tag in readme_de, f"Missing {sec_tag} in README_de.md"
+
+    # § 521 BGB German statutory notice & liability limitation
+    assert "§ 521 BGB" in readme_en
+    assert "§ 521 BGB" in readme_de
+    assert "Gefälligkeitsrecht" in readme_en
+    assert "Gefälligkeitsrecht" in readme_de
+    assert "Vorsatz" in readme_en and "Vorsatz" in readme_de
+    assert "grobe Fahrlässigkeit" in readme_en and "grobe Fahrlässigkeit" in readme_de
+    assert "arglistiges Verschweigen" in readme_en and "arglistiges Verschweigen" in readme_de
+    assert "48 hours" in readme_en
+    assert "48 Stunden" in readme_de
+
+
+def test_level_1_sbom_cross_reference_matrix_and_certifications():
+    licenses_file = REPO_ROOT / "THIRD_PARTY_LICENSES.md"
+    content = licenses_file.read_text(encoding="utf-8")
+
+    assert "Stand: 2026-09-23" in content
+    assert "## Level 1 SBOM Invariant Cross-Reference Matrix" in content
+    assert "RunAsInvoker" in content
+    assert "Zero-Copyleft & Permissive Licensing Affirmation" in content
+
+    # All 10 invariants mapped in SBOM table
+    for inv in (
+        "INV-LOCAL-01",
+        "INV-ENGINE-02",
+        "INV-SEAM-03",
+        "INV-PROV-04",
+        "INV-CRED-05",
+        "INV-STAGE-06",
+        "INV-I18N-07",
+        "INV-PERM-08",
+        "INV-SYNC-09",
+        "INV-SLA-10",
+    ):
+        assert inv in content, f"Missing invariant {inv} in THIRD_PARTY_LICENSES.md SBOM"
+
+
+def test_keywords_saturation_across_manifests():
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+
+    py_keywords = pyproject.get("project", {}).get("keywords", [])
+    pkg_keywords = package.get("keywords", [])
+
+    assert len(py_keywords) >= 20, f"Expected >=20 keywords in pyproject.toml, got {len(py_keywords)}"
+    assert len(pkg_keywords) >= 20, f"Expected >=20 keywords in package.json, got {len(pkg_keywords)}"
+
+    required_keywords = {"zero-egress", "fail-closed", "open-bricks", "ellmos-ai", "local-first", "mcp"}
+    assert required_keywords.issubset(set(py_keywords)), "pyproject.toml missing required high-intent keywords"
+    assert required_keywords.issubset(set(pkg_keywords)), "package.json missing required high-intent keywords"
