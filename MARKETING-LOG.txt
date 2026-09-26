@@ -198,3 +198,43 @@ multi-module MCP orchestration server.
 - Automated Contract Test Expansion: Expanded tests/test_metadata.py with assertions verifying root NOTICE,
   18-point dual anchors, Section 18 § 521 BGB disclaimer, Level 1 SBOM matrix, and keyword saturation.
 ================================================================================
+
+11. REPOSITORY HYGIENE, CI WORKFLOW PROVISIONING & LOCK DEFENSE AUDIT (Pfad A - 2026-09-26)
+--------------------------------------------------------------------------------
+- Version Freeze Integrity (T-20260920-167562623): Strictly preserved version 0.1.0-alpha.29
+  (pyproject.toml 0.1.0a29) without bump, documenting all enhancements under [Unreleased].
+- CI/CD Lifecycle Workflow Provisioning & Hardening:
+  * .github/workflows/welcome.yml newly provisioned with actions/first-interaction@v3,
+    concurrency control (welcome-${{ github.ref }} cancel-in-progress: true), timeout-minutes: 5,
+    and least-privilege permissions (issues: write, pull-requests: write).
+  * .github/workflows/auto-assign.yml newly provisioned with actions/github-script@v7,
+    concurrency control (${{ github.workflow }}-${{ github.ref }} cancel-in-progress: true),
+    timeout-minutes: 5, and least-privilege permissions (pull-requests: write, issues: write).
+  * .github/workflows/label-sync.yml newly provisioned with EndBug/label-sync@v2,
+    concurrency control (${{ github.workflow }}-${{ github.ref }} cancel-in-progress: true),
+    timeout-minutes: 5, and least-privilege permissions (issues: write).
+  * .github/workflows/stale.yml hardened with concurrency group (stale-${{ github.ref }}
+    cancel-in-progress: true).
+  * .github/labels.yml canonical label configuration provisioned with 11 standard governance
+    labels matching GOVERNANCE.md §4.2.
+- Multi-Host Cloud-Sync-, Lock- and Cache-Defense (.gitignore):
+  * Multi-Host sync conflict patterns extended with *-MacBook*, *-IDEAPAD*, *_WORKSTATION*,
+    *_WORKSTATION-LG*, *-WORKSTATION.*, *-WORKSTATION-LG.*.
+  * Canonical lock patterns extended with LOCK.user.*, LOCK.until.*, LOCK.condition.*,
+    .automation-lock, uv.lock (preserving !package-lock.json).
+  * Test and coverage caches extended with .pytest_temp/ and .pytest_tmp*/.
+  * OS artifacts extended with Desktop.ini and *.swo.
+- Level 1 SBOM Re-Audit & Text Inventory:
+  * THIRD_PARTY_LICENSES.md re-audited Stand: 2026-09-26 re-affirming all 10 governance
+    and runtime invariants (INV-LOCAL-01 to INV-SLA-10), unprivileged RunAsInvoker non-elevation,
+    and zero-copyleft standard library runtime isolation.
+  * THIRD_PARTY_LICENSES.txt newly established as direct dependency and Level 1 SBOM inventory.
+- PEP 621 Standard Metadata & Pytest Hardening:
+  * pyproject.toml license-files extended with THIRD_PARTY_LICENSES.txt.
+  * [tool.pytest.ini_options] hardened with norecursedirs.
+  * package.json files array updated with THIRD_PARTY_LICENSES.txt.
+- Automated Contract Test Expansion:
+  * tests/test_metadata.py expanded with contract assertions validating welcome/auto-assign/label-sync
+    workflows, concurrency/timeout/permission hygiene, labels.yml, extended .gitignore guards,
+    pyproject license-files/norecursedirs, and Level 1 SBOM Stand: 2026-09-26.
+================================================================================

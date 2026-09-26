@@ -8,7 +8,7 @@ version = "0.1.0a29"
 description = "MCP server that gives local LLMs a complete capability stack: memory, routing, knowledge, swarm coordination, state, API exploration, testing, and more."
 readme = "README.md"
 license = "MIT"
-license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md"]
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt"]
 requires-python = ">=3.10"
 authors = [{ name = "Lukas Geiger" }]
 keywords = [
@@ -64,6 +64,7 @@ Security = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/SECURITY.
 Notice = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/NOTICE"
 "LLM Ready" = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/llms.txt"
 "Third-Party Licenses" = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/THIRD_PARTY_LICENSES.md"
+"Third-Party Licenses (Text)" = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/THIRD_PARTY_LICENSES.txt"
 "Marketing Log" = "https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/MARKETING-LOG.txt"
 "Parent Organization" = "https://github.com/ellmos-ai"
 "Umbrella Ecosystem" = "https://github.com/open-bricks"
@@ -91,6 +92,7 @@ packages = ["src/homebase"]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
 addopts = "-ra -v --basetemp=.pytest_tmp"
+norecursedirs = [".git", ".pytest_cache", ".pytest_temp", ".pytest_tmp*", ".ruff_cache", "node_modules", "dist", "build"]
 
 [tool.ruff]
 line-length = 120

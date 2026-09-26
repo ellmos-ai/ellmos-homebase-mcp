@@ -46,7 +46,9 @@ id_dsa*
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.pytest_temp/
 .pytest_tmp/
+.pytest_tmp*/
 .ruff_cache/
 .mypy_cache/
 .coverage
@@ -71,10 +73,17 @@ node_modules/
 * (copy)*
 * (Copy)*
 *-WORKSTATION*
+*-WORKSTATION-LG*
+*_WORKSTATION*
+*_WORKSTATION-LG*
+*-WORKSTATION.*
+*-WORKSTATION-LG.*
 *-ASUS*
 *-ASUS-GEI*
 *-LAPTOP*
 *-Mac Studio*
+*-MacBook*
+*-IDEAPAD*
 *.sync-conflict-*
 *.conflict
 *-CONFLIT-*
@@ -87,7 +96,12 @@ LOCK
 LOCK.*
 *.lock
 LOCK*.txt
+LOCK.user.*
+LOCK.until.*
+LOCK.condition.*
 LOCK.permissions.json
+.automation-lock
+uv.lock
 !package-lock.json
 
 # Wheel packaging and smoke test caches
@@ -103,6 +117,7 @@ wheelhouse/
 *.tmp
 *.bak
 *.swp
+*.swo
 *.orig
 *.rej
 *~
@@ -110,3 +125,4 @@ wheelhouse/
 # Operating system files
 Thumbs.db
 .DS_Store
+Desktop.ini

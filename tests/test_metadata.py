@@ -519,6 +519,7 @@ def test_pep639_license_files_metadata():
     assert "LICENSE" in license_files, "LICENSE must be declared in [project].license-files"
     assert "NOTICE" in license_files, "NOTICE must be declared in [project].license-files"
     assert "THIRD_PARTY_LICENSES.md" in license_files, "THIRD_PARTY_LICENSES.md must be declared in [project].license-files"
+    assert "THIRD_PARTY_LICENSES.txt" in license_files, "THIRD_PARTY_LICENSES.txt must be declared in [project].license-files"
 
 
 def test_security_hygiene_zero_hardcoded_secrets_and_personal_paths():
@@ -588,7 +589,7 @@ def test_level_1_sbom_cross_reference_matrix_and_certifications():
     licenses_file = REPO_ROOT / "THIRD_PARTY_LICENSES.md"
     content = licenses_file.read_text(encoding="utf-8")
 
-    assert "Stand: 2026-09-23" in content
+    assert "Stand: 2026-09-26" in content
     assert "## Level 1 SBOM Invariant Cross-Reference Matrix" in content
     assert "RunAsInvoker" in content
     assert "Zero-Copyleft & Permissive Licensing Affirmation" in content
@@ -622,3 +623,142 @@ def test_keywords_saturation_across_manifests():
     required_keywords = {"zero-egress", "fail-closed", "open-bricks", "ellmos-ai", "local-first", "mcp"}
     assert required_keywords.issubset(set(py_keywords)), "pyproject.toml missing required high-intent keywords"
     assert required_keywords.issubset(set(pkg_keywords)), "package.json missing required high-intent keywords"
+
+
+def test_ci_lifecycle_workflows_and_concurrency_hygiene():
+    workflows_dir = REPO_ROOT / ".github" / "workflows"
+
+    welcome_file = workflows_dir / "welcome.yml"
+    assert welcome_file.is_file(), "welcome.yml workflow must exist"
+    welcome_text = welcome_file.read_text(encoding="utf-8")
+    assert "actions/first-interaction@v3" in welcome_text
+    assert "timeout-minutes: 5" in welcome_text
+    assert "cancel-in-progress: true" in welcome_text
+    assert "issues: write" in welcome_text
+    assert "pull-requests: write" in welcome_text
+
+    auto_assign_file = workflows_dir / "auto-assign.yml"
+    assert auto_assign_file.is_file(), "auto-assign.yml workflow must exist"
+    auto_assign_text = auto_assign_file.read_text(encoding="utf-8")
+    assert "actions/github-script@v7" in auto_assign_text
+    assert "timeout-minutes: 5" in auto_assign_text
+    assert "cancel-in-progress: true" in auto_assign_text
+    assert "pull-requests: write" in auto_assign_text
+
+    label_sync_file = workflows_dir / "label-sync.yml"
+    assert label_sync_file.is_file(), "label-sync.yml workflow must exist"
+    label_sync_text = label_sync_file.read_text(encoding="utf-8")
+    assert "EndBug/label-sync@v2" in label_sync_text
+    assert "timeout-minutes: 5" in label_sync_text
+    assert "cancel-in-progress: true" in label_sync_text
+    assert "config-file: .github/labels.yml" in label_sync_text
+    assert "issues: write" in label_sync_text
+
+    stale_file = workflows_dir / "stale.yml"
+    assert stale_file.is_file(), "stale.yml workflow must exist"
+    stale_text = stale_file.read_text(encoding="utf-8")
+    assert "actions/stale@v9" in stale_text
+    assert "timeout-minutes: 10" in stale_text
+    assert "cancel-in-progress: true" in stale_text
+    assert "issues: write" in stale_text
+    assert "pull-requests: write" in stale_text
+
+
+def test_canonical_labels_and_governance_parity():
+    labels_file = REPO_ROOT / ".github" / "labels.yml"
+    assert labels_file.is_file(), "labels.yml must exist"
+    labels_text = labels_file.read_text(encoding="utf-8")
+
+    expected_labels = [
+        "bug",
+        "enhancement",
+        "good first issue",
+        "help wanted",
+        "documentation",
+        "duplicate",
+        "wontfix",
+        "priority: high",
+        "priority: low",
+        "needs-triage",
+        "stale",
+    ]
+    for label in expected_labels:
+        assert f"name: {label}" in labels_text or f"name: '{label}'" in labels_text, f"Missing label {label} in labels.yml"
+
+
+def test_multi_host_sync_and_canonical_lock_gitignore_guards():
+    gitignore_file = REPO_ROOT / ".gitignore"
+    assert gitignore_file.is_file(), ".gitignore must exist"
+    gitignore_text = gitignore_file.read_text(encoding="utf-8")
+
+    required_patterns = [
+        "*-MacBook*",
+        "*-IDEAPAD*",
+        "*_WORKSTATION*",
+        "*_WORKSTATION-LG*",
+        "*-WORKSTATION.*",
+        "*-WORKSTATION-LG.*",
+        "LOCK.user.*",
+        "LOCK.until.*",
+        "LOCK.condition.*",
+        ".automation-lock",
+        "uv.lock",
+        ".pytest_temp/",
+        ".pytest_tmp*/",
+        "Desktop.ini",
+        "*.swo",
+    ]
+    for pattern in required_patterns:
+        assert pattern in gitignore_text, f"Missing pattern {pattern} in .gitignore"
+
+
+def test_pyproject_pytest_norecursedirs_and_urls_parity():
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    pytest_opts = pyproject.get("tool", {}).get("pytest", {}).get("ini_options", {})
+    norecursedirs = pytest_opts.get("norecursedirs", [])
+
+    assert ".git" in norecursedirs
+    assert ".pytest_cache" in norecursedirs
+    assert ".pytest_temp" in norecursedirs
+    assert ".pytest_tmp*" in norecursedirs
+
+    urls = pyproject.get("project", {}).get("urls", {})
+    assert "Third-Party Licenses (Text)" in urls
+    assert urls["Third-Party Licenses (Text)"].endswith("THIRD_PARTY_LICENSES.txt")
+
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+    assert "THIRD_PARTY_LICENSES.txt" in package.get("files", []), "THIRD_PARTY_LICENSES.txt must be in package.json files"
+
+
+def test_third_party_licenses_txt_and_level_1_sbom_inventory():
+    txt_file = REPO_ROOT / "THIRD_PARTY_LICENSES.txt"
+    assert txt_file.is_file(), "THIRD_PARTY_LICENSES.txt must exist"
+    txt_content = txt_file.read_text(encoding="utf-8")
+
+    assert "Audited: Stand: 2026-09-26" in txt_content
+    assert "RunAsInvoker" in txt_content
+    assert "Zero-Copyleft" in txt_content
+    assert "NOTICE" in txt_content
+    assert "THIRD_PARTY_LICENSES.md" in txt_content
+
+    for inv in (
+        "INV-LOCAL-01",
+        "INV-ENGINE-02",
+        "INV-SEAM-03",
+        "INV-PROV-04",
+        "INV-CRED-05",
+        "INV-STAGE-06",
+        "INV-I18N-07",
+        "INV-PERM-08",
+        "INV-SYNC-09",
+        "INV-SLA-10",
+    ):
+        assert inv in txt_content, f"Missing invariant {inv} in THIRD_PARTY_LICENSES.txt"
+
+
+def test_changelog_and_marketing_log_pfad_a_records():
+    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "### Repository Hygiene, CI Lifecycle Workflows & Lock Defense (Pfad A) - 2026-09-26" in changelog
+
+    marketing_log = (REPO_ROOT / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    assert "11. REPOSITORY HYGIENE, CI WORKFLOW PROVISIONING & LOCK DEFENSE AUDIT (Pfad A - 2026-09-26)" in marketing_log

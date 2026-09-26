@@ -15,6 +15,7 @@ Important files:
 - `NOTICE`: Canonical copyright attribution for Lukas Geiger, ellmos-ai, and open-bricks.
 - `SECURITY.md`: Bilingual security policy with local-first guarantees, 48h SLA, 30d remediation, and invariant matrix.
 - `THIRD_PARTY_LICENSES.md`: Permissive open-source license review, Level 1 SBOM Invariant Cross-Reference Matrix, and RunAsInvoker non-elevation certification.
+- `THIRD_PARTY_LICENSES.txt`: Direct dependency license inventory and Level 1 SBOM text audit.
 - `MARKETING-LOG.txt`: Discoverability, target personas, and 10 governance runtime invariants.
 - `KONZEPT.md`: German concept and module roadmap.
 - `MODE-CONTRACT.md`: binding contract for the `canonical` and `bundled` engine modes (German).
@@ -27,7 +28,7 @@ Important files:
 - `src/homebase/server.py`: MCP stdio server entry point.
 - `src/homebase/registry.py`: Module discovery and tool dispatch.
 - `src/homebase/modules/`: Homebase tool modules.
-- `tests/`: Pytest coverage (154+ tests) for config, registry, modules, contract tests, and localization.
+- `tests/`: Pytest coverage (165+ tests) for config, registry, modules, contract tests, and localization.
 
 Tool namespace groups:
 
@@ -75,4 +76,4 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-09-21 (Re-verified: 2026-09-23)
+## Last-checked: 2026-09-21 (Re-verified: 2026-09-26)

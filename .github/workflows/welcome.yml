@@ -1,0 +1,42 @@
+name: 'Welcome New Contributors'
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: welcome-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/first-interaction@v3
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
+            Welcome! 👋 Thanks for opening your first issue in ellmos-homebase-mcp.
+
+            We will review it as soon as possible. In the meantime:
+            - Check if there is a similar issue or discussion already open
+            - Provide clear reproduction steps, environment details (Python/Node version), or client logs
+            - Review our [Community & Security Policies](SECURITY.md)
+
+            If you would like to contribute a fix or improvement, PRs are always welcome!
+          pr_message: |
+            Welcome! 👋 Thanks for opening your first pull request in ellmos-homebase-mcp.
+
+            A maintainer will review your submission shortly. Please ensure:
+            - [ ] Your changes pass the automated test suites (`pytest` and `npm run smoke`)
+            - [ ] Documentation and bilingual parity (`README.md` / `README_de.md`) are updated if applicable
+            - [ ] The PR description clearly explains the changes, rationale, and any invariant impacts
+
+            Thanks for helping make ellmos-homebase-mcp better!

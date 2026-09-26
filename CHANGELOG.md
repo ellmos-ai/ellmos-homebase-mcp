@@ -2,7 +2,30 @@
 
 All notable changes to `ellmos-homebase-mcp` are tracked here.
 
-## [Unreleased] (Discoverability, Level 1 SBOM, 18-Point Navigation Parity & NOTICE Attribution) - 2026-09-23
+## [Unreleased]
+
+### Repository Hygiene, CI Lifecycle Workflows & Lock Defense (Pfad A) - 2026-09-26
+- **CI/CD Lifecycle Workflows**:
+  - Newly provisioned `.github/workflows/welcome.yml` with `actions/first-interaction@v3`, concurrency control (`welcome-${{ github.ref }}` `cancel-in-progress: true`), `timeout-minutes: 5`, and least-privilege permissions (`issues: write`, `pull-requests: write`).
+  - Newly provisioned `.github/workflows/auto-assign.yml` with `actions/github-script@v7`, concurrency control (`${{ github.workflow }}-${{ github.ref }}` `cancel-in-progress: true`), `timeout-minutes: 5`, and least-privilege permissions (`pull-requests: write`, `issues: write`).
+  - Newly provisioned `.github/workflows/label-sync.yml` with `EndBug/label-sync@v2`, concurrency control (`${{ github.workflow }}-${{ github.ref }}` `cancel-in-progress: true`), `timeout-minutes: 5`, and least-privilege permissions (`issues: write`).
+  - Hardened `.github/workflows/stale.yml` with concurrency group (`stale-${{ github.ref }}` `cancel-in-progress: true`).
+  - Provisioned canonical `.github/labels.yml` with 11 standard governance labels per `GOVERNANCE.md §4.2`.
+- **Multi-Host Cloud-Sync, Lock- and Cache-Defense**:
+  - Hardened `.gitignore` with multi-host conflict patterns (`*-MacBook*`, `*-IDEAPAD*`, `*_WORKSTATION*`, `*_WORKSTATION-LG*`, `*-WORKSTATION.*`, `*-WORKSTATION-LG.*`).
+  - Hardened `.gitignore` with canonical lock patterns (`LOCK.user.*`, `LOCK.until.*`, `LOCK.condition.*`, `.automation-lock`, `uv.lock`) preserving `!package-lock.json`.
+  - Added test cache protections (`.pytest_temp/`, `.pytest_tmp*/`) and OS artifacts (`Desktop.ini`, `*.swo`).
+- **Level 1 SBOM Re-Audit & Text Inventory**:
+  - Re-audited `THIRD_PARTY_LICENSES.md` to `Stand: 2026-09-26`, re-affirming all 10 governance and runtime invariants (`INV-LOCAL-01` to `INV-SLA-10`), unprivileged `RunAsInvoker` non-elevation, and zero-copyleft standard library isolation.
+  - Newly established `THIRD_PARTY_LICENSES.txt` as plain text dependency inventory and Level 1 SBOM companion file.
+- **PEP 621 Standard Metadata & Pytest Hardening**:
+  - Updated `license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt"]` and registered `Third-Party Licenses (Text)` in `pyproject.toml`.
+  - Hardened `[tool.pytest.ini_options]` with `norecursedirs`.
+  - Included `"THIRD_PARTY_LICENSES.txt"` in `package.json` `files` array.
+- **Automated Contract Tests**:
+  - Expanded `tests/test_metadata.py` with contract assertions verifying all CI lifecycle workflows, concurrency and permission hygiene, canonical labels, extended gitignore defenses, pyproject license-files/norecursedirs, and Level 1 SBOM recency.
+
+### Discoverability, Level 1 SBOM & NOTICE Attribution (Pfad B) - 2026-09-23
 
 ### Discoverability & Documentation
 - **18-Point Bilingual Dual Reciprocal Navigation**: Standardized `README.md` and `README_de.md` to an 18-point quick navigation structure with dual reciprocal HTML anchor aliases (`<a id="sec-01"></a><a id="slug"></a>` through `sec-18`) for seamless cross-language navigation.
