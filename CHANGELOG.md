@@ -4,6 +4,20 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Repository Lifecycle Hardening, CI Workflow Parity & Level 1 SBOM Re-Audit (Pfad A) - 2026-09-29
+- **Strict Version-Freeze Discipline (T-20260920-167562623)**:
+  - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.
+- **Multi-Host Cloud-Sync & Lock-Defense**:
+  - Hardened `.gitignore` with lowercase `desktop.ini` and re-verified comprehensive multi-host conflict patterns (`*-IDEAPAD*`, `*-WORKSTATION*`, `*_WORKSTATION*`, `*_WORKSTATION-LG*`, `*-WORKSTATION.*`, `*-WORKSTATION-LG.*`, `*-MacBook*`) and canonical lock patterns (`LOCK.user.*`, `LOCK.until.*`, `LOCK.condition.*`, `.automation-lock`, `uv.lock`).
+- **Level 1 SBOM Stand 2026-09-29 Re-Audit & Plain-Text Companion**:
+  - Re-audited `THIRD_PARTY_LICENSES.md` and `THIRD_PARTY_LICENSES.txt` to `Stand: 2026-09-29`, confirming 100% permissive dependencies, zero-copyleft standard library SQLite isolation, unprivileged `RunAsInvoker` user mode, and runtime invariants `INV-LOCAL-01` through `INV-SLA-10`.
+  - Updated canonical `NOTICE` attribution file referencing both `THIRD_PARTY_LICENSES.md` and `THIRD_PARTY_LICENSES.txt`.
+- **Badges, Documentation & AI Context Parity**:
+  - Synchronized Shields.io test and verification badges across `README.md` and `README_de.md` (`verified 2026-09-29`, `Last-Checked: 2026-09-29`, 166 passed tests).
+  - Updated `llms.txt` with refreshed verification timestamp (`2026-09-29`) and test count baseline.
+- **Contract Test Suite Expansion**:
+  - Expanded `tests/test_metadata.py` with 3 new automated contract tests verifying Level 1 SBOM currency to 2026-09-29, Pfad A release logs, and strict version freeze integrity.
+
 ### Repository Hygiene, CI Lifecycle Workflows & Lock Defense (Pfad A) - 2026-09-26
 - **CI/CD Lifecycle Workflows**:
   - Newly provisioned `.github/workflows/welcome.yml` with `actions/first-interaction@v3`, concurrency control (`welcome-${{ github.ref }}` `cancel-in-progress: true`), `timeout-minutes: 5`, and least-privilege permissions (`issues: write`, `pull-requests: write`).

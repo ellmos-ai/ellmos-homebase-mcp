@@ -735,7 +735,7 @@ def test_third_party_licenses_txt_and_level_1_sbom_inventory():
     assert txt_file.is_file(), "THIRD_PARTY_LICENSES.txt must exist"
     txt_content = txt_file.read_text(encoding="utf-8")
 
-    assert "Audited: Stand: 2026-09-26" in txt_content
+    assert "Audited: Stand: 2026-09-29" in txt_content
     assert "RunAsInvoker" in txt_content
     assert "Zero-Copyleft" in txt_content
     assert "NOTICE" in txt_content
@@ -755,10 +755,41 @@ def test_third_party_licenses_txt_and_level_1_sbom_inventory():
     ):
         assert inv in txt_content, f"Missing invariant {inv} in THIRD_PARTY_LICENSES.txt"
 
+    md_content = (REPO_ROOT / "THIRD_PARTY_LICENSES.md").read_text(encoding="utf-8")
+    assert "Re-audited Stand: 2026-09-29" in md_content
+
+    notice_content = (REPO_ROOT / "NOTICE").read_text(encoding="utf-8")
+    assert "THIRD_PARTY_LICENSES.txt" in notice_content
+
 
 def test_changelog_and_marketing_log_pfad_a_records():
     changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "### Repository Lifecycle Hardening, CI Workflow Parity & Level 1 SBOM Re-Audit (Pfad A) - 2026-09-29" in changelog
     assert "### Repository Hygiene, CI Lifecycle Workflows & Lock Defense (Pfad A) - 2026-09-26" in changelog
 
     marketing_log = (REPO_ROOT / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    assert "12. REPOSITORY HYGIENE, LEVEL 1 SBOM RE-AUDIT & CONTRACT TEST EXPANSION (Pfad A - 2026-09-29)" in marketing_log
     assert "11. REPOSITORY HYGIENE, CI WORKFLOW PROVISIONING & LOCK DEFENSE AUDIT (Pfad A - 2026-09-26)" in marketing_log
+
+
+def test_readme_and_readme_de_audit_dates_and_badges_currency():
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+
+    assert "verified%202026--09--29" in readme_en
+    assert "verified%202026--09--29" in readme_de
+    assert "Last--Checked-2026--09--29" in readme_en
+    assert "Last--Checked-2026--09--29" in readme_de
+
+    llms_text = (REPO_ROOT / "llms.txt").read_text(encoding="utf-8")
+    assert "Re-audited: 2026-09-29" in llms_text
+
+
+def test_strict_version_freeze_preserved_t20260920():
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    server = json.loads((REPO_ROOT / "server.json").read_text(encoding="utf-8"))
+
+    assert package["version"] == "0.1.0-alpha.29"
+    assert pyproject["project"]["version"] == "0.1.0a29"
+    assert server["version"] == "0.1.0-alpha.29"

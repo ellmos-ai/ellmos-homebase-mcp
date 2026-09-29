@@ -238,3 +238,28 @@ multi-module MCP orchestration server.
     workflows, concurrency/timeout/permission hygiene, labels.yml, extended .gitignore guards,
     pyproject license-files/norecursedirs, and Level 1 SBOM Stand: 2026-09-26.
 ================================================================================
+
+12. REPOSITORY HYGIENE, LEVEL 1 SBOM RE-AUDIT & CONTRACT TEST EXPANSION (Pfad A - 2026-09-29)
+--------------------------------------------------------------------------------
+- Version Freeze Integrity (T-20260920-167562623):
+  * Strictly preserved version 0.1.0-alpha.29 (pyproject.toml 0.1.0a29) without bump,
+    recording all enhancements under [Unreleased].
+- Multi-Host Cloud-Sync & Lock Defense (.gitignore):
+  * Hardened with lowercase desktop.ini alongside Desktop.ini, multi-host tokens
+    (*-IDEAPAD*, *-WORKSTATION*, *_WORKSTATION*, *_WORKSTATION-LG*, *-WORKSTATION.*,
+    *-WORKSTATION-LG.*, *-MacBook*), and canonical locks (LOCK.user.*, LOCK.until.*,
+    LOCK.condition.*, .automation-lock, uv.lock).
+- Level 1 SBOM Re-Audit & Attribution Currency:
+  * Re-audited THIRD_PARTY_LICENSES.md and THIRD_PARTY_LICENSES.txt to Stand: 2026-09-29.
+  * Verified 100% permissive licensing, zero-copyleft standard library persistence,
+    RunAsInvoker unprivileged execution, and all 10 invariants (INV-LOCAL-01 through INV-SLA-10).
+  * Harmonized canonical NOTICE attribution referencing both markdown review and plaintext companion.
+- Documentation, Badge & AI Context Parity:
+  * Synchronized Shields.io test (166 passed) and audit badges (verified 2026-09-29,
+    Last-Checked 2026-09-29) across README.md and README_de.md.
+  * Synchronized llms.txt context index with refreshed verification timestamp (2026-09-29)
+    and test count baseline.
+- Automated Contract Test Expansion:
+  * tests/test_metadata.py expanded with contract assertions validating Level 1 SBOM
+    currency Stand: 2026-09-29, release logs, badge verification currency, and strict version freeze.
+================================================================================

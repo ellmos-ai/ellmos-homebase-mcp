@@ -28,7 +28,7 @@ Important files:
 - `src/homebase/server.py`: MCP stdio server entry point.
 - `src/homebase/registry.py`: Module discovery and tool dispatch.
 - `src/homebase/modules/`: Homebase tool modules.
-- `tests/`: Pytest coverage (165+ tests) for config, registry, modules, contract tests, and localization.
+- `tests/`: Pytest coverage (166+ tests) for config, registry, modules, contract tests, and localization.
 
 Tool namespace groups:
 
@@ -76,4 +76,4 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-09-21 (Re-verified: 2026-09-26)
+## Last-checked: 2026-09-21 (Re-verified: 2026-09-26, Re-audited: 2026-09-29)
