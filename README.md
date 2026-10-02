@@ -27,8 +27,9 @@ German README: [README_de.md](README_de.md)
 [![Tests](https://img.shields.io/badge/tests-166%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
 [![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%2030d%20Remediation-blue.svg)](SECURITY.md)
 [![Security: RunAsInvoker](https://img.shields.io/badge/security-RunAsInvoker%20(Non--Elevation)-success.svg)](SECURITY.md)
-[![Audit](https://img.shields.io/badge/audit-verified%202026--09--29-brightgreen.svg)](MARKETING-LOG.txt)
-[![Last-Checked](https://img.shields.io/badge/Last--Checked-2026--09--29-success.svg)](CHANGELOG.md)
+[![Level 1 SBOM: Plain Text](https://img.shields.io/badge/Level%201%20SBOM-Plain--Text%20Audited-brightgreen.svg)](THIRD_PARTY_LICENSES.txt)
+[![Audit](https://img.shields.io/badge/audit-verified%202026--10--02-brightgreen.svg)](MARKETING-LOG.txt)
+[![Last-Checked](https://img.shields.io/badge/Last--Checked-2026--10--02-success.svg)](CHANGELOG.md)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -108,6 +109,59 @@ flowchart TD
     Server --> Config
     Server --> ToolGroups
     ToolGroups --> DB
+```
+
+### Four-View Architectural Topology Projection
+
+```text
++-------------------------------------------------------------------------------+
+|  VIEW 1: CALLER RUNTIMES, AGENT CLIENTS & ENTRYPOINTS                         |
+|  - Local LLM Engines: Ollama (Qwen, Llama, Mistral, DeepSeek), Local Harnesses|
+|  - Multi-Agent Orchestrators: Claude Code, Claude Desktop, OpenAI Codex, AGY  |
+|  - IDE & Extension Interfaces: Cursor, VS Code MCP Extension, Windsurf        |
+|  - stdio Protocol Transport: JSON-RPC 2.0 via Python Model Context Protocol   |
++---------------------------------------+---------------------------------------+
+                                        | JSON-RPC 2.0 stdio (tools/list, tools/call)
+                                        v
++-------------------------------------------------------------------------------+
+|  VIEW 2: HOMEBASE MCP SOVEREIGN CORE & DISPATCH ORCHESTRATOR                  |
+|  - Core Server & Life Cycle: homebase.server (stdio loop, signal handling)    |
+|  - Module Registry & Dispatch: homebase.registry (i18n schemas, locale norm)  |
+|  - 51 Sovereign MCP Tools across 14 Specialized Functional Modules:          |
+|    * Memory & Knowledge: hb_mem_* (SQLite memory), hb_kb_* (FTS5 search)      |
+|    * State & Planning: hb_state_* (tasks & KV), hb_garden_* (garden store)    |
+|    * Routing & Swarms: hb_route_* (offline routing), hb_swarm_* (blueprints)  |
+|    * Exploration & Testing: hb_api_* (schema probe), hb_test_* (diagnostics)  |
+|    * Integration & Staging: hb_conn_* (safe queues), hb_auto_* (chain plans)  |
+|    * Extensibility: hb_plug_* (dry-run discovery, no remote code execution)   |
+|    * Canonical Seams: hb_policy_*, hb_ticket_*, hb_lock_* (read-only views)   |
++-------------------+-----------------------------------+-----------------------+
+                    |                                   |
+                    v (bundled SQLite mode)             v (canonical engine mode)
++---------------------------------------+ +-------------------------------------+
+|  VIEW 3: RUNTIME PERSISTENCE &        | |  VIEW 3-ALT: CANONICAL SEAMS        |
+|  SQLITE STORAGE ENGINE                | |  (MODE-CONTRACT.md)                 |
+|  - Database: ~/.homebase/homebase.db  | |  - Policy Registry (hb_policy_*)    |
+|  - Concurrency: Write-Ahead Log (WAL) | |  - Ticket Master (hb_ticket_*)      |
+|  - Multi-Agent Provenance: agent_id   | |  - Lock Master (hb_lock_*)          |
+|  - Search Engine: SQLite FTS5 index   | |  - Fail-Closed Discipline:          |
+|  - Integrity: Busy timeouts & rollback| |    Raises CanonicalEngineUnavailable|
++-------------------+-------------------+ +-----------------+-------------------+
+                    |                                       |
+                    +-------------------+-------------------+
+                                        |
+                                        v
++-------------------------------------------------------------------------------+
+|  VIEW 4: AIR-GAP DEFENSE PERIMETER, RUNASINVOKER & ZERO-EGRESS BOUNDARY        |
+|  - 100% Local-First & Zero Egress: INV-LOCAL-01 (0 cloud calls, 0 telemetry)  |
+|  - Unprivileged Execution: INV-PERM-08 (RunAsInvoker non-elevation principle) |
+|  - Engine Seam Integrity: INV-ENGINE-02 & INV-SEAM-03 (strict fail-closed)   |
+|  - Deterministic Provenance: INV-PROV-04 (agent_id attribution on all state)  |
+|  - Credential-Free Operation: INV-CRED-05 & INV-STAGE-06 (no tokens/secrets)  |
+|  - Multi-Host Lock Defense: INV-SYNC-09 (.gitignore sync/lock immunity)       |
+|  - Permissive Licensing: Zero-Copyleft stack (MIT, PSFL-2.0, Apache-2.0)     |
+|  - Statutory SLA & Disclaimer: INV-SLA-10 (48h response SLA, § 521 BGB)       |
++-------------------------------------------------------------------------------+
 ```
 
 ---
@@ -488,7 +542,7 @@ Our partner umbrella organization **[open-bricks](https://github.com/open-bricks
 
 `ellmos-homebase-mcp` is verified to contain 0% copyleft dependencies. All runtime dependencies are permissively licensed (MIT, BSD-2-Clause, Apache-2.0, PSFL).
 
-Full inventory, Level 1 SBOM Invariant Cross-Reference Matrix, and non-elevation certifications are documented in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md). Canonical copyright and author attribution is maintained in [NOTICE](NOTICE).
+Full inventory, Level 1 SBOM Invariant Cross-Reference Matrix, and non-elevation certifications are documented in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) and plain-text companion [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt). Canonical copyright and author attribution is maintained in [NOTICE](NOTICE).
 
 ---
 

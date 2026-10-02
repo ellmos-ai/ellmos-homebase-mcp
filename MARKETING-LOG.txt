@@ -263,3 +263,34 @@ multi-module MCP orchestration server.
   * tests/test_metadata.py expanded with contract assertions validating Level 1 SBOM
     currency Stand: 2026-09-29, release logs, badge verification currency, and strict version freeze.
 ================================================================================
+
+13. REPOSITORY DISCOVERABILITY, VISUAL ARCHITECTURE & LEVEL 1 SBOM STAND 2026-10-02 (Pfad B - 2026-10-02)
+--------------------------------------------------------------------------------
+- Version Freeze Integrity (T-20260920-167562623):
+  * Strictly preserved version 0.1.0-alpha.29 (pyproject.toml 0.1.0a29) without bump,
+    recording all enhancements under [Unreleased].
+- ASCII Four-View Architectural Topology Projection:
+  * Formulated and integrated ASCII Four-View Architectural Topology Projection into Section 01
+    of README.md and README_de.md with 100% bilingual parity:
+    - VIEW 1 / SICHT 1: Caller Runtimes, Agent Clients & Entrypoints (Ollama, Claude Code, Codex, AGY, stdio JSON-RPC).
+    - VIEW 2 / SICHT 2: Homebase MCP Sovereign Core & Dispatch Orchestrator (homebase.server, registry, 51 tools, 14 modules).
+    - VIEW 3 / SICHT 3: Runtime Persistence & SQLite Storage Engine (~/.homebase/homebase.db WAL, FTS5, agent_id provenance).
+    - VIEW 4 / SICHT 4: Air-Gap Defense Perimeter, RunAsInvoker & Zero-Egress Boundary (INV-LOCAL-01..INV-SLA-10).
+- PEP 621 Metadata Alignment (pyproject.toml):
+  * Registered canonical Level 1 SBOM endpoints in project.urls:
+    - "Level 1 SBOM" -> https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/THIRD_PARTY_LICENSES.md
+    - "Level 1 SBOM (Text)" -> https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/THIRD_PARTY_LICENSES.txt
+    - "Plain-Text License" -> https://github.com/ellmos-ai/ellmos-homebase-mcp/blob/main/LICENSE
+- Level 1 SBOM Re-Audit & Attribution Currency:
+  * Re-audited THIRD_PARTY_LICENSES.md and THIRD_PARTY_LICENSES.txt to Stand: 2026-10-02.
+  * Re-verified 100% permissive licensing (MIT, Apache-2.0, BSD-2-Clause, PSFL-2.0), zero-copyleft standard
+    library persistence, RunAsInvoker unprivileged execution, and all 10 invariants (INV-LOCAL-01 through INV-SLA-10).
+- Documentation, Badge & AI Context Parity:
+  * Synchronized Shields.io test, audit, and Level 1 SBOM text companion badges across README.md and README_de.md
+    (verified 2026-10-02, Last-Checked: 2026-10-02, Level 1 SBOM: Plain-Text Audited).
+  * Synchronized llms.txt context index with refreshed verification timestamp (2026-10-02) and Four-View topology details.
+- Automated Contract Test Expansion:
+  * tests/test_metadata.py expanded with contract assertions validating ASCII Four-View Architectural Topology parity,
+    PEP 621 Level 1 SBOM URLs, Level 1 SBOM currency Stand: 2026-10-02, release logs, badge verification currency,
+    and strict version freeze.
+================================================================================

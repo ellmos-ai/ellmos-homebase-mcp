@@ -1,7 +1,7 @@
 # Third-Party License Review & Level 1 SBOM
 
 > **Project:** `ellmos-ai/ellmos-homebase-mcp`<br>
-> **Audited:** Stand: 2026-09-21 (Re-verified Stand: 2026-09-26, Re-audited Stand: 2026-09-29)<br>
+> **Audited:** Stand: 2026-09-21 (Re-verified Stand: 2026-09-26, Re-audited Stand: 2026-09-29, Re-audited Stand: 2026-10-02)<br>
 > **Repository License:** [MIT License](LICENSE)<br>
 > **Attribution:** [NOTICE](NOTICE) | Text Inventory: [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt)<br>
 > **Architecture & Privacy:** 100% Local-First, Zero-Egress Core, Unprivileged User-Mode (`RunAsInvoker`)

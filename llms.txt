@@ -10,8 +10,8 @@ ellmos Homebase is a local-first MCP stdio server for LLM orchestration. It comb
 
 Important files:
 
-- `README.md`: English installation and usage guide with 18-point dual reciprocal quick navigation, 4 target personas, 10-dimension comparative matrix, Mermaid architecture and sequence diagrams, and Section 18 § 521 BGB statutory disclaimer.
-- `README_de.md`: German installation and usage guide with 18-point dual reciprocal quick navigation, 4 target personas, 10-dimension comparative matrix, Mermaid architecture and sequence diagrams, and Section 18 § 521 BGB statutory disclaimer.
+- `README.md`: English installation and usage guide with 18-point dual reciprocal quick navigation, ASCII Four-View Architectural Topology projection, 4 target personas, 10-dimension comparative matrix, Mermaid architecture and sequence diagrams, and Section 18 § 521 BGB statutory disclaimer.
+- `README_de.md`: German installation and usage guide with 18-point dual reciprocal quick navigation, ASCII Four-View Architectural Topology projection, 4 target personas, 10-dimension comparative matrix, Mermaid architecture and sequence diagrams, and Section 18 § 521 BGB statutory disclaimer.
 - `NOTICE`: Canonical copyright attribution for Lukas Geiger, ellmos-ai, and open-bricks.
 - `SECURITY.md`: Bilingual security policy with local-first guarantees, 48h SLA, 30d remediation, and invariant matrix.
 - `THIRD_PARTY_LICENSES.md`: Permissive open-source license review, Level 1 SBOM Invariant Cross-Reference Matrix, and RunAsInvoker non-elevation certification.
@@ -76,4 +76,4 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-09-21 (Re-verified: 2026-09-26, Re-audited: 2026-09-29)
+## Last-checked: 2026-09-21 (Re-verified: 2026-09-26, Re-audited: 2026-09-29, Pfad B: 2026-10-02)

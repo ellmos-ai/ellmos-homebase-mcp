@@ -4,6 +4,21 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Discoverability, Visual Architecture & Level 1 SBOM Stand 2026-10-02 (Pfad B) - 2026-10-02
+- **Strict Version-Freeze Discipline (T-20260920-167562623)**:
+  - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.
+- **ASCII Four-View Architectural Topology Projection**:
+  - Integrated ASCII Four-View Architectural Topology Projection into Section 01 of `README.md` (`VIEW 1: CALLER RUNTIMES, AGENT CLIENTS & ENTRYPOINTS`, `VIEW 2: HOMEBASE MCP SOVEREIGN CORE & DISPATCH ORCHESTRATOR`, `VIEW 3: RUNTIME PERSISTENCE & SQLITE STORAGE ENGINE`, `VIEW 4: AIR-GAP DEFENSE PERIMETER, RUNASINVOKER & ZERO-EGRESS BOUNDARY`) and `README_de.md` (`SICHT 1`..`SICHT 4`) with 100% bilingual parity.
+- **PEP 621 Standard URLs in pyproject.toml**:
+  - Registered canonical `Level 1 SBOM`, `Level 1 SBOM (Text)`, and `Plain-Text License` endpoints in `[project.urls]` complementing existing repository and documentation endpoints.
+- **Level 1 SBOM Stand 2026-10-02 Re-Audit**:
+  - Re-audited `THIRD_PARTY_LICENSES.md` and `THIRD_PARTY_LICENSES.txt` to `Stand: 2026-10-02`, re-confirming 100% permissive dependencies, zero-copyleft standard library SQLite isolation, unprivileged `RunAsInvoker` user mode, and runtime invariants `INV-LOCAL-01` through `INV-SLA-10`.
+- **Badges, Documentation & AI Context Parity**:
+  - Synchronized Shields.io test and verification badges across `README.md` and `README_de.md` (`verified 2026-10-02`, `Last-Checked: 2026-10-02`, Level 1 SBOM plain text audited badge).
+  - Updated `llms.txt` RAG context manifest referencing Four-View topology and updated verification timestamp (`2026-10-02`).
+- **Contract Test Suite Expansion**:
+  - Expanded `tests/test_metadata.py` with contract assertions verifying ASCII Four-View Architectural Topology parity, PEP 621 Level 1 SBOM URLs, Level 1 SBOM currency Stand: 2026-10-02, release logs, and strict version freeze integrity.
+
 ### Repository Lifecycle Hardening, CI Workflow Parity & Level 1 SBOM Re-Audit (Pfad A) - 2026-09-29
 - **Strict Version-Freeze Discipline (T-20260920-167562623)**:
   - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.

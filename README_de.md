@@ -27,8 +27,9 @@ Englisches README: [README.md](README.md)
 [![Tests](https://img.shields.io/badge/tests-166%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
 [![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%2030d%20Remediation-blue.svg)](SECURITY.md)
 [![Security: RunAsInvoker](https://img.shields.io/badge/security-RunAsInvoker%20(Non--Elevation)-success.svg)](SECURITY.md)
-[![Audit](https://img.shields.io/badge/audit-verified%202026--09--29-brightgreen.svg)](MARKETING-LOG.txt)
-[![Last-Checked](https://img.shields.io/badge/Last--Checked-2026--09--29-success.svg)](CHANGELOG.md)
+[![Level 1 SBOM: Reiner Text](https://img.shields.io/badge/Level%201%20SBOM-Reiner%20Text%20Gepr%C3%BCft-brightgreen.svg)](THIRD_PARTY_LICENSES.txt)
+[![Audit](https://img.shields.io/badge/audit-verified%202026--10--02-brightgreen.svg)](MARKETING-LOG.txt)
+[![Last-Checked](https://img.shields.io/badge/Last--Checked-2026--10--02-success.svg)](CHANGELOG.md)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -108,6 +109,59 @@ flowchart TD
     Server --> Config
     Server --> ToolGroups
     ToolGroups --> DB
+```
+
+### Vier-Sichten-Architekturtopologie-Projektion
+
+```text
++-------------------------------------------------------------------------------+
+|  SICHT 1: AUFRUFER-LAUFZEITEN, AGENTEN-CLIENTS & ENTRYPOINTS                  |
+|  - Lokale LLM-Engines: Ollama (Qwen, Llama, Mistral, DeepSeek), Lokale Harms  |
+|  - Multi-Agenten-Orchestrierer: Claude Code, Claude Desktop, OpenAI Codex, AGY|
+|  - IDE- & Erweiterungs-Schnittstellen: Cursor, VS Code MCP Extension, Windsurf|
+|  - stdio-Protokolltransport: JSON-RPC 2.0 über Python Model Context Protocol  |
++---------------------------------------+---------------------------------------+
+                                        | JSON-RPC 2.0 stdio (tools/list, tools/call)
+                                        v
++-------------------------------------------------------------------------------+
+|  SICHT 2: HOMEBASE MCP SOVERÄNER KERN & DISPATCH-ORCHESTRIERUNG               |
+|  - Serverkern & Lebenszyklus: homebase.server (stdio-Schleife, Signale)       |
+|  - Modul-Registry & Dispatch: homebase.registry (i18n-Schemas, Lokalisierung) |
+|  - 51 soveräne MCP-Tools über 14 spezialisierte Funktionsmodule:              |
+|    * Memory & Wissen: hb_mem_* (SQLite-Memory), hb_kb_* (FTS5-Volltextsuche)  |
+|    * Zustand & Planung: hb_state_* (Tasks & KV), hb_garden_* (Gartenspeicher) |
+|    * Routing & Schwärme: hb_route_* (Offline-Routing), hb_swarm_* (Baupläne)  |
+|    * Exploration & Tests: hb_api_* (Schema-Probing), hb_test_* (Diagnostik)   |
+|    * Integration & Staging: hb_conn_* (Sichere Queues), hb_auto_* (Kettenpläne)|
+|    * Erweiterbarkeit: hb_plug_* (Dry-Run-Discovery, keine Remote-Code-Exec)   |
+|    * Kanonische Seams: hb_policy_*, hb_ticket_*, hb_lock_* (Nur-Lese-Sichten) |
++-------------------+-----------------------------------+-----------------------+
+                    |                                   |
+                    v (Gebündelter SQLite-Modus)        v (Kanonischer Engine-Modus)
++---------------------------------------+ +-------------------------------------+
+|  SICHT 3: LAUFZEIT-PERSISTENZ &       | |  SICHT 3-ALT: KANONISCHE SEAMS      |
+|  SQLITE-SPEICHER-ENGINE               | |  (MODE-CONTRACT.md)                 |
+|  - Datenbank: ~/.homebase/homebase.db | |  - Policy Registry (hb_policy_*)    |
+|  - Nebenläufigkeit: Write-Ahead Log   | |  - Ticket Master (hb_ticket_*)      |
+|  - Multi-Agenten-Herkunft: agent_id   | |  - Lock Master (hb_lock_*)          |
+|  - Such-Engine: SQLite FTS5-Index     | |  - Fail-Closed-Disziplin:           |
+|  - Integrität: Busy-Timeouts & Rollback| |   Löst CanonicalEngineUnavailable aus|
++-------------------+-------------------+ +-----------------+-------------------+
+                    |                                       |
+                    +-------------------+-------------------+
+                                        |
+                                        v
++-------------------------------------------------------------------------------+
+|  SICHT 4: AIR-GAP-SCHUTZPERIMETER, RUNASINVOKER & ZERO-EGRESS-GOVERNANCE      |
+|  - 100% Local-First & Zero Egress: INV-LOCAL-01 (0 Cloud-Calls, 0 Telemetrie) |
+|  - Unprivilegierte Ausführung: INV-PERM-08 (RunAsInvoker-Nicht-Eskalation)    |
+|  - Engine-Seam-Integrität: INV-ENGINE-02 & INV-SEAM-03 (Strikte Fail-Closed) |
+|  - Deterministische Herkunft: INV-PROV-04 (agent_id-Attribution für Zustände) |
+|  - Credential-Freier Betrieb: INV-CRED-05 & INV-STAGE-06 (Keine Tokens)       |
+|  - Multi-Host-Lock-Abwehr: INV-SYNC-09 (.gitignore Sync-/Lock-Immunität)     |
+|  - Freie Lizenzen: Zero-Copyleft-Stack (MIT, PSFL-2.0, Apache-2.0)            |
+|  - Gesetzliche SLA & Haftung: INV-SLA-10 (48h Response-SLA, § 521 BGB)       |
++-------------------------------------------------------------------------------+
 ```
 
 ---
@@ -469,7 +523,7 @@ Unsere Partner-Dachorganisation **[open-bricks](https://github.com/open-bricks)*
 
 `ellmos-homebase-mcp` enthält nachweislich 0% Copyleft-Abhängigkeiten. Alle Laufzeitabhängigkeiten sind permissiv lizenziert (MIT, BSD-2-Clause, Apache-2.0, PSFL).
 
-Das vollständige Verzeichnis, die Level 1 SBOM Invarianten-Kreuzreferenzmatrix sowie die Nicht-Eskalationszertifizierung (`RunAsInvoker`) sind in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) dokumentiert. Die verbindliche Urheberrechtsangabe ist in [NOTICE](NOTICE) gepflegt.
+Das vollständige Verzeichnis, die Level 1 SBOM Invarianten-Kreuzreferenzmatrix sowie die Nicht-Eskalationszertifizierung (`RunAsInvoker`) sind in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) und der Klartext-Begleitdatei [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt) dokumentiert. Die verbindliche Urheberrechtsangabe ist in [NOTICE](NOTICE) gepflegt.
 
 ---
 

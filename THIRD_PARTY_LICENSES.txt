@@ -1,7 +1,7 @@
 # Third-Party Licenses & Level 1 SBOM
 
 Last checked: 2026-09-21 against PyPI & npm metadata.
-Audited: Stand: 2026-09-29 against Level 1 SBOM and runtime invariants.
+Audited: Stand: 2026-09-29 (Re-audited Stand: 2026-10-02) against Level 1 SBOM and runtime invariants.
 
 Scope: direct dependencies declared in `pyproject.toml` and `package.json`
 as well as standard library and development packages. This inventory is a
@@ -47,7 +47,7 @@ Copyright (c) 2026 Lukas Geiger, ellmos-ai family under open-bricks umbrella.
 | pytest-asyncio | Python / PyPI | >=0.23 | Apache-2.0 | Asyncio event loop test fixtures |
 | ruff | Python / PyPI | >=0.6.0 | MIT / Apache-2.0 | High-performance Python linter and formatter |
 
-## Level 1 SBOM Invariant Verification (Stand: 2026-09-29)
+## Level 1 SBOM Invariant Verification (Stand: 2026-10-02)
 
 All 10 architectural and runtime governance invariants are confirmed:
 - INV-LOCAL-01: 100% Local-First & Zero Egress (SQLite WAL, zero telemetry)

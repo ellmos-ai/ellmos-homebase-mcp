@@ -736,6 +736,7 @@ def test_third_party_licenses_txt_and_level_1_sbom_inventory():
     txt_content = txt_file.read_text(encoding="utf-8")
 
     assert "Audited: Stand: 2026-09-29" in txt_content
+    assert "Re-audited Stand: 2026-10-02" in txt_content
     assert "RunAsInvoker" in txt_content
     assert "Zero-Copyleft" in txt_content
     assert "NOTICE" in txt_content
@@ -757,6 +758,7 @@ def test_third_party_licenses_txt_and_level_1_sbom_inventory():
 
     md_content = (REPO_ROOT / "THIRD_PARTY_LICENSES.md").read_text(encoding="utf-8")
     assert "Re-audited Stand: 2026-09-29" in md_content
+    assert "Re-audited Stand: 2026-10-02" in md_content
 
     notice_content = (REPO_ROOT / "NOTICE").read_text(encoding="utf-8")
     assert "THIRD_PARTY_LICENSES.txt" in notice_content
@@ -772,17 +774,60 @@ def test_changelog_and_marketing_log_pfad_a_records():
     assert "11. REPOSITORY HYGIENE, CI WORKFLOW PROVISIONING & LOCK DEFENSE AUDIT (Pfad A - 2026-09-26)" in marketing_log
 
 
+def test_changelog_and_marketing_log_pfad_b_records():
+    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "### Discoverability, Visual Architecture & Level 1 SBOM Stand 2026-10-02 (Pfad B) - 2026-10-02" in changelog
+
+    marketing_log = (REPO_ROOT / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    assert "13. REPOSITORY DISCOVERABILITY, VISUAL ARCHITECTURE & LEVEL 1 SBOM STAND 2026-10-02 (Pfad B - 2026-10-02)" in marketing_log
+
+
 def test_readme_and_readme_de_audit_dates_and_badges_currency():
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
 
-    assert "verified%202026--09--29" in readme_en
-    assert "verified%202026--09--29" in readme_de
-    assert "Last--Checked-2026--09--29" in readme_en
-    assert "Last--Checked-2026--09--29" in readme_de
+    assert "verified%202026--10--02" in readme_en
+    assert "verified%202026--10--02" in readme_de
+    assert "Last--Checked-2026--10--02" in readme_en
+    assert "Last--Checked-2026--10--02" in readme_de
+    assert "Level%201%20SBOM-Plain--Text%20Audited" in readme_en
+    assert "Level%201%20SBOM-Reiner%20Text%20Gepr%C3%BCft" in readme_de
 
     llms_text = (REPO_ROOT / "llms.txt").read_text(encoding="utf-8")
-    assert "Re-audited: 2026-09-29" in llms_text
+    assert "Pfad B: 2026-10-02" in llms_text
+
+
+def test_ascii_four_view_architectural_topology_parity():
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+
+    for view_key in (
+        "VIEW 1: CALLER RUNTIMES",
+        "VIEW 2: HOMEBASE MCP SOVEREIGN CORE",
+        "VIEW 3: RUNTIME PERSISTENCE",
+        "VIEW 4: AIR-GAP DEFENSE PERIMETER",
+    ):
+        assert view_key in readme_en, f"Missing {view_key} in README.md"
+
+    for sicht_key in (
+        "SICHT 1: AUFRUFER-LAUFZEITEN",
+        "SICHT 2: HOMEBASE MCP SOVERÄNER KERN",
+        "SICHT 3: LAUFZEIT-PERSISTENZ",
+        "SICHT 4: AIR-GAP-SCHUTZPERIMETER",
+    ):
+        assert sicht_key in readme_de, f"Missing {sicht_key} in README_de.md"
+
+
+def test_pyproject_level_1_sbom_urls():
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    urls = pyproject.get("project", {}).get("urls", {})
+
+    assert "Level 1 SBOM" in urls
+    assert urls["Level 1 SBOM"].endswith("THIRD_PARTY_LICENSES.md")
+    assert "Level 1 SBOM (Text)" in urls
+    assert urls["Level 1 SBOM (Text)"].endswith("THIRD_PARTY_LICENSES.txt")
+    assert "Plain-Text License" in urls
+    assert urls["Plain-Text License"].endswith("LICENSE")
 
 
 def test_strict_version_freeze_preserved_t20260920():
