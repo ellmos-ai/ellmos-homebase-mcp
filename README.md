@@ -519,6 +519,7 @@ This MCP server is part of the **[ellmos-ai](https://github.com/ellmos-ai)** eco
 | [MarbleRun](https://github.com/ellmos-ai/MarbleRun) | Autonomous agent chain framework for Claude Code |
 | [gardener](https://github.com/ellmos-ai/gardener) | Minimalist database-driven LLM OS prototype (4 functions, 1 table) |
 | [ellmos-tests](https://github.com/ellmos-ai/ellmos-tests) | Testing framework for LLM operating systems (7 dimensions) |
+| [agent-ops-stack](https://github.com/ellmos-ai/agent-ops-stack) | Manifest-based Git fetch blueprint; its manifest lists Homebase as `homebase-mcp` with the declared `mcp-runtime`, `memory-facade`, and `task-facade` labels. Follow Homebase's setup instructions. |
 
 ### Desktop Software & Sibling Ecosystem
 
