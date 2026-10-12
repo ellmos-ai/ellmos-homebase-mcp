@@ -47,6 +47,10 @@ Tool namespace groups:
 - `hb_ticket_*`: read-only, canonical-only delegation to ticket-master (list/show tickets).
 - `hb_lock_*`: read-only, canonical-only delegation to lock-master (list/check active locks).
 
+## Related projects
+
+- [agent-ops-stack](https://github.com/ellmos-ai/agent-ops-stack): Manifest-based Git fetch blueprint; its manifest lists Homebase as `homebase-mcp` with the declared `mcp-runtime`, `memory-facade`, and `task-facade` labels. Follow Homebase's setup instructions.
+
 ## Audience
 
 - LLM developers and AI engineers building local agent workflows with MCP-compatible tools
