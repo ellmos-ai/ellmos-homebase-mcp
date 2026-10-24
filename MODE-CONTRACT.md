@@ -67,6 +67,12 @@ Ziel (Pfad und geprüfte Fundorte) und die zwei Auswege (Pfad korrigieren oder
 | `hb_state_mem_*`, `hb_state_dispatch` | — | kein Ziel | Immer bundled, per Definition |
 | `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_auto_*`, `hb_conn_*`, `hb_plug_*` | — | bundled by design | Immer bundled |
 
+`hb_state_task_list` benötigt im kanonischen Modus die paginierte
+`TaskClient.list_page`-API aus Task-Master PR #22 (`ac2c681c`). Ein älterer
+Client liefert einen strukturierten `task_pagination_unavailable`-Fehler und
+keine scheinbar vollständige 200er-Liste. Die Source-Integration hier ersetzt
+keinen Task-Master-Merge, Release oder lokalen Runtime-Rollout.
+
 **Gating je Tool-Familie, nicht je Modul.** `state` trägt zwei Familien: nur
 `hb_state_task_*` ist gegated; `hb_state_mem_*` und `hb_state_dispatch` hatten
 nie ein kanonisches Gegenstück und bleiben in jedem Modus nutzbar.

@@ -174,12 +174,14 @@ class StateModule(ModuleBase):
             ),
             ToolDefinition(
                 name="hb_state_task_list",
-                description="List tasks with optional status filter",
+                description="List one bounded task page with total and next cursor",
                 input_schema={
                     "type": "object",
                     "properties": {
                         "status": {"type": "string", "enum": ["open", "in_progress", "done", "all"]},
                         "agent_id": {"type": "string", "description": "Optional agent filter"},
+                        "limit": {"type": "integer", "minimum": 1, "maximum": 500, "description": "Page size (default 200)"},
+                        "cursor": {"type": "integer", "description": "Exclusive task ID from the previous page"},
                     },
                 },
                 handler=self._task_list,
@@ -275,29 +277,66 @@ class StateModule(ModuleBase):
         self._require_task_engine()
         status = str(kwargs.get("status", "open"))
         agent_id = kwargs.get("agent_id")
+        limit = kwargs.get("limit", 200)
+        cursor = kwargs.get("cursor")
+        if type(limit) is not int or not 1 <= limit <= 500:
+            raise ValueError("limit must be an integer between 1 and 500")
+        if cursor is not None and type(cursor) is not int:
+            raise ValueError("cursor must be an integer task ID or None")
 
         if self.task_engine_mode == "canonical":
             client = self._task_client(str(agent_id) if agent_id else "unknown")
+            if not callable(getattr(client, "list_page", None)):
+                return {
+                    "status": "unavailable",
+                    "engine": "canonical",
+                    "error": {
+                        "code": "task_pagination_unavailable",
+                        "message": "The canonical TaskClient lacks list_page; upgrade task-master to a release with the paginated API before using hb_state_task_list.",
+                    },
+                }
             rinnsal_status = None if status == "all" else _TO_RINNSAL_STATUS.get(status, status)
-            rows = client.list(status=rinnsal_status, include_done=(status == "all"), limit=200)
-            if agent_id:
-                rows = [row for row in rows if row.get("agent_id") == str(agent_id)]
-            tasks = [_to_homebase_task(row) for row in rows]
-            return {"status": "ok", "engine": "canonical", "count": len(tasks), "tasks": tasks}
+            page = client.list_page(
+                status=rinnsal_status,
+                include_done=(status == "all"),
+                agent_id=str(agent_id) if agent_id else None,
+                limit=limit,
+                cursor=cursor,
+            )
+            tasks = [_to_homebase_task(row) for row in page["tasks"]]
+            return {
+                "status": "ok", "engine": "canonical", "count": len(tasks), "tasks": tasks,
+                "total": page["total"], "truncated": page["truncated"],
+                "next_cursor": page["next_cursor"], "limit": page["limit"], "cursor": page["cursor"],
+            }
 
-        sql = "SELECT id, title, description, priority, status, agent_id, created_at, updated_at FROM tasks"
+        filters: list[str] = []
         params: list[Any] = []
         if status != "all":
-            sql += " WHERE status = ?"
+            filters.append("status = ?")
             params.append(status)
         if agent_id:
-            sql += " AND agent_id = ?" if " WHERE " in sql else " WHERE agent_id = ?"
+            filters.append("agent_id = ?")
             params.append(str(agent_id))
-        sql += " ORDER BY id DESC"
-
+        where = " WHERE " + " AND ".join(filters) if filters else ""
         with connect_db(self.db_path) as connection:
-            rows = connection.execute(sql, params).fetchall()
-        return {"status": "ok", "engine": "bundled", "count": len(rows), "tasks": [dict(row) for row in rows]}
+            # One transaction keeps the count and page on the same SQLite snapshot.
+            connection.execute("BEGIN")
+            total = connection.execute("SELECT COUNT(*) FROM tasks" + where, params).fetchone()[0]
+            page_where = where + (" AND id > ?" if where else " WHERE id > ?") if cursor is not None else where
+            page_params = [*params, cursor] if cursor is not None else params
+            rows = connection.execute(
+                "SELECT id, title, description, priority, status, agent_id, created_at, updated_at "
+                "FROM tasks" + page_where + " ORDER BY id ASC LIMIT ?",
+                [*page_params, limit + 1],
+            ).fetchall()
+        truncated = len(rows) > limit
+        tasks = [dict(row) for row in rows[:limit]]
+        return {
+            "status": "ok", "engine": "bundled", "count": len(tasks), "tasks": tasks,
+            "total": total, "truncated": truncated,
+            "next_cursor": tasks[-1]["id"] if truncated else None, "limit": limit, "cursor": cursor,
+        }
 
     async def _task_create(self, **kwargs) -> dict[str, Any]:
         self._require_task_engine()

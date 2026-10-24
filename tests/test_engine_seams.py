@@ -202,6 +202,33 @@ class TaskClient:
         conn.close()
         return [dict(row) for row in rows]
 
+    def list_page(self, status=None, include_done=False, agent_id=None, limit=200, cursor=None):
+        conn = self._conn()
+        filters = []
+        params = []
+        if status:
+            filters.append("status = ?")
+            params.append(status)
+        elif not include_done:
+            filters.append("status NOT IN ('done', 'cancelled')")
+        if agent_id is not None:
+            filters.append("agent_id = ?")
+            params.append(agent_id)
+        where = " WHERE " + " AND ".join(filters) if filters else ""
+        total = conn.execute("SELECT COUNT(*) FROM rinnsal_tasks" + where, params).fetchone()[0]
+        page_where = where + (" AND id > ?" if where else " WHERE id > ?") if cursor is not None else where
+        page_params = [*params, cursor] if cursor is not None else params
+        rows = conn.execute(
+            "SELECT id, title, description, status, priority, agent_id, tags, created_at, updated_at, done_at "
+            "FROM rinnsal_tasks" + page_where + " ORDER BY id ASC LIMIT ?", [*page_params, limit + 1],
+        ).fetchall()
+        conn.close()
+        truncated = len(rows) > limit
+        tasks = [dict(row) for row in rows[:limit]]
+        return {"count": len(tasks), "total": total, "limit": limit, "cursor": cursor,
+                "next_cursor": tasks[-1]["id"] if truncated else None,
+                "truncated": truncated, "tasks": tasks}
+
     def update(self, task_id, title=None, description=None, priority=None, tags=None):
         fields = []
         params = []
