@@ -453,6 +453,19 @@ Wichtige Modulgruppen:
 - `hb_ticket_*` (lesend, nur kanonisch) für Ticketübersichten
 - `hb_lock_*` (lesend, nur kanonisch) für Sperrprüfungen
 
+`hb_state_task_list` liefert eine Task-Seite. Die optionalen Filter `status`
+und `agent_id` wirken vor der Seitengrenze. `limit` ist standardmäßig 200 und
+erlaubt 1–500; `cursor` ist die exklusive Task-ID aus `next_cursor` der
+vorherigen Seite. Die Antwort behält `count` (Treffer dieser Seite) und `tasks`
+und ergänzt `total` (alle Filtertreffer unabhängig vom Cursor), `truncated`,
+`next_cursor`, `limit` und `cursor`. Solange `truncated` wahr ist, folgt eine
+weitere Seite. Die Reihenfolge ist aufsteigend nach Task-ID. Jeder Aufruf liest
+neu; gleichzeitige Änderungen können spätere Gesamtzahlen oder Treffer ändern.
+Im kanonischen Modus wird `TaskClient.list_page` aus Task-Master benötigt
+(PR #22, Commit `ac2c681c`). Solange diese API nicht installiert ist, liefert
+das Tool `status: unavailable` mit `error.code: task_pagination_unavailable`
+statt einer unvollständigen Liste.
+
 ---
 
 <a id="sec-13"></a><a id="discovery-kontext"></a>

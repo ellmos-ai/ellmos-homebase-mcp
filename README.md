@@ -469,6 +469,18 @@ Important tool groups:
 - `hb_ticket_*` (read-only, canonical-only) for listing/showing ticket-master tickets by lifecycle folder
 - `hb_lock_*` (read-only, canonical-only) for checking/listing active lock-master locks
 
+`hb_state_task_list` returns one task page. Optional `status` and `agent_id` filters
+apply before pagination; `limit` defaults to 200 and accepts 1–500, while
+`cursor` is the exclusive task ID returned as `next_cursor` by the prior page.
+The response keeps `count` (tasks on this page) and `tasks`, and adds `total`
+(all matches for the filters, regardless of cursor), `truncated`, `next_cursor`,
+`limit`, and `cursor`. Continue while `truncated` is true. Pages use ascending
+task IDs; each call is a fresh read, so concurrent edits may change later
+totals or membership. In canonical mode this requires Task-Master's
+`TaskClient.list_page` API (PR #22, commit `ac2c681c`); until that API is
+installed, the tool returns `status: unavailable` with
+`error.code: task_pagination_unavailable` instead of an incomplete list.
+
 ---
 
 <a id="sec-13"></a><a id="discovery-context"></a>
