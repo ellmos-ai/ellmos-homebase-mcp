@@ -322,11 +322,14 @@ Homebase bietet einen umfassenden, lokal-zentrierten Funktionsumfang im direkten
 - Test-Schranke: GitHub Actions deckt Python 3.10/3.11/3.12/3.13 sowie Node.js 20/22/24 Smoke- und npm-Paket-Checks ab
 - Aktueller Kern: Modul-Erkennung, MCP-Tool-Listing, Tool-Dispatch, Konfigurations-Fallbacks, lokale Planungs-, Probing-, Queue- und Dry-Run-Adapter
 - Reale lokale SQLite-Module: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Engine-Seams: `hb_garden_*`, `hb_state_task_*` und `hb_mem_*` können an die echten,
-  kanonischen Gardener/Rinnsal/USMC-Engines delegieren via `[engines].mode = "canonical"`
+- Engine-Seams: `hb_garden_*`, `hb_state_task_*`, `hb_mem_*`, `hb_kb_*` und `hb_route_*` können an die echten,
+  kanonischen Gardener/Rinnsal/USMC/KnowledgeDigest/clutch-Engines delegieren via `[engines].mode = "canonical"`
   (Standard bleibt `"bundled"` für eine installationsfreie Nutzung).
   **Kein stiller Fallback:** Wenn `canonical` gewählt wurde und die Engine nicht erreichbar ist,
   geben diese Tools einen Fehler zurück, anstatt still die lokale DB zu nutzen.
+  Die öffentlichen APIs von KnowledgeDigest und clutch sind schmaler als die Familien `hb_kb_*`/`hb_route_*`: bei erreichbarer
+  canonical-Engine delegieren `hb_kb_search`, `hb_route_select` und `hb_route_stats`, während `hb_kb_ingest`/`get`/`list` und
+  `hb_route_evaluate` `not_supported` melden (Lücken werden gemeldet, nicht umgangen).
   Verbindliche Regel und Migrationshinweise: **[MODE-CONTRACT.md](MODE-CONTRACT.md)**;
   Mechanismus: [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
 - Canonical-Only Seams (keine lokale Alternative vorhanden): `hb_policy_*` (policy-registry),

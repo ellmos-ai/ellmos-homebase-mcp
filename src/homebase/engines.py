@@ -30,6 +30,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 logger = logging.getLogger("homebase.engines")
@@ -70,11 +71,39 @@ def unavailable_message(
     )
 
 
+def database_unavailable_message(
+    *,
+    tool_family: str,
+    engine: str,
+    module: str,
+    db_path: Path | str | None,
+    db_setting: str,
+) -> str:
+    """Operator-facing message for a canonical engine that imported fine but whose
+    database is missing or undeterminable.
+
+    Same three obligations as :func:`unavailable_message` (tool family, target,
+    the two ways out). The database is deliberately NOT created: the engines
+    create their store on first open, and an empty database there would be the
+    silent second, disconnected store this contract forbids.
+    """
+    target = str(db_path) if db_path else "could not be determined"
+    return (
+        f"{tool_family}: engine mode 'canonical' is configured and the {engine} engine "
+        f"imported fine, but its database does not exist (target: {target}; set via "
+        f"{db_setting}). Refusing to let the engine create it, because an empty database "
+        f"there would silently become a second, disconnected store. Point at the real "
+        f"{engine} database, or choose the bundled store explicitly with "
+        f"[engines.{module}] mode = \"bundled\" in homebase.toml."
+    )
+
+
 # Modules with a real canonical-VS-bundled TOGGLE implemented today. Kept as
 # a small, explicit map so `engine_summary()` can tell "canonical requested
 # and wired" apart from "canonical requested but this module has no seam
-# yet" (kb/route currently fall in the latter bucket -- see KONZEPT.md).
-SEAM_IMPLEMENTED = {"garden", "state", "mem"}
+# yet" (no toggle namespace is left in the latter bucket now that kb and route
+# have their seams -- see MODE-CONTRACT.md section 3).
+SEAM_IMPLEMENTED = {"garden", "state", "mem", "kb", "route"}
 
 # T-20260825-196589547 (1): policy/ticket/lock are a THIRD category, distinct
 # from both buckets above -- they always try the canonical engine and have
@@ -82,9 +111,7 @@ SEAM_IMPLEMENTED = {"garden", "state", "mem"}
 # lock.py module docstrings for why a bundled copy of live governance/
 # coordination state would be actively misleading rather than a smaller-but-
 # honest substitute, unlike kb/route). `_engine_mode` is not read by these
-# modules, mirroring kb/route's "no switch exists" shape but inverted:
-# kb/route ignore `canonical` and stay bundled; these ignore `bundled` and
-# stay canonical-only.
+# modules: they ignore `bundled` and stay canonical-only.
 CANONICAL_ONLY = {"policy", "ticket", "lock"}
 
 # Default candidate directories per engine, checked when no explicit `path`
@@ -109,6 +136,29 @@ _DEFAULT_CANDIDATES: dict[str, list[str]] = {
     "mem": [
         "~/OneDrive/.TOPICS/.AI/.MODULES/.MEMORY/USMC",
         "~/.TOPICS/.AI/.MODULES/.MEMORY/USMC",
+    ],
+    # kb: the import name is the directory name (`KnowledgeDigest/` is itself the
+    # package, see its pyproject `package-dir`), so a candidate is the package
+    # directory and `load_knowledgedigest` imports from its parent. The live
+    # `data/knowledge.db` sits next to the code in the OneDrive deployment, so
+    # that location is also reachable through the module catalog below.
+    "kb": [
+        "~/OneDrive/.TOPICS/.AI/.MODULES/.KNOWLEDGE/KnowledgeDigest",
+        "~/.TOPICS/.AI/.MODULES/.KNOWLEDGE/KnowledgeDigest",
+        "~/_Local_DEV/repos/KnowledgeDigest",
+        "C:/_Local_DEV/repos/KnowledgeDigest",
+    ],
+    # route: the Plan-D clone comes FIRST on purpose. The OneDrive projection of
+    # clutch lags the clone (measured 2026-10-31: its Fahrer.kuppeln() has no
+    # `model_override` parameter), and clutch keeps its runtime data in
+    # ~/.clutch (CLUTCH_HOME), not next to the code, so the code location does
+    # not decide which database is used. Hence clutch is deliberately NOT in
+    # `_CATALOG_MODULE_IDS` (catalog results are tried before these defaults).
+    "route": [
+        "~/_Local_DEV/repos/clutch",
+        "C:/_Local_DEV/repos/clutch",
+        "~/OneDrive/.TOPICS/.AI/.MODULES/.ORCHESTRATION/clutch",
+        "~/.TOPICS/.AI/.MODULES/.ORCHESTRATION/clutch",
     ],
     # T-20260825-196589547 (1): three new seams. IMPORTANT CORRECTION found
     # empirically while smoke-testing this against the real machine: unlike
@@ -142,6 +192,7 @@ _DEFAULT_CANDIDATES: dict[str, list[str]] = {
 _CATALOG_MODULE_IDS = {
     "garden": "GARDENER",
     "mem": "USMC",
+    "kb": "KnowledgeDigest",
 }
 # T-20260825-196589547 (1): CORRECTION found empirically -- policy/ticket/
 # lock are DELIBERATELY absent from this map. The module catalog's
@@ -358,6 +409,71 @@ def load_usmc_client_class(configured_path: str | None = None):
     if module is None or not hasattr(module, "USMCClient"):
         return None
     return module.USMCClient
+
+
+def load_knowledgedigest(configured_path: str | None = None):
+    """Return the real KnowledgeDigest engine handle, or None if unavailable.
+
+    The handle is a small namespace: ``cls`` is ``KnowledgeDigest.KnowledgeDigest``
+    (the class, not an instance -- ``hb_kb_*`` builds one per call and closes it) and
+    ``default_db_path`` is the database KnowledgeDigest itself would open (its own
+    ``Config().get_db_path()``), or None if that cannot be determined.
+
+    KnowledgeDigest's repository root IS the package (``package-dir`` maps
+    ``KnowledgeDigest`` to ``.``), so the resolved directory is the package and
+    the import root is its *parent*. The package directory must therefore be named
+    ``KnowledgeDigest``. All submodules needed later are imported here, while the
+    search path is still on ``sys.path``.
+    """
+    path = resolve_engine_path("kb", configured_path)
+    if path is None:
+        logger.info("Canonical KnowledgeDigest engine not found (checked %s and defaults)", configured_path)
+        return None
+    search_path = path.parent if (path / "digest.py").is_file() else path
+    module = import_from_path("KnowledgeDigest", search_path)
+    if module is None or not hasattr(module, "KnowledgeDigest"):
+        return None
+    default_db_path = None
+    config_module = import_from_path("KnowledgeDigest.config", search_path)
+    if config_module is not None and hasattr(config_module, "get_config"):
+        try:
+            default_db_path = Path(config_module.get_config().get_db_path())
+        except Exception as exc:  # noqa: BLE001 - an unreadable config must not hide the engine
+            logger.info("KnowledgeDigest default DB path could not be determined: %s", exc)
+    return SimpleNamespace(cls=module.KnowledgeDigest, default_db_path=default_db_path)
+
+
+def load_clutch(configured_path: str | None = None):
+    """Return the real clutch engine handle, or None if unavailable.
+
+    The handle is a small namespace: ``Fahrer`` (class), ``get_scorer`` (factory) and
+    ``default_db_path`` -- the routing journal clutch itself would open
+    (``clutch_home() / "clutch.db"``). ``Fahrer(...)`` creates its database directory
+    and file on construction, so the caller must check the DB before instantiating.
+    All submodules are imported here while the search path is on ``sys.path``.
+    """
+    path = resolve_engine_path("route", configured_path)
+    if path is None:
+        logger.info("Canonical clutch engine not found (checked %s and defaults)", configured_path)
+        return None
+    fahrer = import_from_path("clutch.fahrer", path)
+    scorer = import_from_path("clutch.scorer", path)
+    overrides = import_from_path("clutch.user_overrides", path)
+    if (
+        fahrer is None
+        or scorer is None
+        or overrides is None
+        or not hasattr(fahrer, "Fahrer")
+        or not hasattr(scorer, "get_scorer")
+        or not hasattr(overrides, "clutch_home")
+    ):
+        return None
+    try:
+        default_db_path = Path(overrides.clutch_home()) / "clutch.db"
+    except Exception as exc:  # noqa: BLE001
+        logger.info("clutch home could not be determined: %s", exc)
+        default_db_path = None
+    return SimpleNamespace(Fahrer=fahrer.Fahrer, get_scorer=scorer.get_scorer, default_db_path=default_db_path)
 
 
 def load_policy_registry(configured_path: str | None = None):

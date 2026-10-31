@@ -4,6 +4,22 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Canonical seams for `hb_kb_*` (KnowledgeDigest) and `hb_route_*` (clutch) - 2026-10-31
+- **`hb_kb_*` -> KnowledgeDigest.** With `[engines.kb].mode = "canonical"` (or global canonical) `hb_kb_search` delegates to
+  `KnowledgeDigest.search_all` (skills, wikis, documents). KnowledgeDigest's public API is narrower than the tool family, so under a
+  reachable engine `category`/`agent_id` filters and `hb_kb_ingest`/`hb_kb_get`/`hb_kb_list` return `status: "not_supported"` with the
+  precise reason (files-only ingest, no tags, no `agent_id`, no document-by-id getter). Gaps are reported, not worked around.
+- **`hb_route_*` -> clutch.** `hb_route_select` runs clutch's own dry-run route recipe (as `clutch route`; no LLM call), `hb_route_stats` reads
+  `Fahrer.status()`. `hb_route_evaluate` returns `not_supported`: clutch labels executed drives (`fahrt_id` + `passed`), a dry run records none.
+  Constraints without a clutch counterpart are listed in `unsupported_constraints`. The Plan-D clone is preferred over the (lagging) OneDrive projection.
+- **Fail-closed, including the database.** Canonical + unreachable engine -> `CanonicalEngineUnavailable` for the whole family. Both engines would
+  create their own database on first open, so Homebase also refuses (same error, engine not instantiated, nothing created) when the target database
+  does not exist: `[kb].kd_db` / KnowledgeDigest's own `db_path`, and `[route].clutch_db` / `$CLUTCH_HOME/clutch.db`.
+- **Behaviour change:** before, `canonical` was silently ignored for kb/route (they stayed bundled). A global `[engines].mode = "canonical"` now
+  also applies to them; hosts without KnowledgeDigest/clutch must set `[engines.kb]`/`[engines.route] mode = "bundled"` (MODE-CONTRACT.md section 4a).
+- Bundled mode is unchanged. Tests: `tests/test_kb_route_seams.py` (fixture engines, negative controls: no bundled DB, no engine DB, no clutch home
+  directory is created) and an adjusted `engine_summary` test. Version stays frozen at `0.1.0-alpha.29`.
+
 ### Discoverability, Visual Architecture & Level 1 SBOM Stand 2026-10-02 (Pfad B) - 2026-10-02
 - **Strict Version-Freeze Discipline (T-20260920-167562623)**:
   - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.

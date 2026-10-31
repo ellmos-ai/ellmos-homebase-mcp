@@ -21,13 +21,15 @@ enabled = ["mem", "route", "kb", "swarm", "state", "garden", "api", "test", "con
 # and legacy .AI/.MEMORY/* and .AI/.OS/*
 # locations). Set ELLMOS_MODULES_CATALOG to override the catalog location.
 # hb_garden_* (Gardener), hb_state_task_* (Rinnsal) and hb_mem_* (USMC) have a
-# canonical seam; hb_kb_*/hb_route_* stay bundled-only even if canonical is requested.
+# canonical seam, and so do hb_kb_* (KnowledgeDigest) and hb_route_* (clutch). The public APIs of
+# KnowledgeDigest and clutch are narrower than these families: under a reachable canonical engine
+# hb_kb_ingest/get/list and hb_route_evaluate report `not_supported` (see MODE-CONTRACT.md section 3).
 #
 # NO SILENT FALLBACK (see MODE-CONTRACT.md): if you request "canonical" and the
 # canonical engine cannot be found, those tools return an ERROR -- they do not
 # quietly use the bundled DB, because that would write into a second,
 # disconnected store. The server still starts and still lists its tools.
-# Note that [engines].mode applies to garden, state AND mem at once. If only
+# Note that [engines].mode applies to garden, state, mem, kb AND route at once. If only
 # some canonical engines exist on this host, choose per namespace below
 # (mode = "bundled") instead of relying on a global setting.
 [engines]
@@ -48,6 +50,14 @@ mode = "bundled"
 # client-side), homebase's category is kept in the fact key, and hb_mem_merge/
 # hb_mem_consolidate are bundled-only (report not_supported under canonical).
 
+# [engines.kb]
+# mode = "canonical"   # hb_kb_search delegates to KnowledgeDigest.search_all
+# path = "~/OneDrive/.TOPICS/.AI/.MODULES/.KNOWLEDGE/KnowledgeDigest"   # the package dir, named KnowledgeDigest
+
+# [engines.route]
+# mode = "canonical"   # hb_route_select / hb_route_stats delegate to clutch
+# path = "~/_Local_DEV/repos/clutch"
+
 # --- Memory ---
 [mem]
 db_path = "~/.homebase/memory.db"                 # bundled store (ignored when [engines.mem].mode = "canonical")
@@ -56,6 +66,7 @@ db_path = "~/.homebase/memory.db"                 # bundled store (ignored when 
 # agent_id = "codex"
 
 # --- Routing ---
+# Optional canonical journal override: clutch_db = "~/.clutch/clutch.db" (default: $CLUTCH_HOME/clutch.db)
 [route]
 providers = ["ollama"]                          # Available: ollama, anthropic, openai, google
 default_provider = "ollama"
