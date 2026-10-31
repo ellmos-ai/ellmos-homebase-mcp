@@ -327,12 +327,15 @@ Homebase provides a uniquely comprehensive, local-first MCP capability stack com
 - Test gate: GitHub Actions covers Python 3.10/3.11/3.12/3.13 plus Node.js 20/22/24 smoke and npm package checks
 - Current core: module discovery, MCP tool listing, MCP tool dispatch, config fallbacks, local planning/probing/queue/dry-run adapters
 - Real local SQLite modules: `hb_mem_*`, `hb_kb_*`, `hb_garden_*`, `hb_state_*`
-- Engine seams: `hb_garden_*`, `hb_state_task_*` and `hb_mem_*` can delegate to the real
-  canonical Gardener/Rinnsal/USMC engines instead of the bundled SQLite copies via
+- Engine seams: `hb_garden_*`, `hb_state_task_*`, `hb_mem_*`, `hb_kb_*` and `hb_route_*` can delegate to the real
+  canonical Gardener/Rinnsal/USMC/KnowledgeDigest/clutch engines instead of the bundled copies via
   `[engines].mode = "canonical"` (default remains `"bundled"` for a zero-dependency install).
   **No silent fallback:** if you request `canonical` and the engine is unreachable, those tools
   return an error rather than quietly using the bundled DB — the server still starts and lists
-  its tools. Binding rule and migration notes: **[MODE-CONTRACT.md](MODE-CONTRACT.md)**;
+  its tools. The public APIs of KnowledgeDigest and clutch are narrower than the `hb_kb_*`/`hb_route_*` families: under a
+  reachable canonical engine `hb_kb_search`, `hb_route_select` and `hb_route_stats` delegate, while `hb_kb_ingest`/`get`/`list`
+  and `hb_route_evaluate` report `not_supported` (gaps are reported, not worked around).
+  Binding rule and migration notes: **[MODE-CONTRACT.md](MODE-CONTRACT.md)**;
   mechanism: [KONZEPT.md](KONZEPT.md#engine-seams-canonicalbundled--umsetzungsstand-2026-07-04-ticket-t-20260704-01).
 - Canonical-only seams (no bundled alternative at all): `hb_policy_*` (policy-registry),
   `hb_ticket_*` (ticket-master), `hb_lock_*` (lock-master) — all read-only in v1. A locally

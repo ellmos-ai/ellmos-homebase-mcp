@@ -4,7 +4,7 @@
 > („Engine Seams") um die **Regel**, während KONZEPT.md den **Mechanismus**
 > beschreibt. Bei Widerspruch gilt dieses Dokument.
 >
-> Stand: 2026-08-14 · gültig ab 0.1.0-alpha.21 (Ziel-DB des Task-Seams: alpha.22)
+> Stand: 2026-10-31 · gültig ab 0.1.0-alpha.21 (Ziel-DB des Task-Seams: alpha.22; Seams für `kb` und `route`: Unreleased nach alpha.29)
 
 ## 1. Die beiden Modi
 
@@ -59,8 +59,8 @@ Ziel (Pfad und geprüfte Fundorte) und die zwei Auswege (Pfad korrigieren oder
 | `hb_garden_*` | GARDENER | **implementiert** | Fail-closed (alle 4 Tools) |
 | `hb_state_task_*` | TASKPLAN (`taskplan.client.TaskClient` über die stabile Fassade `rinnsal.tasks.client`), Tabelle `rinnsal_tasks` in `~/.taskplan/taskplan.db` | **implementiert** | Fail-closed (3 Tools) |
 | `hb_mem_*` | USMC | **implementiert** | Fail-closed (alle 5 Tools) |
-| `hb_kb_*` | KnowledgeDigest | **offen** | Kein Seam — bleibt bundled, siehe unten |
-| `hb_route_*` | clutch | **offen** | Kein Seam — bleibt bundled, siehe unten |
+| `hb_kb_*` | KnowledgeDigest (`KnowledgeDigest.search_all`, eigene `knowledge.db`) | **implementiert (teilweise, siehe unten)** | Fail-closed (alle 4 Tools); `hb_kb_search` delegiert, `ingest`/`get`/`list` melden bei erreichbarer Engine `not_supported` |
+| `hb_route_*` | clutch (`Fahrer.strecke_analysieren`/`kuppeln`/`status`, Journal `~/.clutch/clutch.db`) | **implementiert (teilweise, siehe unten)** | Fail-closed (alle 3 Tools); `select`/`stats` delegieren, `evaluate` meldet bei erreichbarer Engine `not_supported` |
 | `hb_policy_*` (read-only: `resolve`/`list`) | policy-registry (`policy_registry.PolicyRegistry`) | **implementiert, canonical-only** | Fail-closed IMMER (kein bundled-Modus existiert für diesen Namensraum) |
 | `hb_ticket_*` (read-only: `list`/`show`) | `_control-center/_TICKETS`-Baum (Presence-Check über ticket-master, Lesezugriff direkt auf die Lifecycle-Ordner) | **implementiert, canonical-only** | Fail-closed IMMER (kein bundled-Modus) |
 | `hb_lock_*` (read-only: `list`/`check`) | lock-master (`lock_scan`/`lock_status`) | **implementiert, canonical-only** | Fail-closed IMMER (kein bundled-Modus) |
@@ -150,12 +150,32 @@ kennt keine Bulk-Hygiene) und melden unter erreichbarem `canonical`
 `not_supported`. Ist `canonical` dagegen **unerreichbar**, sind auch sie
 fail-closed: sonst würden sie Zeilen in der falschen Datenbank löschen.
 
-**`kb` und `route`:** Hier gibt es keinen stillen Fallback, weil es keine
-Umschaltung gibt — die Module lesen `_engine_mode` gar nicht. Ein
-`mode = "canonical"` für sie wird also **stillschweigend ignoriert**, sichtbar
-nur im Startlog (`engine_summary()`: `bundled-only (canonical requested, no seam
-implemented yet)`). Das ist ein offener Punkt, kein Fail-closed-Fall; solange
-kein Seam existiert, wird hier bewusst kein Verhalten erfunden.
+**`kb` und `route` (Seams seit Unreleased nach alpha.29).** Beide Module lesen
+`_engine_mode` jetzt und folgen dem Modus-Vertrag wie `garden`/`state`/`mem`.
+Die öffentlichen APIs der Ziele sind schmaler als die `hb_*`-Familien; Lücken
+werden **gemeldet, nicht umgangen** — bei erreichbarer Engine liefern die
+betroffenen Tools `status: "not_supported"` (Muster von `hb_mem_merge`):
+
+| Tool | Verhalten bei `canonical` + erreichbar |
+|---|---|
+| `hb_kb_search` | `KnowledgeDigest.search_all(query, limit)` über Skills, Wikis und Dokumente. `category`/`agent_id` haben kein Gegenstück → `not_supported`, **keine** stillschweigend ungefilterte Liste |
+| `hb_kb_ingest` | `not_supported` — KnowledgeDigest nimmt nur Dateien/Verzeichnisse auf (`ingest(path)`), kein Text-, Tag- oder `agent_id`-Ingest |
+| `hb_kb_get` / `hb_kb_list` | `not_supported` — kein öffentlicher Dokument-per-ID-Getter, kein Tag-Index |
+| `hb_route_select` | clutchs Dry-Run-Rezept (wie `clutch route`): `strecke_analysieren` → `Scorer.bewerte` → `Fahrer.kuppeln`, ohne LLM-Aufruf. Constraints `provider` → `praeferenz`, `model` → `model_override`; übrige (`max_tokens`, `speed`, `cost`, …) stehen in `unsupported_constraints`. Kennt der gefundene clutch-Stand `model_override` nicht, wird `model` ebenfalls dort gemeldet |
+| `hb_route_evaluate` | `not_supported` — clutch speichert Labels je *ausgeführter* Fahrt (`fahrt_id`) samt `passed`; `hb_route_select` ist ein Dry-Run ohne Fahrt, seine `route_id` ist keine `fahrt_id`. Eine Schein-Fahrt würde clutchs Lerndaten verfälschen |
+| `hb_route_stats` | `Fahrer.status()` (Bordcomputer, Tankuhr, Tacho); `routes` = `tacho.gesamte_fahrten` |
+
+**Ziel-Datenbanken (fail-closed auch hier).** Beide Engines legen ihre Datenbank
+beim Öffnen selbst an (`KnowledgeDigest(db_path=…)` legt Verzeichnis und `knowledge.db`
+an, `Fahrer(db_path=…)` das Fahrtenbuch). Ein erreichbarer Import mit fehlender
+Datenbank ergäbe daher einen leeren zweiten Speicher. Darum prüft Homebase vorher, ob
+die Datei existiert, und wirft sonst `CanonicalEngineUnavailable` (Ziel + zwei Auswege),
+ohne die Engine zu instanziieren. Auflösung `kb`: `[kb].kd_db` → die
+`db_path`-Einstellung von KnowledgeDigest selbst (Default: `data/knowledge.db` neben dem
+Code — bei der OneDrive-Auslieferung liegt die Live-DB dort, im Git-Klon gibt es keine).
+Auflösung `route`: `[route].clutch_db` → `$CLUTCH_HOME/clutch.db` → `~/.clutch/clutch.db`.
+Code-Auflösung `route`: der Plan-D-Klon steht vor der OneDrive-Projektion, weil Letztere
+hinterherhinkt (gemessen 2026-10-31: kein `model_override`).
 
 ## 4. Breaking Change ab 0.1.0-alpha.21
 
@@ -189,6 +209,23 @@ mode = "bundled"             # kein Rinnsal auf diesem Host -> bewusst bundled
 
 Wer die bisherige Vermischung tatsächlich will, wählt `bundled` explizit — der
 Unterschied ist, dass die Wahl jetzt sichtbar in der Konfiguration steht.
+
+## 4a. Verhaltensänderung für `kb` und `route` (Unreleased nach alpha.29)
+
+Bis dahin wurde `mode = "canonical"` für `kb`/`route` **stillschweigend ignoriert** (beide
+blieben bundled). Jetzt wirkt ein globales `[engines].mode = "canonical"` auch auf sie.
+Fehlt auf dem Host KnowledgeDigest, clutch oder deren Datenbank, schlagen `hb_kb_*` bzw.
+`hb_route_*` damit fehl. Das ist beabsichtigt, trifft aber Hosts mit globalem `canonical`.
+
+**Migration** — pro Namensraum entscheiden:
+
+```toml
+[engines.kb]
+mode = "bundled"      # kein KnowledgeDigest auf diesem Host
+
+[engines.route]
+mode = "bundled"      # kein clutch / kein ~/.clutch/clutch.db auf diesem Host
+```
 
 ## 5. Bekannte Kante
 

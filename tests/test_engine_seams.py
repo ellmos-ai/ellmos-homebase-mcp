@@ -349,7 +349,7 @@ def test_import_from_path_returns_none_for_missing_module(tmp_path):
     assert import_from_path("no_such_module_xyz", empty_dir) is None
 
 
-def test_engine_summary_flags_unimplemented_seams_as_bundled_only():
+def test_engine_summary_reports_every_toggle_namespace_as_canonical_when_requested():
     config = HomebaseConfig(engine_mode="canonical")
 
     summary = engine_summary(config)
@@ -357,8 +357,18 @@ def test_engine_summary_flags_unimplemented_seams_as_bundled_only():
     assert "garden=canonical" in summary
     assert "state=canonical" in summary
     assert "mem=canonical" in summary  # USMC seam implemented
-    assert "kb=bundled-only (canonical requested, no seam implemented yet)" in summary
+    assert "kb=canonical" in summary  # KnowledgeDigest seam implemented
+    assert "route=canonical" in summary  # clutch seam implemented
+    assert not any("bundled-only" in line for line in summary)
+
+
+def test_engine_summary_flags_a_namespace_without_seam_as_bundled_only(monkeypatch):
+    monkeypatch.setattr(engine_seams, "SEAM_IMPLEMENTED", engine_seams.SEAM_IMPLEMENTED - {"route"})
+
+    summary = engine_summary(HomebaseConfig(engine_mode="canonical"))
+
     assert "route=bundled-only (canonical requested, no seam implemented yet)" in summary
+    assert "kb=canonical" in summary
 
 
 def test_engine_summary_reports_bundled_when_not_requested():
