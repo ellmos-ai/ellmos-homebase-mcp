@@ -52,6 +52,7 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 .coverage
+coverage.xml
 htmlcov/
 build/
 dist/
@@ -115,6 +116,7 @@ wheelhouse/
 
 # Temporary, merge and backup files
 *.tmp
+*.tmp.driveupload
 *.bak
 *.swp
 *.swo

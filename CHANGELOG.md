@@ -4,6 +4,18 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Repository Hygiene, Badge Currency & Contract Test Expansion (Pfad A) - 2026-11-02
+- **Strict Version-Freeze Discipline (T-20260920-167562623)**:
+  - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.
+- **Badge & Metric Currency (Pfad A)**:
+  - Synchronized Shields.io test badge across `README.md` and `README_de.md` to reflect 219 passed tests (100% pass rate, up from 166 following the canonical kb/route engine seams expansion).
+  - Synchronized Last-Checked badge to `2026-11-02` across both English and German documentation.
+  - Updated `llms.txt` test coverage count (219+ tests) and verification timestamp to 2026-11-02.
+- **Multi-Host Cloud-Sync & Build Artifact Hygiene**:
+  - Hardened `.gitignore` with coverage export (`coverage.xml`) and cloud upload temp patterns (`*.tmp.driveupload`).
+- **Contract Test Suite Expansion**:
+  - Expanded `tests/test_metadata.py` with contract assertions verifying 219 passed test count badge currency, Last-Checked date currency Stand 2026-11-02, and Pfad A changelog records.
+
 ### Canonical seams for `hb_kb_*` (KnowledgeDigest) and `hb_route_*` (clutch) - 2026-10-31
 - **`hb_kb_*` -> KnowledgeDigest.** With `[engines.kb].mode = "canonical"` (or global canonical) `hb_kb_search` delegates to
   `KnowledgeDigest.search_all` (skills, wikis, documents). KnowledgeDigest's public API is narrower than the tool family, so under a

@@ -788,8 +788,8 @@ def test_readme_and_readme_de_audit_dates_and_badges_currency():
 
     assert "verified%202026--10--02" in readme_en
     assert "verified%202026--10--02" in readme_de
-    assert "Last--Checked-2026--10--02" in readme_en
-    assert "Last--Checked-2026--10--02" in readme_de
+    assert "Last--Checked-2026--11--02" in readme_en
+    assert "Last--Checked-2026--11--02" in readme_de
     assert "Level%201%20SBOM-Plain--Text%20Audited" in readme_en
     assert "Level%201%20SBOM-Reiner%20Text%20Gepr%C3%BCft" in readme_de
 
@@ -838,3 +838,26 @@ def test_strict_version_freeze_preserved_t20260920():
     assert package["version"] == "0.1.0-alpha.29"
     assert pyproject["project"]["version"] == "0.1.0a29"
     assert server["version"] == "0.1.0-alpha.29"
+
+
+def test_readme_and_readme_de_test_count_badge_currency():
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
+    assert "tests-219%20passed" in readme_en, "README.md must reflect 219 passed tests"
+    assert "tests-219%20passed" in readme_de, "README_de.md must reflect 219 passed tests"
+    assert "Last--Checked-2026--11--02" in readme_en
+    assert "Last--Checked-2026--11--02" in readme_de
+
+
+def test_changelog_and_llms_txt_pfad_a_records_currency_20261102():
+    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "### Repository Hygiene, Badge Currency & Contract Test Expansion (Pfad A) - 2026-11-02" in changelog
+    llms_text = (REPO_ROOT / "llms.txt").read_text(encoding="utf-8")
+    assert "219+ tests" in llms_text
+    assert "Pfad A: 2026-11-02" in llms_text
+
+
+def test_gitignore_hardened_patterns_20261102():
+    gitignore = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
+    assert "coverage.xml" in gitignore
+    assert "*.tmp.driveupload" in gitignore
