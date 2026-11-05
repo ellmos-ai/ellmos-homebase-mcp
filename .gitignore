@@ -44,7 +44,9 @@ id_dsa*
 
 # Python build and test artifacts
 __pycache__/
+*.pyc
 *.py[cod]
+data/
 .pytest_cache/
 .pytest_temp/
 .pytest_tmp/
@@ -129,3 +131,7 @@ Thumbs.db
 .DS_Store
 Desktop.ini
 desktop.ini
+
+# IDE and editor settings
+.idea/
+.vscode/

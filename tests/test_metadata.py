@@ -861,3 +861,22 @@ def test_gitignore_hardened_patterns_20261102():
     gitignore = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
     assert "coverage.xml" in gitignore
     assert "*.tmp.driveupload" in gitignore
+
+
+def test_final_gate_check_10_gates_contract():
+    gitignore = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
+    for req in ("__pycache__", "*.pyc", ".env", "*.db", ".venv/", ".idea/", ".vscode/", "data/"):
+        assert req in gitignore, f"Missing required .gitignore entry {req}"
+
+    todo_md = (REPO_ROOT / "TODO.md").read_text(encoding="utf-8")
+    assert "## STATUS" in todo_md, "TODO.md must contain ## STATUS section"
+    assert "| Category" in todo_md, "TODO.md must contain | Category column"
+    for cat in ("Secrets", "Private Data", "Hardcoded Paths", "Database Files", ".env Files", "BACH Internals", ".gitignore", "Language & Parity", "LICENSE & SBOM", "Overall"):
+        assert cat in todo_md, f"Missing category {cat} in TODO.md STATUS table"
+
+    example_cfg = (REPO_ROOT / "config" / "homebase.example.toml").read_text(encoding="utf-8")
+    # Verify secret placeholders are commented and accompanied by # Example:
+    assert "$ANTHROPIC_API_KEY" in example_cfg and "# Example:" in example_cfg
+    assert "$OPENAI_API_KEY" in example_cfg
+    assert "$TELEGRAM_BOT_TOKEN" in example_cfg
+    assert "$DISCORD_BOT_TOKEN" in example_cfg

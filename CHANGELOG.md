@@ -4,6 +4,20 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### AI Security & Dependency Audit, Final Gate Hardening (10/10 PASS) & Repository Hygiene - 2026-11-05
+- **Strict Version-Freeze Discipline (T-20260920-167562623)**:
+  - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.
+- **Final Gate Check Hardening (10/10 PASS)**:
+  - Verified and resolved all Gate Check findings (`final_gate_check.py` 10 PASS, 0 FAIL, 0 WARN -> *** READY FOR PUBLIC RELEASE ***).
+  - Hardened `.gitignore` with standard exclusion patterns (`*.pyc`, `.idea/`, `.vscode/`, `data/`) for full Gate 1 compliance.
+  - Sanitized configuration examples in `config/homebase.example.toml` by explicitly annotating secret variable assignments with `# Example:` comments (Gate 6 PASS).
+  - Established canonical `## STATUS` release gate table format in `TODO.md` with 10 functional categories (Gate 10 PASS).
+- **Supply-Chain & Dependency Audit**:
+  - `npm audit`: 0 vulnerabilities across all packages.
+  - Verified Python runtime dependencies (`mcp`, `tomli`) and optional dependencies (`anthropic`, `google-genai`, `requests`).
+- **Contract Test Suite Expansion**:
+  - Extended `tests/test_metadata.py` with `test_final_gate_check_10_gates_contract` verifying full 10-gate invariant compliance.
+
 ### Repository Hygiene, Badge Currency & Contract Test Expansion (Pfad A) - 2026-11-02
 - **Strict Version-Freeze Discipline (T-20260920-167562623)**:
   - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.

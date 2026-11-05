@@ -71,8 +71,8 @@ db_path = "~/.homebase/memory.db"                 # bundled store (ignored when 
 providers = ["ollama"]                          # Available: ollama, anthropic, openai, google
 default_provider = "ollama"
 ollama_endpoint = "http://localhost:11434"
-# anthropic_api_key = "$ANTHROPIC_API_KEY"      # Use environment variables for secrets.
-# openai_api_key = "$OPENAI_API_KEY"
+# anthropic_api_key = "$ANTHROPIC_API_KEY"      # Example: Use environment variables for secrets.
+# openai_api_key = "$OPENAI_API_KEY"            # Example: Use environment variables for secrets.
 
 # --- Knowledge ---
 [kb]
@@ -127,8 +127,8 @@ db_path = "~/.homebase/connectors.db"
 connectors = ["local"]
 # Additional connector names are local queue profiles until real backends are explicitly configured.
 # connectors = ["local", "telegram", "discord"]
-# telegram_token = "$TELEGRAM_BOT_TOKEN"
-# discord_token = "$DISCORD_BOT_TOKEN"
+# telegram_token = "$TELEGRAM_BOT_TOKEN"        # Example: Use environment variables for secrets.
+# discord_token = "$DISCORD_BOT_TOKEN"          # Example: Use environment variables for secrets.
 
 # --- Plugins ---
 [plug]

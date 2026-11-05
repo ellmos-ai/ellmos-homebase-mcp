@@ -1,5 +1,26 @@
 # ellmos-homebase-mcp — Entwicklungsziele (TODO)
 
+## STATUS
+
+| Category | Status | Notes |
+|----------|--------|-------|
+| Secrets | :green_circle: OK | 0 Secrets in getrackten Dateien; AST- und Text-Scan 100% sauber |
+| Private Data (PII) | :green_circle: OK | 0 personenbezogene Entwicklerdaten oder PII in getrackten Dateien |
+| Hardcoded Paths | :green_circle: OK | Keine hardcodierten Entwickler-Pfade; portable relative Pfade |
+| Database Files | :green_circle: OK | 0 `.db` oder SQLite-Dateien im Repository getrackt |
+| .env Files | :green_circle: OK | 0 `.env`-Dateien getrackt; `.gitignore` schützt Umgebungsvariablen |
+| BACH Internals | :green_circle: OK | 0 BACH-interne Dokumente; eigenständiges MCP-Server-Paket |
+| .gitignore | :green_circle: OK | Alle Pflichtmuster (`__pycache__`, `*.pyc`, `.env`, `*.db`, `data/`, etc.) gehärtet |
+| Language & Parity | :green_circle: OK | Englisches `README.md`, zweisprachiges deutsches `README_de.md`, echte Umlaute |
+| LICENSE & SBOM | :green_circle: OK | MIT-Lizenz, Level 1 SBOM (`THIRD_PARTY_LICENSES.md`), PEP 639 Metadaten |
+| Overall | **PASS (10/10 Gates)** | `final_gate_check.py` 10 PASS, 0 FAIL, 0 WARN; Pytest 100% grün |
+
+**Audit-Datum:** 2026-11-05 (Geprüft durch Antigravity / Gemini thinker_reviewer via `[AI_SECURITY_AND_DEPENDENCY_AUDIT]`)<br>
+**Gate-Check-Ergebnis:** 0 (10 PASS, 0 FAIL, 0 WARN — READY FOR PUBLIC RELEASE)<br>
+**Testsuite-Status:** Alle Pytest-Tests bestanden (100% grün auf Windows)
+
+---
+
 > Stand: 2026-09-20. Diese Datei hält die strategische Entwicklungsrichtung fest, damit
 > homebase gezielt zum **gemeinsamen Gedächtnis des KI-Teams** (Claude, Codex, Gemini, Kimi,
 > lokale LLMs via BACH/Buddha) ausgebaut wird. Grundlage: Vergleichsanalyse der drei
