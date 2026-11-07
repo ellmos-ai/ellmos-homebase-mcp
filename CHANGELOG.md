@@ -4,6 +4,9 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Documentation Correction: Swarm & Routing Sequence Diagram - 2026-11-07
+- The sequence diagram added in the Pfad B entry below named two tools that do not exist (`hb_route_recommend`, `hb_swarm_blueprint`) and showed steps the code does not perform (a read of local tier benchmarks, registering a swarm session with team-memory keys and `agent_id` attribution). Corrected in `README.md` and `README_de.md` against `src/homebase/modules/routing.py` and `swarm.py`: `hb_route_select` analyses the prompt and returns provider, model, strategy and confidence without a database read; `hb_swarm_hierarchy` only returns a boss-worker plan, it launches no model call and stores nothing. The description "credential-free local model tier selection" in the Pfad B entry refers to this diagram and is superseded by this correction.
+
 ### Repository Discoverability, Swarm Sequence Diagram & Badge Currency (Pfad B) - 2026-11-07
 - **Strict Version-Freeze Discipline (T-20260920-167562623)**:
   - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.

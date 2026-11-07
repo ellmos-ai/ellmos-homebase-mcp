@@ -210,27 +210,22 @@ sequenceDiagram
     participant Server as Server-Kern (homebase.server)
     participant Route as Routing-Modul (hb_route_*)
     participant Swarm as Schwarm-Modul (hb_swarm_*)
-    participant DB as SQLite-Speicher (~/.homebase/)
 
-    Note over Client,DB: Phase 1: Lokales Modell-Routing (Zero-Egress)
-    Client->>Stdio: JSON-RPC tools/call (hb_route_recommend, task="code_audit", latency="fast")
+    Note over Client,Route: Phase 1: Modell-Routing (anmeldedatenfrei, kein Modellaufruf)
+    Client->>Stdio: JSON-RPC tools/call (hb_route_select, prompt="Debug this Python stacktrace", constraints={"speed": "fast"})
     Stdio->>Server: Dekodieren & an Routing-Modul delegieren
-    Server->>Route: Modellfähigkeiten & lokale Latenzmatrix abfragen
-    Route->>DB: Lokale Tier-Benchmarks lesen (kein externer Netzwerkaufruf)
-    DB-->>Route: Lokales Modellprofil zurückgeben (z. B. qwen2.5-coder - 14b)
-    Route-->>Server: Empfehlungs-Payload (Modell, Tier, Fallback)
-    Server-->>Stdio: JSON-RPC-Antwort (anmeldedatenfreies Routing)
-    Stdio-->>Client: Lokaler Modellkandidat gewählt
+    Server->>Route: Prompt analysieren (Code-, Recherche-, Planungs- und Kreativbegriffe, Länge)
+    Route-->>Server: Empfehlung (route_id, Provider, Modell, Strategie, Konfidenz, Signale)
+    Server-->>Stdio: JSON-RPC-Antwort (keine Anmeldedaten, kein externer Netzwerkaufruf)
+    Stdio-->>Client: Modell-/Provider-Kandidat gewählt
 
-    Note over Client,DB: Phase 2: Schwarm-Koordination & Team-Memory
-    Client->>Stdio: JSON-RPC tools/call (hb_swarm_blueprint, pattern="hierarchical", agents=["worker-1", "worker-2"])
+    Note over Client,Swarm: Phase 2: Schwarm-Planung (nur ein Plan, nichts wird ausgeführt oder gespeichert)
+    Client->>Stdio: JSON-RPC tools/call (hb_swarm_hierarchy, task="Audit the module", subtasks=["review code", "review tests"])
     Stdio->>Server: Dekodieren & an Schwarm-Modul delegieren
-    Server->>Swarm: Strukturierte Koordinationstopologie & Agentenrollen erstellen
-    Swarm->>DB: Schwarm-Sitzung & Team-Memory-Schlüssel registrieren (agent_id-Attribution)
-    DB-->>Swarm: WAL-Commit bestätigen
-    Swarm-->>Server: Schwarm-Blueprint & Ausführungsgraph
-    Server-->>Stdio: JSON-RPC-Antwort (strukturierte Schwarm-Topologie)
-    Stdio-->>Client: Schwarm für kollaborative Ausführung initialisiert
+    Server->>Swarm: Chef-Worker-Plan erstellen
+    Swarm-->>Server: Plan (Status "planned", Chef-Rolle, ein Worker je Teilaufgabe)
+    Server-->>Stdio: JSON-RPC-Antwort (strukturierter Plan, der Aufrufer startet die Worker)
+    Stdio-->>Client: Plan zur Ausführung durch den Aufrufer zurückgegeben
 ```
 
 ---

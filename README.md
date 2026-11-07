@@ -210,27 +210,22 @@ sequenceDiagram
     participant Server as Server Core (homebase.server)
     participant Route as Route Module (hb_route_*)
     participant Swarm as Swarm Module (hb_swarm_*)
-    participant DB as SQLite Storage (~/.homebase/)
 
-    Note over Client,DB: Phase 1: Local Model Routing (Zero-Egress)
-    Client->>Stdio: JSON-RPC tools/call (hb_route_recommend, task="code_audit", latency="fast")
+    Note over Client,Route: Phase 1: Model routing (credential-free, no model call)
+    Client->>Stdio: JSON-RPC tools/call (hb_route_select, prompt="Debug this Python stacktrace", constraints={"speed": "fast"})
     Stdio->>Server: Decode & dispatch to route module
-    Server->>Route: Query model capabilities & local latency matrix
-    Route->>DB: Read local tier benchmarks (no external network query)
-    DB-->>Route: Return local model profile (e.g. qwen2.5-coder - 14b)
-    Route-->>Server: Recommendation payload (model, tier, fallback)
-    Server-->>Stdio: JSON-RPC Response (credential-free routing)
-    Stdio-->>Client: Local model candidate selected
+    Server->>Route: Analyse the prompt (code, research, planning and creative terms, length)
+    Route-->>Server: Recommendation (route_id, provider, model, strategy, confidence, signals)
+    Server-->>Stdio: JSON-RPC Response (no credentials, no external network query)
+    Stdio-->>Client: Model/provider candidate selected
 
-    Note over Client,DB: Phase 2: Swarm Coordination & Team Memory
-    Client->>Stdio: JSON-RPC tools/call (hb_swarm_blueprint, pattern="hierarchical", agents=["worker-1", "worker-2"])
+    Note over Client,Swarm: Phase 2: Swarm planning (plan only, nothing is executed or stored)
+    Client->>Stdio: JSON-RPC tools/call (hb_swarm_hierarchy, task="Audit the module", subtasks=["review code", "review tests"])
     Stdio->>Server: Decode & dispatch to swarm module
-    Server->>Swarm: Build structured coordination topology & agent roles
-    Swarm->>DB: Register swarm session & team-memory keys (agent_id attribution)
-    DB-->>Swarm: Confirm WAL commit
-    Swarm-->>Server: Swarm blueprint & execution graph
-    Server-->>Stdio: JSON-RPC Response (structured swarm topology)
-    Stdio-->>Client: Swarm initialized for collaborative execution
+    Server->>Swarm: Build the boss-worker plan
+    Swarm-->>Server: Plan (status "planned", boss role, one worker per subtask)
+    Server-->>Stdio: JSON-RPC Response (structured plan, the caller starts the workers)
+    Stdio-->>Client: Plan returned for the caller to execute
 ```
 
 ---
