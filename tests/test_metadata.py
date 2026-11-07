@@ -788,8 +788,8 @@ def test_readme_and_readme_de_audit_dates_and_badges_currency():
 
     assert "verified%202026--10--02" in readme_en
     assert "verified%202026--10--02" in readme_de
-    assert "Last--Checked-2026--11--02" in readme_en
-    assert "Last--Checked-2026--11--02" in readme_de
+    assert "Last--Checked-2026--11--07" in readme_en
+    assert "Last--Checked-2026--11--07" in readme_de
     assert "Level%201%20SBOM-Plain--Text%20Audited" in readme_en
     assert "Level%201%20SBOM-Reiner%20Text%20Gepr%C3%BCft" in readme_de
 
@@ -843,10 +843,10 @@ def test_strict_version_freeze_preserved_t20260920():
 def test_readme_and_readme_de_test_count_badge_currency():
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
-    assert "tests-219%20passed" in readme_en, "README.md must reflect 219 passed tests"
-    assert "tests-219%20passed" in readme_de, "README_de.md must reflect 219 passed tests"
-    assert "Last--Checked-2026--11--02" in readme_en
-    assert "Last--Checked-2026--11--02" in readme_de
+    assert "tests-224%20passed" in readme_en, "README.md must reflect 224 passed tests"
+    assert "tests-224%20passed" in readme_de, "README_de.md must reflect 224 passed tests"
+    assert "Last--Checked-2026--11--07" in readme_en
+    assert "Last--Checked-2026--11--07" in readme_de
 
 
 def test_changelog_and_llms_txt_pfad_a_records_currency_20261102():
@@ -880,3 +880,11 @@ def test_final_gate_check_10_gates_contract():
     assert "$OPENAI_API_KEY" in example_cfg
     assert "$TELEGRAM_BOT_TOKEN" in example_cfg
     assert "$DISCORD_BOT_TOKEN" in example_cfg
+
+
+def test_changelog_and_llms_txt_pfad_b_records_currency_20261107():
+    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "### Repository Discoverability, Swarm Sequence Diagram & Badge Currency (Pfad B) - 2026-11-07" in changelog
+    llms_text = (REPO_ROOT / "llms.txt").read_text(encoding="utf-8")
+    assert "224+ passed tests" in llms_text
+    assert "Pfad B: 2026-11-07" in llms_text
