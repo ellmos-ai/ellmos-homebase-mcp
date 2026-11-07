@@ -4,6 +4,18 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Repository Discoverability, Swarm Sequence Diagram & Badge Currency (Pfad B) - 2026-11-07
+- **Strict Version-Freeze Discipline (T-20260920-167562623)**:
+  - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.
+- **Visual Architecture & Sequence Diagrams**:
+  - Added Multi-Agent Swarm & Routing lifecycle sequence diagram (`hb_route_*` & `hb_swarm_*`) in both `README.md` and `README_de.md` detailing credential-free local model tier selection and structured swarm coordination.
+- **Badge & Metric Currency (Pfad B)**:
+  - Synchronized Shields.io test badge across `README.md` and `README_de.md` to reflect real local pytest measurement: 224 passed, 1 skipped (100% pass rate).
+  - Synchronized `Last-Checked` badge to `2026-11-07` across English and German documentation.
+  - Updated `llms.txt` test coverage count and added Pfad B 2026-11-07 audit trail stamp.
+- **Contract Test Suite Expansion**:
+  - Updated `tests/test_metadata.py` (`test_readme_and_readme_de_test_count_badge_currency` and `test_changelog_and_llms_txt_pfad_b_records_currency_20261107`) to lock in test badge accuracy and Pfad B verification.
+
 ### AI Security & Dependency Audit, Final Gate Hardening (10/10 PASS) & Repository Hygiene - 2026-11-05
 - **Strict Version-Freeze Discipline (T-20260920-167562623)**:
   - Version `0.1.0-alpha.29` (`0.1.0a29` in pyproject.toml) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.

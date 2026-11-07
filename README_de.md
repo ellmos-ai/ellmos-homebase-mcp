@@ -24,12 +24,12 @@ Englisches README: [README.md](README.md)
 [![Storage](https://img.shields.io/badge/storage-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio%20(51%20Tools)-blueviolet.svg)](https://modelcontextprotocol.io/)
 [![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.29-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Tests](https://img.shields.io/badge/tests-219%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-224%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
 [![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%2030d%20Remediation-blue.svg)](SECURITY.md)
 [![Security: RunAsInvoker](https://img.shields.io/badge/security-RunAsInvoker%20(Non--Elevation)-success.svg)](SECURITY.md)
 [![Level 1 SBOM: Reiner Text](https://img.shields.io/badge/Level%201%20SBOM-Reiner%20Text%20Gepr%C3%BCft-brightgreen.svg)](THIRD_PARTY_LICENSES.txt)
 [![Audit](https://img.shields.io/badge/audit-verified%202026--10--02-brightgreen.svg)](MARKETING-LOG.txt)
-[![Last-Checked](https://img.shields.io/badge/Last--Checked-2026--11--02-success.svg)](CHANGELOG.md)
+[![Last-Checked](https://img.shields.io/badge/Last--Checked-2026--11--07-success.svg)](CHANGELOG.md)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![LLMs-Ready](https://img.shields.io/badge/LLMs--Ready-llms.txt-blueviolet.svg)](llms.txt)
 [![Homebase tests](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/ellmos-homebase-mcp/actions/workflows/tests.yml)
@@ -169,6 +169,8 @@ flowchart TD
 <a id="sec-02"></a><a id="sequenzablauf--lebenszyklus"></a>
 ## Sequenzablauf & Lebenszyklus
 
+### 1. Tool-Aufruf & Engine-Nahtstellen-Lebenszyklus (`hb_mem_store`)
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -196,6 +198,39 @@ sequenceDiagram
     Module-->>Server: Antwort in konfigurierter Sprache formatieren (i18n: en/de/es/zh/ja/ru)
     Server-->>Stdio: JSON-RPC 2.0 Antwort kodieren
     Stdio-->>Client: Ergebnis-Payload (Zero-Cloud-Egress, 100% lokal)
+```
+
+### 2. Multi-Agenten-Schwarm- & Routing-Lebenszyklus (`hb_route_*` & `hb_swarm_*`)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as MCP-Client (Ollama / Lokaler Agent)
+    participant Stdio as Transportschicht (stdio)
+    participant Server as Server-Kern (homebase.server)
+    participant Route as Routing-Modul (hb_route_*)
+    participant Swarm as Schwarm-Modul (hb_swarm_*)
+    participant DB as SQLite-Speicher (~/.homebase/)
+
+    Note over Client,DB: Phase 1: Lokales Modell-Routing (Zero-Egress)
+    Client->>Stdio: JSON-RPC tools/call (hb_route_recommend, task="code_audit", latency="fast")
+    Stdio->>Server: Dekodieren & an Routing-Modul delegieren
+    Server->>Route: Modellfähigkeiten & lokale Latenzmatrix abfragen
+    Route->>DB: Lokale Tier-Benchmarks lesen (kein externer Netzwerkaufruf)
+    DB-->>Route: Lokales Modellprofil zurückgeben (z. B. qwen2.5-coder - 14b)
+    Route-->>Server: Empfehlungs-Payload (Modell, Tier, Fallback)
+    Server-->>Stdio: JSON-RPC-Antwort (anmeldedatenfreies Routing)
+    Stdio-->>Client: Lokaler Modellkandidat gewählt
+
+    Note over Client,DB: Phase 2: Schwarm-Koordination & Team-Memory
+    Client->>Stdio: JSON-RPC tools/call (hb_swarm_blueprint, pattern="hierarchical", agents=["worker-1", "worker-2"])
+    Stdio->>Server: Dekodieren & an Schwarm-Modul delegieren
+    Server->>Swarm: Strukturierte Koordinationstopologie & Agentenrollen erstellen
+    Swarm->>DB: Schwarm-Sitzung & Team-Memory-Schlüssel registrieren (agent_id-Attribution)
+    DB-->>Swarm: WAL-Commit bestätigen
+    Swarm-->>Server: Schwarm-Blueprint & Ausführungsgraph
+    Server-->>Stdio: JSON-RPC-Antwort (strukturierte Schwarm-Topologie)
+    Stdio-->>Client: Schwarm für kollaborative Ausführung initialisiert
 ```
 
 ---
