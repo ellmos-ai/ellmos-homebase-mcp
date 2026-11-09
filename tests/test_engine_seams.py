@@ -791,3 +791,109 @@ async def test_state_tasks_fail_closed_but_unseamed_families_keep_working(tmp_pa
     assert stored["status"] == "stored"
     fetched = await registry.call_tool("hb_state_mem_get", {"query": "k"})
     assert fetched["count"] == 1
+
+
+def _make_world_writable(path: Path) -> None:
+    """Grant write access to Everyone/others on both Windows (SID *S-1-1-0) and POSIX."""
+    import os
+    import subprocess
+
+    if os.name == "nt":
+        subprocess.run(
+            ["icacls", str(path), "/grant", "*S-1-1-0:(OI)(CI)M"],
+            check=True,
+            capture_output=True,
+        )
+    else:
+        path.chmod(0o777)
+
+
+def _make_owner_system_admin_only(path: Path) -> None:
+    """Restrict write access to only current user, SYSTEM, and Administrators."""
+    import getpass
+    import os
+    import subprocess
+
+    if os.name == "nt":
+        user = (os.environ.get("USERNAME") or getpass.getuser()).strip()
+        subprocess.run(
+            [
+                "icacls",
+                str(path),
+                "/inheritance:r",
+                "/remove",
+                "*S-1-1-0",
+                "/grant:r",
+                "*S-1-5-18:(OI)(CI)F",
+                "*S-1-5-32-544:(OI)(CI)F",
+                f"{user}:(OI)(CI)F",
+            ],
+            check=True,
+            capture_output=True,
+        )
+    else:
+        path.chmod(0o700)
+
+
+@pytest.mark.parametrize(
+    "engine_name",
+    ("garden", "state", "mem", "kb", "route", "policy", "ticket", "lock"),
+)
+def test_resolve_engine_path_rejects_world_writable_unconfigured_candidate_outside_profile(
+    tmp_path, monkeypatch, engine_name
+):
+    """D-20261107-007: unconfigured candidates outside Path.home() must reject world-writable directories."""
+    _fake_home(tmp_path, monkeypatch)
+    monkeypatch.delenv(f"HOMEBASE_ENGINE_{engine_name.upper()}_PATH", raising=False)
+    monkeypatch.setattr(engine_seams, "_module_catalog_candidates", lambda: [])
+
+    outside_dir = tmp_path / "outside" / engine_name
+    outside_dir.mkdir(parents=True)
+    _make_world_writable(outside_dir)
+    monkeypatch.setitem(engine_seams._DEFAULT_CANDIDATES, engine_name, [str(outside_dir)])
+
+    assert resolve_engine_path(engine_name, None) is None
+
+    # Explicit configured_path or HOMEBASE_ENGINE_<NAME>_PATH overrides the unconfigured filter
+    assert resolve_engine_path(engine_name, str(outside_dir)) == outside_dir
+    monkeypatch.setenv(f"HOMEBASE_ENGINE_{engine_name.upper()}_PATH", str(outside_dir))
+    assert resolve_engine_path(engine_name, None) == outside_dir
+
+
+def test_resolve_engine_path_accepts_restricted_unconfigured_candidate_outside_profile(tmp_path, monkeypatch):
+    """D-20261107-007: unconfigured candidate outside Path.home() is accepted when ACL allows only owner/SYSTEM/Admins."""
+    _fake_home(tmp_path, monkeypatch)
+    monkeypatch.delenv("HOMEBASE_ENGINE_POLICY_PATH", raising=False)
+    monkeypatch.setattr(engine_seams, "_module_catalog_candidates", lambda: [])
+
+    safe_outside = tmp_path / "safe-outside" / "policy"
+    safe_outside.mkdir(parents=True)
+    _make_owner_system_admin_only(safe_outside)
+    monkeypatch.setitem(engine_seams._DEFAULT_CANDIDATES, "policy", [str(safe_outside)])
+
+    assert resolve_engine_path("policy", None) == safe_outside
+
+
+def test_resolve_engine_path_rejects_world_writable_catalog_candidate_outside_profile(tmp_path, monkeypatch):
+    """D-20261107-007: module catalog paths outside Path.home() are also subject to the ACL check."""
+    _fake_home(tmp_path, monkeypatch)
+    monkeypatch.delenv("HOMEBASE_ENGINE_GARDEN_PATH", raising=False)
+
+    module_dir = tmp_path / "outside-catalog" / ".MODULES" / ".MEMORY" / "GARDENER"
+    module_dir.mkdir(parents=True)
+    _make_world_writable(module_dir)
+    catalog_path = tmp_path / "outside-catalog" / ".MODULES" / "modules.catalog.json"
+    catalog_path.write_text(
+        json.dumps({
+            "schema": "ellmos.modules-catalog.v1",
+            "modules": [{"id": "GARDENER", "resolved_source": ".MEMORY/GARDENER"}],
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("ELLMOS_MODULES_CATALOG", str(catalog_path))
+
+    assert resolve_engine_path("garden", None) is None
+
+    _make_owner_system_admin_only(module_dir)
+    assert resolve_engine_path("garden", None) == module_dir
+

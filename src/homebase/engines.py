@@ -24,10 +24,14 @@ This module only knows how to *locate and import* an engine. Each module
 
 from __future__ import annotations
 
+import getpass
 import importlib
 import json
 import logging
 import os
+import re
+import stat
+import subprocess
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -310,25 +314,185 @@ def resolve_catalog_module_path(module_id: str) -> Path | None:
     return None
 
 
+_ICACLS_INHERITANCE_FLAGS = {"OI", "CI", "IO", "NP", "I"}
+_ICACLS_WRITE_RIGHTS = {"F", "M", "W", "WD", "AD", "WDAC", "WO", "GW", "FA", "DE", "D"}
+_WINDOWS_SAFE_SYSTEM_ADMIN_PRINCIPALS = {
+    "nt authority\\system",
+    "nt-autorität\\system",
+    "system",
+    "*s-1-5-18",
+    "s-1-5-18",
+    "builtin\\administrators",
+    "vordefiniert\\administratoren",
+    "administrators",
+    "administratoren",
+    "*s-1-5-32-544",
+    "s-1-5-32-544",
+}
+
+
+def _is_within_user_profile(path: Path) -> bool:
+    """Return True if ``path`` resolves inside the current user's home/profile directory."""
+    try:
+        resolved_path = path.resolve()
+        resolved_home = Path.home().resolve()
+        resolved_path.relative_to(resolved_home)
+        return True
+    except (OSError, ValueError):
+        return False
+
+
+def _current_windows_user_principals() -> set[str]:
+    """Return lowercase principal names matching the current Windows user."""
+    username = (os.environ.get("USERNAME") or "").strip()
+    if not username:
+        try:
+            username = getpass.getuser().strip()
+        except Exception:  # noqa: BLE001
+            username = ""
+    if not username:
+        return set()
+    user_lower = username.lower()
+    principals = {user_lower}
+    for prefix_env in ("USERDOMAIN", "COMPUTERNAME"):
+        prefix = (os.environ.get(prefix_env) or "").strip().lower()
+        if prefix:
+            principals.add(f"{prefix}\\{user_lower}")
+    return principals
+
+
+def _windows_acl_is_restricted_to_owner_system_admins(path: Path) -> bool:
+    """Return True iff Windows DACL on ``path`` grants write rights only to current user, SYSTEM, or Administrators."""
+    try:
+        proc = subprocess.run(
+            ["icacls", str(path)],
+            capture_output=True,
+            timeout=5,
+            check=False,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("ACL check via icacls failed for %s: %s", path, exc)
+        return False
+    if proc.returncode != 0 or not proc.stdout:
+        return False
+    stdout = proc.stdout.decode("oem", errors="replace")
+
+    allowed_principals = _WINDOWS_SAFE_SYSTEM_ADMIN_PRINCIPALS | _current_windows_user_principals()
+    path_str = str(path)
+    saw_ace = False
+
+    for raw_line in stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.lower().startswith(path_str.lower()):
+            line = line[len(path_str):].strip()
+        if ":" not in line:
+            continue
+        principal, perms = line.split(":", 1)
+        principal_norm = principal.strip().lower()
+        if not principal_norm:
+            continue
+        tokens = [tok.strip().upper() for tok in re.findall(r"\(([^)]+)\)", perms)]
+        if not tokens:
+            continue
+        saw_ace = True
+        if "DENY" in tokens or "N" in tokens:
+            continue
+        access_tokens = {
+            tok
+            for tok in tokens
+            if tok not in _ICACLS_INHERITANCE_FLAGS
+            for sub in tok.split(",")
+            if sub
+        }
+        expanded_rights: set[str] = set()
+        for tok in tokens:
+            if tok in _ICACLS_INHERITANCE_FLAGS:
+                continue
+            for sub in tok.split(","):
+                sub_clean = sub.strip().upper()
+                if sub_clean and sub_clean not in _ICACLS_INHERITANCE_FLAGS:
+                    expanded_rights.add(sub_clean)
+        _ = access_tokens
+        grants_write = bool(expanded_rights & _ICACLS_WRITE_RIGHTS)
+        if not grants_write:
+            continue
+        is_allowed_principal = (
+            principal_norm in allowed_principals
+            or any(principal_norm.endswith(f"\\{u}") for u in _current_windows_user_principals())
+        )
+        if not is_allowed_principal:
+            return False
+
+    return saw_ace
+
+
+def _is_safe_unconfigured_engine_dir(path: Path) -> bool:
+    """Validate an unconfigured engine candidate directory against Search-Path-Hijack (D-20261107-007).
+
+    Candidates inside the current user's profile (``Path.home()``) are trusted.
+    Candidates outside the user's profile are only accepted if no principal other
+    than the current user, SYSTEM, and Administrators has write access.
+    """
+    if _is_within_user_profile(path):
+        return True
+    try:
+        st = path.stat()
+    except OSError:
+        return False
+    if os.name == "nt":
+        return _windows_acl_is_restricted_to_owner_system_admins(path)
+    geteuid = getattr(os, "geteuid", None)
+    if callable(geteuid):
+        euid = geteuid()
+        if st.st_uid not in (euid, 0):
+            return False
+    return (st.st_mode & (stat.S_IWGRP | stat.S_IWOTH)) == 0
+
+
 def resolve_engine_path(name: str, configured_path: str | None) -> Path | None:
-    """Return the first existing directory for a canonical engine, or None."""
-    candidates: list[str] = []
+    """Return the first existing (and safe) directory for a canonical engine, or None.
+
+    Explicitly configured paths (``HOMEBASE_ENGINE_<NAME>_PATH`` or ``[engines.<name>].path``)
+    are accepted directly when they exist. Unconfigured fallback candidates (module catalog
+    and ``_DEFAULT_CANDIDATES``) outside the user profile must pass
+    :func:`_is_safe_unconfigured_engine_dir` (D-20261107-007).
+    """
+    explicit_candidates: list[str] = []
     env_override = os.environ.get(f"HOMEBASE_ENGINE_{name.upper()}_PATH")
     if env_override:
-        candidates.append(env_override)
+        explicit_candidates.append(env_override)
     if configured_path:
-        candidates.append(configured_path)
+        explicit_candidates.append(configured_path)
+
+    for candidate in explicit_candidates:
+        path = Path(candidate).expanduser()
+        if path.exists():
+            return path
+
+    unconfigured_candidates: list[str] = []
     module_id = _CATALOG_MODULE_IDS.get(name)
     if module_id:
         catalog_path = resolve_catalog_module_path(module_id)
         if catalog_path is not None:
-            candidates.append(str(catalog_path))
-    candidates.extend(_DEFAULT_CANDIDATES.get(name, []))
+            unconfigured_candidates.append(str(catalog_path))
+    unconfigured_candidates.extend(_DEFAULT_CANDIDATES.get(name, []))
 
-    for candidate in candidates:
+    for candidate in unconfigured_candidates:
         path = Path(candidate).expanduser()
-        if path.exists():
-            return path
+        if not path.exists():
+            continue
+        if not _is_safe_unconfigured_engine_dir(path):
+            logger.warning(
+                "Skipping unconfigured %s engine candidate outside user profile with unsafe write permissions: %s "
+                "(restrict write ACL to current user/SYSTEM/Administrators or set [engines.%s].path explicitly)",
+                name,
+                path,
+                name,
+            )
+            continue
+        return path
     return None
 
 
