@@ -788,8 +788,8 @@ def test_readme_and_readme_de_audit_dates_and_badges_currency():
 
     assert "verified%202026--10--02" in readme_en
     assert "verified%202026--10--02" in readme_de
-    assert "Last--Checked-2026--11--07" in readme_en
-    assert "Last--Checked-2026--11--07" in readme_de
+    assert "Last--Checked-2026--11--14" in readme_en
+    assert "Last--Checked-2026--11--14" in readme_de
     assert "Level%201%20SBOM-Plain--Text%20Audited" in readme_en
     assert "Level%201%20SBOM-Reiner%20Text%20Gepr%C3%BCft" in readme_de
 
@@ -843,10 +843,10 @@ def test_strict_version_freeze_preserved_t20260920():
 def test_readme_and_readme_de_test_count_badge_currency():
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
-    assert "tests-224%20passed" in readme_en, "README.md must reflect 224 passed tests"
-    assert "tests-224%20passed" in readme_de, "README_de.md must reflect 224 passed tests"
-    assert "Last--Checked-2026--11--07" in readme_en
-    assert "Last--Checked-2026--11--07" in readme_de
+    assert "tests-239%20passed" in readme_en, "README.md must reflect 239 passed tests"
+    assert "tests-239%20passed" in readme_de, "README_de.md must reflect 239 passed tests"
+    assert "Last--Checked-2026--11--14" in readme_en
+    assert "Last--Checked-2026--11--14" in readme_de
 
 
 def test_changelog_and_llms_txt_pfad_a_records_currency_20261102():
@@ -888,3 +888,56 @@ def test_changelog_and_llms_txt_pfad_b_records_currency_20261107():
     llms_text = (REPO_ROOT / "llms.txt").read_text(encoding="utf-8")
     assert "224+ passed tests" in llms_text
     assert "Pfad B: 2026-11-07" in llms_text
+
+
+def test_ci_workflows_hardened_and_dependabot_present_20261114():
+    ci_text = (REPO_ROOT / ".github" / "workflows" / "tests.yml").read_text(encoding="utf-8")
+    assert "python -m pip check" in ci_text
+    assert "git diff --check" in ci_text
+
+    auto_assign = (REPO_ROOT / ".github" / "workflows" / "auto-assign.yml").read_text(encoding="utf-8")
+    assert "github.event.pull_request.user.type != 'Bot'" in auto_assign
+
+    dependabot = (REPO_ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+    for ecosystem in ('"pip"', '"npm"', '"github-actions"'):
+        assert ecosystem in dependabot
+
+    for template_name in ("config.yml", "bug_report.yml", "feature_request.yml"):
+        assert (REPO_ROOT / ".github" / "ISSUE_TEMPLATE" / template_name).is_file()
+
+
+def test_pyproject_pep639_and_xfail_strict_20261114():
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    project = pyproject["project"]
+    assert project["license"] == "MIT"
+    assert not any(c.startswith("License :: OSI Approved ::") for c in project.get("classifiers", []))
+    assert pyproject["tool"]["pytest"]["ini_options"]["xfail_strict"] is True
+
+
+def test_gitignore_and_npmignore_wal_lock_defense_20261114():
+    gitignore = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
+    npmignore = (REPO_ROOT / ".npmignore").read_text(encoding="utf-8")
+    for pattern in ("*.db-wal", "*.db-shm", "*.db-journal", "LOCK-CACHE*.md", "*.lcov"):
+        assert pattern in gitignore, f"Missing {pattern} in .gitignore"
+        assert pattern in npmignore, f"Missing {pattern} in .npmignore"
+
+
+def test_community_health_and_llm_companions_20261114():
+    coc = (REPO_ROOT / "CODE_OF_CONDUCT.md").read_text(encoding="utf-8")
+    contrib = (REPO_ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+    llm_compact = (REPO_ROOT / "llm.txt").read_text(encoding="utf-8")
+
+    assert "Contributor Covenant" in coc and "security@ellmos.ai" in coc
+    assert "MODE-CONTRACT.md" in contrib and "pytest" in contrib
+    assert "llms.txt" in llm_compact and "51 tools" in llm_compact
+
+    package_files = set(json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8")).get("files", []))
+    assert {"CODE_OF_CONDUCT.md", "CONTRIBUTING.md", "llm.txt"} <= package_files
+
+
+def test_changelog_and_llms_txt_pfad_a_records_currency_20261114():
+    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "### Repository Hygiene, CI Hardening, Community Health & Contract Test Expansion (Pfad A) - 2026-11-14" in changelog
+    llms_text = (REPO_ROOT / "llms.txt").read_text(encoding="utf-8")
+    assert "239+ passed tests" in llms_text
+    assert "Pfad A: 2026-11-14" in llms_text

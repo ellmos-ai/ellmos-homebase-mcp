@@ -296,10 +296,11 @@ def test_resolve_engine_path_uses_configured_path_when_no_env(tmp_path, monkeypa
 
 
 def test_resolve_engine_path_uses_v2_module_catalog_before_legacy_defaults(tmp_path, monkeypatch):
+    home = _fake_home(tmp_path, monkeypatch)
     monkeypatch.delenv("HOMEBASE_ENGINE_GARDEN_PATH", raising=False)
-    module_dir = tmp_path / ".MODULES" / ".MEMORY" / "GARDENER"
+    module_dir = home / ".MODULES" / ".MEMORY" / "GARDENER"
     module_dir.mkdir(parents=True)
-    catalog_path = tmp_path / ".MODULES" / "modules.catalog.json"
+    catalog_path = home / ".MODULES" / "modules.catalog.json"
     catalog_path.write_text(
         json.dumps({
             "schema": "ellmos.modules-catalog.v1",

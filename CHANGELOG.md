@@ -4,6 +4,23 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Repository Hygiene, CI Hardening, Community Health & Contract Test Expansion (Pfad A) - 2026-11-14
+- **Strict Version-Freeze Discipline (T-20260920-167562623)**:
+  - Version `0.1.0-alpha.29` (`0.1.0a29` in `pyproject.toml`) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.
+- **CI Workflow & Dependabot Hardening**:
+  - Added `python -m pip check` and `git diff --check` steps to `.github/workflows/tests.yml`.
+  - Guarded `.github/workflows/auto-assign.yml` against bot PRs (`github.event.pull_request.user.type != 'Bot'`).
+  - Added `.github/dependabot.yml` (weekly `pip`, `npm`, `github-actions` schedules) and structured `.github/ISSUE_TEMPLATE/` forms (`config.yml`, `bug_report.yml`, `feature_request.yml`).
+- **Pytest, PEP 639, `.gitignore` & `.npmignore` Hardening**:
+  - Enabled `xfail_strict = true` in `pyproject.toml` `[tool.pytest.ini_options]`; verified PEP 639 compliance (`license = "MIT"` without OSI license classifier overlap).
+  - Extended `.gitignore` and `.npmignore` with SQLite WAL/SHM/journal sidecar protections (`*.db-wal`, `*.db-shm`, `*.db-journal`), `LOCK-CACHE*.md`, and `*.lcov`.
+- **Community Health & P-022 Files**:
+  - Provisioned `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, and compact `llm.txt` companion (included in `package.json` `files`).
+- **Badge & Metric Currency + Contract Tests**:
+  - Synchronized Shields.io test badge (`239 passed`) and `Last-Checked` badge (`2026-11-14`) across `README.md`, `README_de.md`, and `llms.txt`.
+  - Scoped `test_resolve_engine_path_uses_v2_module_catalog_before_legacy_defaults` in `tests/test_engine_seams.py` to `_fake_home(...)` so Plan-D Windows checkouts outside `%USERPROFILE%` pass cleanly under the D-20261107-007 ACL check.
+  - Added 5 automated contract tests in `tests/test_metadata.py` covering CI hardening, Dependabot, `xfail_strict`, SQLite/lock ignores, and community health files.
+
 ### Documentation Correction: Swarm & Routing Sequence Diagram - 2026-11-07
 - The sequence diagram added in the Pfad B entry below named two tools that do not exist (`hb_route_recommend`, `hb_swarm_blueprint`) and showed steps the code does not perform (a read of local tier benchmarks, registering a swarm session with team-memory keys and `agent_id` attribution). Corrected in `README.md` and `README_de.md` against `src/homebase/modules/routing.py` and `swarm.py`: `hb_route_select` analyses the prompt and returns provider, model, strategy and confidence without a database read; `hb_swarm_hierarchy` only returns a boss-worker plan, it launches no model call and stores nothing. The description "credential-free local model tier selection" in the Pfad B entry refers to this diagram and is superseded by this correction.
 

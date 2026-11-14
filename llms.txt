@@ -14,6 +14,9 @@ Important files:
 - `README_de.md`: German installation and usage guide with 18-point dual reciprocal quick navigation, ASCII Four-View Architectural Topology projection, 4 target personas, 10-dimension comparative matrix, Mermaid architecture and sequence diagrams, and Section 18 § 521 BGB statutory disclaimer.
 - `NOTICE`: Canonical copyright attribution for Lukas Geiger, ellmos-ai, and open-bricks.
 - `SECURITY.md`: Bilingual security policy with local-first guarantees, 48h SLA, 30d remediation, and invariant matrix.
+- `CODE_OF_CONDUCT.md`: Community standards (Contributor Covenant v2.1) with English/German guidance.
+- `CONTRIBUTING.md`: Contribution workflow, local verification commands, and invariant checklist.
+- `llm.txt`: Compact LLM discovery companion pointing to `llms.txt`.
 - `THIRD_PARTY_LICENSES.md`: Permissive open-source license review, Level 1 SBOM Invariant Cross-Reference Matrix, and RunAsInvoker non-elevation certification.
 - `THIRD_PARTY_LICENSES.txt`: Direct dependency license inventory and Level 1 SBOM text audit.
 - `MARKETING-LOG.txt`: Discoverability, target personas, and 10 governance runtime invariants.
@@ -28,7 +31,7 @@ Important files:
 - `src/homebase/server.py`: MCP stdio server entry point.
 - `src/homebase/registry.py`: Module discovery and tool dispatch.
 - `src/homebase/modules/`: Homebase tool modules.
-- `tests/`: Pytest coverage (224+ passed tests, 219+ tests baseline) for config, registry, modules, contract tests, and localization.
+- `tests/`: Pytest coverage (239+ passed tests, 1 skipped optional integration; prior baselines 224+ passed tests / 219+ tests) for config, registry, modules, contract tests, and localization.
 
 Tool namespace groups:
 
@@ -80,4 +83,4 @@ MCP swarm planning persistent state API discovery
 
 This repository is not related to Elmo or ELMO voice generators, AllenAI ELMo embeddings, Eclipse LMOS, generic cloud-hosted agent platforms, or single-purpose MCP memory servers. Homebase is the ellmos-ai local-first orchestration MCP server for memory, knowledge, routing, state, swarm planning, passive API discovery, connector queues, automation planning, and plugin discovery.
 
-## Last-checked: 2026-09-21 (Re-verified: 2026-09-26, Re-audited: 2026-09-29, Pfad B: 2026-10-02, Pfad A: 2026-11-02, Pfad B: 2026-11-07)
+## Last-checked: 2026-09-21 (Re-verified: 2026-09-26, Re-audited: 2026-09-29, Pfad B: 2026-10-02, Pfad A: 2026-11-02, Pfad B: 2026-11-07, Pfad A: 2026-11-14)

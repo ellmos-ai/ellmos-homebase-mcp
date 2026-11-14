@@ -1,0 +1,39 @@
+name: Bug Report
+description: Report a bug, regression, or fail-closed contract violation in ellmos-homebase-mcp.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug in **ellmos-homebase-mcp**! For security vulnerabilities, please use [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories/new) instead.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Clear description of the bug and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Tool calls, configuration (`[engines].mode`), or commands to reproduce.
+      placeholder: |
+        1. Configure [engines].mode = "bundled" or "canonical"
+        2. Call tool hb_...
+        3. Observe output/error
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, Node.js version, MCP client (Claude Code, Codex, Ollama harness, etc.).
+      placeholder: |
+        - OS:
+        - Python:
+        - Node.js:
+        - Package version:
+    validations:
+      required: true

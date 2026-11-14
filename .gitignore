@@ -24,6 +24,9 @@ tokens.json
 # Local runtime data
 .homebase/
 *.db
+*.db-wal
+*.db-shm
+*.db-journal
 *.sqlite
 *.sqlite3
 *-protocoll.txt
@@ -102,6 +105,7 @@ LOCK*.txt
 LOCK.user.*
 LOCK.until.*
 LOCK.condition.*
+LOCK-CACHE*.md
 LOCK.permissions.json
 .automation-lock
 uv.lock
@@ -111,6 +115,7 @@ uv.lock
 .wheel-smoke/
 wheelhouse/
 .coverage.*
+*.lcov
 .hypothesis/
 .nyc_output/
 .turbo/

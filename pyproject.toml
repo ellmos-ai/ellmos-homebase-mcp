@@ -95,6 +95,7 @@ testpaths = ["tests"]
 pythonpath = ["src", "."]
 addopts = "-ra -v --basetemp=.pytest_tmp"
 norecursedirs = [".git", ".pytest_cache", ".pytest_temp", ".pytest_tmp*", ".ruff_cache", "node_modules", "dist", "build"]
+xfail_strict = true
 
 [tool.ruff]
 line-length = 120
