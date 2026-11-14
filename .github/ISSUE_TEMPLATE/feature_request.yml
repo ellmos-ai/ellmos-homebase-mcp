@@ -1,0 +1,19 @@
+name: Feature Request
+description: Propose a new MCP tool enhancement, engine seam, or hygiene improvement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Problem & Proposal
+      description: Describe the use case and why it fits Homebase's local-first, zero-egress architecture.
+    validations:
+      required: true
+  - type: textarea
+    id: invariants
+    attributes:
+      label: Governance & Contract Considerations
+      description: Does this affect `MODE-CONTRACT.md`, SQLite concurrency, or `i18n.py` (en, de, es, zh, ja, ru)?
+    validations:
+      required: false
