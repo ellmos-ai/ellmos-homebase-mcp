@@ -1,0 +1,17 @@
+# ellmos-homebase-mcp
+
+> Compact AI discovery entrypoint — full manifest: [llms.txt](llms.txt)
+
+Canonical repository: https://github.com/ellmos-ai/ellmos-homebase-mcp
+Package (npm): https://www.npmjs.com/package/ellmos-homebase-mcp
+License: MIT (`LICENSE`, `NOTICE`, `THIRD_PARTY_LICENSES.md`)
+
+`ellmos-homebase-mcp` is a local-first, zero-egress MCP stdio server exposing 51 tools across 14 modules (`hb_mem_*`, `hb_kb_*`, `hb_state_*`, `hb_garden_*`, `hb_route_*`, `hb_swarm_*`, `hb_api_*`, `hb_test_*`, `hb_conn_*`, `hb_auto_*`, `hb_plug_*`, plus canonical-only read-only `hb_policy_*`, `hb_ticket_*`, `hb_lock_*`).
+
+Key files:
+- `llms.txt`: Full machine-readable repository & tool namespace manifest
+- `server.json`: MCP Registry metadata (`io.github.ellmos-ai/ellmos-homebase-mcp`)
+- `glama.json`: Glama MCP directory metadata
+- `MODE-CONTRACT.md`: Binding fail-closed contract for `canonical` vs. `bundled` engine modes
+- `SECURITY.md`: Coordinated vulnerability disclosure & zero-egress invariants
+- `CONTRIBUTING.md` / `CODE_OF_CONDUCT.md`: Contributor workflow and community standards

@@ -37,6 +37,12 @@ jobs:
       - name: Install package with test dependencies
         run: python -m pip install -e ".[dev]" ruff
 
+      - name: Verify dependency consistency
+        run: python -m pip check
+
+      - name: Check whitespace and conflict markers
+        run: git diff --check
+
       - name: Lint Python sources
         run: ruff check .
 
