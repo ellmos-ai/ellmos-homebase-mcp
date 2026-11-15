@@ -4,6 +4,9 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### CI: Version-Neutral Workflow Contract Tests - 2026-11-15
+- `tests/test_metadata.py` now accepts any major version of `actions/stale` and `actions/github-script` instead of the literal `@v9` / `@v7`, so Dependabot bumps of these actions no longer fail the contract tests. The `actions/first-interaction@v3` pin stays, because its input names are version-specific.
+
 ### Repository Hygiene, CI Hardening, Community Health & Contract Test Expansion (Pfad A) - 2026-11-14
 - **Strict Version-Freeze Discipline (T-20260920-167562623)**:
   - Version `0.1.0-alpha.29` (`0.1.0a29` in `pyproject.toml`) strictly preserved unchanged. All changes recorded under `## [Unreleased]`.
