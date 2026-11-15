@@ -4,6 +4,10 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Compatibility: MCP Python SDK 2.x - 2026-11-15
+- `src/homebase/server.py` now builds the low-level server for the installed SDK generation: decorator registration on SDK 1.x, constructor handlers (`on_list_tools`, `on_call_tool`, `get_tool_input_schema`) on SDK 2.x, which removed `Server.list_tools()` / `Server.call_tool()`. Tool failures stay error results on both generations.
+- Dependency range widened to `mcp>=1.0.0,<3.0.0`; `tests/test_server_transport.py` dispatches through the handler of the installed SDK and covers the error-result and `tools/list` paths (241 passed on `mcp` 1.30.0 and 2.3.0).
+
 ### CI: Version-Neutral Workflow Contract Tests - 2026-11-15
 - `tests/test_metadata.py` now accepts any major version of `actions/stale` and `actions/github-script` instead of the literal `@v9` / `@v7`, so Dependabot bumps of these actions no longer fail the contract tests. The `actions/first-interaction@v3` pin stays, because its input names are version-specific.
 

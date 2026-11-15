@@ -19,7 +19,7 @@ from homebase.registry import ModuleRegistry
 
 logger = logging.getLogger("homebase")
 
-app = Server("ellmos-homebase")
+_SERVER_NAME = "ellmos-homebase"
 _registry: ModuleRegistry | None = None
 
 
@@ -32,15 +32,57 @@ def get_registry() -> ModuleRegistry:
     return _registry
 
 
-@app.list_tools()
 async def list_tools() -> list[types.Tool]:
     return get_registry().list_tools()
 
 
-@app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
     result = await get_registry().call_tool(name, arguments)
     return [types.TextContent(type="text", text=json.dumps(result, ensure_ascii=False))]
+
+
+def _tool_input_schema(name: str) -> dict | None:
+    for tool in get_registry().list_tools():
+        if tool.name == name:
+            return getattr(tool, "inputSchema", None) or getattr(tool, "input_schema", None)
+    return None
+
+
+def _build_app() -> Server:
+    """Create the low-level server for the installed MCP SDK generation.
+
+    SDK 1.x registers handlers through decorators. SDK 2.x removed them and
+    takes the handlers as constructor arguments instead.
+    """
+    if hasattr(Server, "list_tools"):
+        server = Server(_SERVER_NAME)
+        server.list_tools()(list_tools)
+        server.call_tool()(call_tool)
+        return server
+
+    async def on_list_tools(_ctx, _params) -> types.ListToolsResult:
+        return types.ListToolsResult(tools=await list_tools())
+
+    async def on_call_tool(_ctx, params) -> types.CallToolResult:
+        try:
+            content = await call_tool(params.name, params.arguments or {})
+        except Exception as exc:  # mirror SDK 1.x: tool failures become error results
+            logger.exception("Tool call failed: %s", params.name)
+            return types.CallToolResult(
+                content=[types.TextContent(type="text", text=str(exc))],
+                is_error=True,
+            )
+        return types.CallToolResult(content=content, is_error=False)
+
+    return Server(
+        _SERVER_NAME,
+        get_tool_input_schema=_tool_input_schema,
+        on_list_tools=on_list_tools,
+        on_call_tool=on_call_tool,
+    )
+
+
+app = _build_app()
 
 
 async def serve():
