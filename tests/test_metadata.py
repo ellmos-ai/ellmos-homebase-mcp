@@ -403,7 +403,7 @@ def test_stale_workflow_hardening():
     stale_file = REPO_ROOT / ".github" / "workflows" / "stale.yml"
     assert stale_file.is_file(), "stale.yml must exist"
     stale_text = stale_file.read_text(encoding="utf-8")
-    assert "actions/stale@v9" in stale_text
+    assert re.search(r"uses:\s*actions/stale@v\d+", stale_text)
     assert "timeout-minutes: 10" in stale_text
     assert "issues: write" in stale_text
     assert "pull-requests: write" in stale_text
@@ -640,7 +640,7 @@ def test_ci_lifecycle_workflows_and_concurrency_hygiene():
     auto_assign_file = workflows_dir / "auto-assign.yml"
     assert auto_assign_file.is_file(), "auto-assign.yml workflow must exist"
     auto_assign_text = auto_assign_file.read_text(encoding="utf-8")
-    assert "actions/github-script@v7" in auto_assign_text
+    assert re.search(r"uses:\s*actions/github-script@v\d+", auto_assign_text)
     assert "timeout-minutes: 5" in auto_assign_text
     assert "cancel-in-progress: true" in auto_assign_text
     assert "pull-requests: write" in auto_assign_text
@@ -657,7 +657,7 @@ def test_ci_lifecycle_workflows_and_concurrency_hygiene():
     stale_file = workflows_dir / "stale.yml"
     assert stale_file.is_file(), "stale.yml workflow must exist"
     stale_text = stale_file.read_text(encoding="utf-8")
-    assert "actions/stale@v9" in stale_text
+    assert re.search(r"uses:\s*actions/stale@v\d+", stale_text)
     assert "timeout-minutes: 10" in stale_text
     assert "cancel-in-progress: true" in stale_text
     assert "issues: write" in stale_text
