@@ -64,6 +64,49 @@ async def test_call_tool_failure_becomes_error_result(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_call_tool_rejects_arguments_violating_input_schema(monkeypatch):
+    calls: list[dict] = []
+
+    class _SchemaRegistry(_FakeRegistry):
+        def list_tools(self) -> list:
+            return [
+                types.Tool(
+                    name="hb_mem_store",
+                    description="store",
+                    **{
+                        "inputSchema" if _SDK_V1 else "input_schema": {
+                            "type": "object",
+                            "properties": {"content": {"type": "string"}},
+                            "required": ["content"],
+                        }
+                    },
+                )
+            ]
+
+        async def call_tool(self, name: str, arguments: dict) -> dict:
+            calls.append(arguments)
+            return {"status": "ok"}
+
+    monkeypatch.setattr(server, "get_registry", lambda: _SchemaRegistry())
+    if _SDK_V1:
+        # SDK 1.x validates against its cached tools/list result.
+        request = types.ListToolsRequest(method="tools/list")
+        await server.app.request_handlers[types.ListToolsRequest](request)
+
+    content, is_error = await _dispatch_call_tool("hb_mem_store", {})
+
+    assert is_error is True
+    assert content[0].text == "Input validation error: 'content' is a required property"
+    assert calls == []
+
+
+def test_server_reports_package_version():
+    from homebase import __version__
+
+    assert server.app.version == __version__
+
+
+@pytest.mark.asyncio
 async def test_list_tools_handler_is_registered(monkeypatch):
     monkeypatch.setattr(server, "get_registry", lambda: _FakeRegistry())
 

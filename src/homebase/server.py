@@ -13,6 +13,7 @@ import mcp.types as types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
+from homebase import __version__
 from homebase.config import load_config
 from homebase.engines import engine_summary
 from homebase.registry import ModuleRegistry
@@ -55,7 +56,7 @@ def _build_app() -> Server:
     takes the handlers as constructor arguments instead.
     """
     if hasattr(Server, "list_tools"):
-        server = Server(_SERVER_NAME)
+        server = Server(_SERVER_NAME, version=__version__)
         server.list_tools()(list_tools)
         server.call_tool()(call_tool)
         return server
@@ -63,19 +64,34 @@ def _build_app() -> Server:
     async def on_list_tools(_ctx, _params) -> types.ListToolsResult:
         return types.ListToolsResult(tools=await list_tools())
 
+    import jsonschema  # dependency of the MCP SDK itself
+
+    def _error(text: str) -> types.CallToolResult:
+        return types.CallToolResult(
+            content=[types.TextContent(type="text", text=text)],
+            is_error=True,
+        )
+
     async def on_call_tool(_ctx, params) -> types.CallToolResult:
+        arguments = params.arguments or {}
+        # SDK 1.x validated arguments in the call_tool() decorator. SDK 2.x only
+        # consults get_tool_input_schema for HTTP headers, never over stdio.
+        schema = _tool_input_schema(params.name)
+        if schema is not None:
+            try:
+                jsonschema.validate(instance=arguments, schema=schema)
+            except jsonschema.ValidationError as exc:
+                return _error(f"Input validation error: {exc.message}")
         try:
-            content = await call_tool(params.name, params.arguments or {})
+            content = await call_tool(params.name, arguments)
         except Exception as exc:  # mirror SDK 1.x: tool failures become error results
             logger.exception("Tool call failed: %s", params.name)
-            return types.CallToolResult(
-                content=[types.TextContent(type="text", text=str(exc))],
-                is_error=True,
-            )
+            return _error(str(exc))
         return types.CallToolResult(content=content, is_error=False)
 
     return Server(
         _SERVER_NAME,
+        version=__version__,
         get_tool_input_schema=_tool_input_schema,
         on_list_tools=on_list_tools,
         on_call_tool=on_call_tool,
