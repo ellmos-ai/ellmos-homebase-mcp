@@ -21,10 +21,9 @@
 
 If you discover a security issue, unintended network exposure, credential leak, or isolation bypass within `ellmos-homebase-mcp`, please report it privately:
 
-- **Security Email**: `security@ellmos.ai`
-- **Secondary Contact**: `security@open-bricks.org` / `support@lukasgeiger.com` / `lukas@open-bricks.org`
+- **Supported channel**: GitHub private vulnerability reporting at [Report a vulnerability](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories/new). There is currently **no monitored mailbox** for security reports; please do not send reports by e-mail.
 - **GitHub Advisory**: Use GitHub's private vulnerability reporting feature on the repository via [Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
-- **Response SLA**: Initial triage and acknowledgment within **48 hours**. Detailed triage and remediation plan within 5 business days. Confirmed vulnerabilities will be remediated and patched within 30 calendar days. Coordinated security patches are prioritized and released promptly.
+- **Response targets (best effort, maintained by a single maintainer, not a contractual SLA)**: Initial triage and acknowledgment within **48 hours**. Detailed triage and remediation plan within 5 business days. Confirmed vulnerabilities will be remediated and patched within 30 calendar days. Coordinated security patches are prioritized and released promptly.
 
 Please do not disclose security issues publicly before a coordinated fix is available.
 
@@ -53,9 +52,8 @@ Please do not disclose security issues publicly before a coordinated fix is avai
 
 Sollten Sie eine Sicherheitslücke, unerwartete Datenübertragung oder einen Isolationsfehler entdecken, melden Sie diesen bitte vertraulich:
 
-- **Sicherheits-E-Mail**: `security@ellmos.ai`
-- **Sekundärkontakt**: `security@open-bricks.org` / `support@lukasgeiger.com` / `lukas@open-bricks.org`
+- **Unterstützter Kanal**: Private Schwachstellenmeldung bei GitHub unter [Schwachstelle melden](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories/new). Derzeit gibt es **kein überwachtes Postfach** für Sicherheitsmeldungen; bitte keine Meldungen per E-Mail senden.
 - **GitHub Advisory**: Über die private Schwachstellenmeldung unter [Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
-- **Reaktions-SLA**: Erstbewertung und Bestätigung innerhalb von **48 Stunden**. Detaillierte Einstufung und Behebungszeitplan innerhalb von 5 Werktagen. Bestätigte Sicherheitslücken werden innerhalb von 30 Kalendertagen behoben und als Patch bereitgestellt. Sicherheitsrelevante Patches werden prioritär bereitgestellt.
+- **Reaktionsziele (nach bestem Bemühen, von einem einzelnen Maintainer, keine vertragliche Zusage)**: Erstbewertung und Bestätigung innerhalb von **48 Stunden**. Detaillierte Einstufung und Behebungszeitplan innerhalb von 5 Werktagen. Bestätigte Sicherheitslücken werden innerhalb von 30 Kalendertagen behoben und als Patch bereitgestellt. Sicherheitsrelevante Patches werden prioritär bereitgestellt.
 
 Bitte veröffentlichen Sie Sicherheitsmeldungen nicht vor der Bereitstellung eines abgestimmten Fixes.
