@@ -653,6 +653,8 @@ def test_ci_lifecycle_workflows_and_concurrency_hygiene():
     assert "cancel-in-progress: true" in label_sync_text
     assert "config-file: .github/labels.yml" in label_sync_text
     assert "issues: write" in label_sync_text
+    assert "contents: read" in label_sync_text
+    assert re.search(r"uses:\s*actions/checkout@", label_sync_text), "label-sync needs a checkout for its local config-file"
 
     stale_file = workflows_dir / "stale.yml"
     assert stale_file.is_file(), "stale.yml workflow must exist"
@@ -684,6 +686,16 @@ def test_canonical_labels_and_governance_parity():
     ]
     for label in expected_labels:
         assert f"name: {label}" in labels_text or f"name: '{label}'" in labels_text, f"Missing label {label} in labels.yml"
+
+
+def test_dependabot_labels_are_declared_in_labels_yml():
+    labels_text = (REPO_ROOT / ".github" / "labels.yml").read_text(encoding="utf-8")
+    declared = set(re.findall(r"^- name:\s*'?([^'\n]+?)'?\s*$", labels_text, flags=re.MULTILINE))
+    dependabot_text = (REPO_ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+    used = set(re.findall(r"^\s+-\s*\"([^\"]+)\"\s*$", dependabot_text, flags=re.MULTILINE))
+    assert used, "dependabot.yml should declare labels"
+    missing = used - declared
+    assert not missing, f"Labels used by dependabot.yml but missing in labels.yml: {sorted(missing)}"
 
 
 def test_multi_host_sync_and_canonical_lock_gitignore_guards():
