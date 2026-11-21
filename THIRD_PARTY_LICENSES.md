@@ -28,7 +28,7 @@ The Python package metadata explicitly declares license files in `pyproject.toml
 | Package | Version checked | License | Use & Role |
 |---|---:|---|---|
 | `update-notifier` | ^7.3.1 | BSD-2-Clause | Non-intrusive interactive CLI update notification for Node wrapper |
-| `mcp` | >=1.0.0 | MIT | Model Context Protocol Python SDK (stdio protocol transport and types) |
+| `mcp` | >=1.10.0,<3.0.0 | MIT | Model Context Protocol Python SDK (stdio protocol transport and types) |
 | `tomli` | >=2.0 | MIT | TOML parser for Python < 3.11 (Python standard library `tomllib` used for 3.11+) |
 
 The npm package does not vendor Node dependencies; they are resolved and installed by npm from their respective registry entries. Python dependencies are declared in `pyproject.toml` and resolved via pip.

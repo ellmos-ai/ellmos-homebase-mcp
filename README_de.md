@@ -376,7 +376,7 @@ Homebase bietet einen umfassenden, lokal-zentrierten Funktionsumfang im direkten
 <a id="sec-09"></a><a id="installation"></a>
 ## Installation
 
-Das npm-Paket enthält einen Node-Wrapper, der den Python-Server startet. Erforderlich sind Python 3.10+ und das Python-Paket `mcp>=1.0.0`.
+Das npm-Paket enthält einen Node-Wrapper, der den Python-Server startet. Erforderlich sind Python 3.10+ und das Python-Paket `mcp>=1.10.0`.
 
 ### Option 1: Installation über npm
 

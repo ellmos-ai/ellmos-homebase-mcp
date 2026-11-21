@@ -27,7 +27,7 @@ Copyright (c) 2026 Lukas Geiger, ellmos-ai family under open-bricks umbrella.
 | Package | Ecosystem | Version / Range | License | Role & Purpose |
 |---|---|---:|---|---|
 | Python Standard Library | Python | >=3.10 | PSFL-2.0 | Core SQLite WAL persistence, stdio transport, json, asyncio |
-| mcp | Python / PyPI | >=1.0.0 | MIT | Model Context Protocol SDK protocol transport & types |
+| mcp | Python / PyPI | >=1.10.0,<3.0.0 | MIT | Model Context Protocol SDK protocol transport & types |
 | tomli | Python / PyPI | >=2.0 | MIT | TOML parser for Python < 3.11 compatibility |
 | update-notifier | Node / npm | ^7.3.1 | BSD-2-Clause | Non-intrusive interactive CLI update notification |
 
