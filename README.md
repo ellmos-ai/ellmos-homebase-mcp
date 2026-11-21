@@ -381,7 +381,7 @@ Homebase provides a uniquely comprehensive, local-first MCP capability stack com
 <a id="sec-09"></a><a id="install"></a>
 ## Install
 
-The npm package contains a Node wrapper that starts the Python server. You still need Python 3.10+ and the Python package `mcp>=1.0.0`.
+The npm package contains a Node wrapper that starts the Python server. You still need Python 3.10+ and the Python package `mcp>=1.10.0`.
 
 ### Option 1: Install From npm
 

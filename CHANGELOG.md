@@ -4,6 +4,13 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Compatibility: MCP Python SDK 2.x - 2026-11-15
+- `src/homebase/server.py` now builds the low-level server for the installed SDK generation: decorator registration on SDK 1.x, constructor handlers (`on_list_tools`, `on_call_tool`, `get_tool_input_schema`) on SDK 2.x, which removed `Server.list_tools()` / `Server.call_tool()`. Tool failures stay error results on both generations.
+- On SDK 2.x the server validates `tools/call` arguments against the tool's `inputSchema` itself, because that SDK no longer does so over stdio; a violation returns the same `Input validation error: …` result as on 1.x and never reaches module code.
+- `serverInfo.version` now reports the package version on both generations (1.x reported the SDK version, 2.x an empty string).
+- Dependency range is now `mcp>=1.10.0,<3.0.0`. The lower bound moved from 1.0.0 because SDK 1.0/1.1 do not accept `Server(name, version=…)` and SDK 1.2–1.9 do not validate `tools/call` arguments; the "same result as on 1.x" statement above holds from 1.10.0. `README.md`, `README_de.md`, `bin/ellmos-homebase.js` and both `THIRD_PARTY_LICENSES` files state the same bound.
+- `tests/test_server_transport.py` dispatches through the handler of the installed SDK and covers the error-result and `tools/list` paths (243 passed on `mcp` 1.30.0 and 2.3.0).
+
 ### CI: Version-Neutral Workflow Contract Tests - 2026-11-15
 - `tests/test_metadata.py` now accepts any major version of `actions/stale` and `actions/github-script` instead of the literal `@v9` / `@v7`, so Dependabot bumps of these actions no longer fail the contract tests. The `actions/first-interaction@v3` pin stays, because its input names are version-specific.
 
