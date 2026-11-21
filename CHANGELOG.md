@@ -4,6 +4,11 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### CI: Dependabot-Labels & Label-Sync - 2026-11-21
+- `.github/labels.yml` deklariert jetzt die von `.github/dependabot.yml` verwendeten Labels `dependencies`, `python`, `javascript` und `ci`. Dependabot meldete auf seinen PRs, dass `ci`/`dependencies` fehlen, und konnte sie nicht labeln.
+- `label-sync.yml` checkt das Repository vor `EndBug/label-sync` aus (`contents: read`, `persist-credentials: false`), weil `config-file` ein lokaler Pfad ist.
+- Vertragstest `test_dependabot_labels_are_declared_in_labels_yml` verhindert, dass beide Dateien wieder auseinanderlaufen.
+
 ### Compatibility: MCP Python SDK 2.x - 2026-11-15
 - `src/homebase/server.py` now builds the low-level server for the installed SDK generation: decorator registration on SDK 1.x, constructor handlers (`on_list_tools`, `on_call_tool`, `get_tool_input_schema`) on SDK 2.x, which removed `Server.list_tools()` / `Server.call_tool()`. Tool failures stay error results on both generations.
 - On SDK 2.x the server validates `tools/call` arguments against the tool's `inputSchema` itself, because that SDK no longer does so over stdio; a violation returns the same `Input validation error: …` result as on 1.x and never reaches module code.
