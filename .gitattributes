@@ -1,0 +1,8 @@
+# Normalize line endings to LF in the repository; avoids phantom diffs across Windows/macOS/Linux checkouts.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
