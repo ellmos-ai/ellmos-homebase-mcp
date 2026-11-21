@@ -24,7 +24,7 @@ Englisches README: [README.md](README.md)
 [![Storage](https://img.shields.io/badge/storage-SQLite%20(WAL)-blueviolet.svg)](https://sqlite.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio%20(51%20Tools)-blueviolet.svg)](https://modelcontextprotocol.io/)
 [![Status: alpha](https://img.shields.io/badge/status-0.1.0--alpha.29-orange.svg)](https://www.npmjs.com/package/ellmos-homebase-mcp)
-[![Tests](https://img.shields.io/badge/tests-239%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-240%20passed%20%7C%20100%25-brightgreen.svg)](tests/)
 [![Security SLA](https://img.shields.io/badge/security-48h%20SLA%20%7C%2030d%20Remediation-blue.svg)](SECURITY.md)
 [![Security: RunAsInvoker](https://img.shields.io/badge/security-RunAsInvoker%20(Non--Elevation)-success.svg)](SECURITY.md)
 [![Level 1 SBOM: Reiner Text](https://img.shields.io/badge/Level%201%20SBOM-Reiner%20Text%20Gepr%C3%BCft-brightgreen.svg)](THIRD_PARTY_LICENSES.txt)
@@ -260,7 +260,7 @@ sequenceDiagram
 | **`INV-I18N-07`** | **Native mehrsprachige Schema-Parität** | Alle 51 Tool-Definitionen, Eingabeschemas und Validierungsfehler besitzen 100% vollständige Lokalisierung in 6 Sprachen (`en`, `de`, `es`, `zh`, `ja`, `ru`). | `tests/test_i18n_completeness.py` |
 | **`INV-PERM-08`** | **Rechte-Nicht-Eskalation & RunAsInvoker** | Homebase läuft strikt im unprivilegierten Benutzerraum. Es benötigt keinerlei Administrator- oder Root-Rechte und ignoriert sensitive Dotfiles und Systemanmeldedaten. | `tests/test_repository_hygiene.py` |
 | **`INV-SYNC-09`** | **Multi-Host Lock- & Konflikt-Disziplin** | Strikter Ausschluss von Konfliktkopien (`*.sync-conflict-*`, `*-conflict-*`) und Beachtung von Multi-Agenten-Sperrmechanismen (`LOCK.*`, `*.lock`). | `tests/test_metadata.py` |
-| **`INV-SLA-10`** | **48h Antwort, 5-Tage-Triage & 30-Tage-Behebung SLA** | Sicherheitsmeldungen an `security@ellmos.ai`, `support@lukasgeiger.com` oder `security@open-bricks.org` erhalten garantierte Erstantwort in <=48h, Triage in 5 Werktagen und Behebung in 30 Tagen. | `SECURITY.md`, `tests/test_metadata.py` |
+| **`INV-SLA-10`** | **48h Antwort, 5-Tage-Triage & 30-Tage-Behebung SLA** | Für Sicherheitsmeldungen über die private Schwachstellenmeldung bei GitHub gelten als Ziel nach bestem Bemühen: Erstantwort in <=48h, Triage in 5 Werktagen und Behebung in 30 Tagen. | `SECURITY.md`, `tests/test_metadata.py` |
 
 ---
 
@@ -581,7 +581,7 @@ Das vollständige Verzeichnis, die Level 1 SBOM Invarianten-Kreuzreferenzmatrix 
 
 - **Unterstützte Versionen**: `0.1.0-alpha.x`
 - **Reaktions-SLA**: Erste Bestätigung und Triage innerhalb von **48 Stunden**. Detaillierte Einstufung binnen 5 Werktagen; Behebung innerhalb von 30 Kalendertagen.
-- **Sicherheitskontakte**: `security@ellmos.ai`, `support@lukasgeiger.com` und `security@open-bricks.org`.
+- **Sicherheitskontakt**: [Private Schwachstellenmeldung bei GitHub](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories/new) (kein überwachtes Postfach).
 - **Sicherheitsmeldungen**: [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories).
 
 ---
@@ -615,7 +615,7 @@ Diese Software wird als Open-Source-Projekt unentgeltlich zur Verfügung gestell
 
 ### Verbindliche Sicherheitsreaktions-SLA
 Für Sicherheitsmeldungen garantiert unsere Richtlinie zur koordinierten Offenlegung eine Erstantwort innerhalb von **48 Stunden** und eine Einstufung innerhalb von 5 Werktagen:
-- Sicherheitskontakt: `security@ellmos.ai` | `support@lukasgeiger.com` | `security@open-bricks.org`
+- Sicherheitskontakt: [Private Schwachstellenmeldung bei GitHub](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories/new)
 - Advisory-Portal: [GitHub Security Advisories](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories)
 - Sicherheitsrichtlinie: [`SECURITY.md`](SECURITY.md)
 

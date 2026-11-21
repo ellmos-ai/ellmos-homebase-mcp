@@ -4,6 +4,11 @@ All notable changes to `ellmos-homebase-mcp` are tracked here.
 
 ## [Unreleased]
 
+### Security Reporting Channel Fix (After-Care) - 2026-11-21
+- `SECURITY.md`, `CODE_OF_CONDUCT.md`, `README.md` and `README_de.md` advertised `security@ellmos.ai`, `security@open-bricks.org`, `lukas@open-bricks.org` and `support@lukasgeiger.com`. `ellmos.ai` and `open-bricks.org` do not resolve and `lukasgeiger.com` has no mail exchanger, so reports sent there were never delivered. The supported channel is now GitHub private vulnerability reporting, which is enabled on this repository; the response times are described as best-effort targets, not an SLA.
+- Contract tests in `tests/test_metadata.py` previously *required* the dead addresses; they now require the advisory link, and `test_no_undeliverable_security_contacts_20261121` forbids the dead addresses in the public documents.
+- Version `0.1.0-alpha.29` unchanged (version freeze). npm shows the previous `SECURITY.md` until the next publish.
+
 ### CI: Version-Neutral Workflow Contract Tests - 2026-11-15
 - `tests/test_metadata.py` now accepts any major version of `actions/stale` and `actions/github-script` instead of the literal `@v9` / `@v7`, so Dependabot bumps of these actions no longer fail the contract tests. The `actions/first-interaction@v3` pin stays, because its input names are version-specific.
 

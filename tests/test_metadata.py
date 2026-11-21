@@ -63,7 +63,7 @@ def test_security_policy_and_manifest_hygiene():
     assert "Security Policy" in content
     assert "Sicherheitsrichtlinie" in content
     assert "Local-First" in content or "local-first" in content
-    assert "security@ellmos.ai" in content
+    assert "security/advisories/new" in content
     assert "Reporting a Vulnerability" in content
 
     package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
@@ -208,8 +208,7 @@ def test_security_policy_sla_and_reporting_contracts():
     assert "48 Stunden" in content
     assert "30 calendar days" in content
     assert "30 Kalendertagen" in content
-    assert "support@lukasgeiger.com" in content
-    assert "security@ellmos.ai" in content
+    assert "security/advisories/new" in content
     assert "Security Advisories" in content
     assert "0.1.0-alpha.x" in content
 
@@ -324,7 +323,7 @@ def test_security_policy_umbrella_contact_and_triage():
     assert security_file.is_file(), "SECURITY.md must exist"
     content = security_file.read_text(encoding="utf-8")
 
-    assert "security@open-bricks.org" in content
+    assert "security/advisories/new" in content
     assert "5 business days" in content
     assert "5 Werktagen" in content
 
@@ -843,8 +842,8 @@ def test_strict_version_freeze_preserved_t20260920():
 def test_readme_and_readme_de_test_count_badge_currency():
     readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     readme_de = (REPO_ROOT / "README_de.md").read_text(encoding="utf-8")
-    assert "tests-239%20passed" in readme_en, "README.md must reflect 239 passed tests"
-    assert "tests-239%20passed" in readme_de, "README_de.md must reflect 239 passed tests"
+    assert "tests-240%20passed" in readme_en, "README.md must reflect 240 passed tests"
+    assert "tests-240%20passed" in readme_de, "README_de.md must reflect 240 passed tests"
     assert "Last--Checked-2026--11--14" in readme_en
     assert "Last--Checked-2026--11--14" in readme_de
 
@@ -927,7 +926,7 @@ def test_community_health_and_llm_companions_20261114():
     contrib = (REPO_ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
     llm_compact = (REPO_ROOT / "llm.txt").read_text(encoding="utf-8")
 
-    assert "Contributor Covenant" in coc and "security@ellmos.ai" in coc
+    assert "Contributor Covenant" in coc and "security/advisories/new" in coc
     assert "MODE-CONTRACT.md" in contrib and "pytest" in contrib
     assert "llms.txt" in llm_compact and "51 tools" in llm_compact
 
@@ -941,3 +940,19 @@ def test_changelog_and_llms_txt_pfad_a_records_currency_20261114():
     llms_text = (REPO_ROOT / "llms.txt").read_text(encoding="utf-8")
     assert "239+ passed tests" in llms_text
     assert "Pfad A: 2026-11-14" in llms_text
+
+
+def test_no_undeliverable_security_contacts_20261121():
+    """Security/conduct reports must go through a channel that exists.
+
+    `ellmos.ai` and `open-bricks.org` do not resolve and `lukasgeiger.com` has no mail
+    exchanger (measured 2026-10-23 / 2026-11-21), so every report sent to those addresses
+    was silently lost. The supported channel is GitHub private vulnerability reporting.
+    """
+    dead = ("security@ellmos.ai", "security@open-bricks.org", "lukas@open-bricks.org", "support@lukasgeiger.com")
+    for name in ("SECURITY.md", "CODE_OF_CONDUCT.md", "README.md", "README_de.md", "llms.txt", "llm.txt"):
+        text = (REPO_ROOT / name).read_text(encoding="utf-8")
+        for address in dead:
+            assert address not in text, f"{name} still advertises the undeliverable address {address}"
+    security = (REPO_ROOT / "SECURITY.md").read_text(encoding="utf-8")
+    assert "security/advisories/new" in security

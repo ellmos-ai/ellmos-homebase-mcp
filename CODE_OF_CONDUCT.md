@@ -34,7 +34,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project team responsible for enforcement at `security@ellmos.ai` or `support@lukasgeiger.com`. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported privately to the maintainers through [GitHub private vulnerability reporting](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories/new) (there is currently no monitored mailbox). All complaints will be reviewed and investigated promptly and fairly.
 
 ## Attribution
 
@@ -44,4 +44,4 @@ This Code of Conduct is adapted from the [Contributor Covenant](https://www.cont
 
 ## Verhaltenskodex (Deutsche Kurzfassung)
 
-Wir verpflichten uns zu einem respektvollen, offenen und belästigungsfreien Miteinander für alle Beitragenden und Nutzenden von `ellmos-homebase-mcp`. Konstruktives Feedback, Verlässlichkeit bei Sicherheits- und Fail-Closed-Invarianten sowie ein wertschätzender Umgangston stehen im Mittelpunkt. Verstöße können vertraulich an `security@ellmos.ai` oder `support@lukasgeiger.com` gemeldet werden.
+Wir verpflichten uns zu einem respektvollen, offenen und belästigungsfreien Miteinander für alle Beitragenden und Nutzenden von `ellmos-homebase-mcp`. Konstruktives Feedback, Verlässlichkeit bei Sicherheits- und Fail-Closed-Invarianten sowie ein wertschätzender Umgangston stehen im Mittelpunkt. Verstöße können vertraulich über die [private Meldung bei GitHub](https://github.com/ellmos-ai/ellmos-homebase-mcp/security/advisories/new) gemeldet werden (derzeit gibt es kein überwachtes Postfach).
