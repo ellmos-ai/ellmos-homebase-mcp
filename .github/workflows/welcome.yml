@@ -11,11 +11,14 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: welcome-${{ github.ref }}
+  # pull_request_target/issues: github.ref is always the default branch, so key
+  # by PR/issue number or simultaneously opened PRs cancel each other.
+  group: welcome-${{ github.event.pull_request.number || github.event.issue.number }}
   cancel-in-progress: true
 
 jobs:
   welcome:
+    if: github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

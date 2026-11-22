@@ -645,6 +645,12 @@ def test_ci_lifecycle_workflows_and_concurrency_hygiene():
     assert "cancel-in-progress: true" in auto_assign_text
     assert "pull-requests: write" in auto_assign_text
 
+    # pull_request_target runs share github.ref (the base branch); keying the
+    # concurrency group on it makes simultaneously opened PRs cancel each other.
+    for text in (welcome_text, auto_assign_text):
+        assert re.search(r"group:.*github\.event\.pull_request\.number", text)
+        assert not re.search(r"group:.*github\.ref\b", text)
+
     label_sync_file = workflows_dir / "label-sync.yml"
     assert label_sync_file.is_file(), "label-sync.yml workflow must exist"
     label_sync_text = label_sync_file.read_text(encoding="utf-8")
